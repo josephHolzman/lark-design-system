@@ -1,0 +1,11 @@
+{
+  "codeConnect": {
+    "parser": "react",
+    "include": ["src/components/**/*.figma.tsx"],
+    "importPaths": {
+      "src/components/ui/*": "@deepgrids/lark/ui",
+      "src/components/lark/*": "@deepgrids/lark",
+      "src/components/ai-elements/*": "@deepgrids/lark/ai"
+    }
+  }
+}

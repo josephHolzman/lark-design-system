@@ -1,0 +1,35 @@
+name: Release @josephholzman/lark
+
+# Publishes @josephholzman/lark to GitHub Packages when a tag like lark-v0.4.0 is pushed.
+# The tag must match packages/lark/package.json. After the first publish, check the package is
+# private in its settings and grant each app repo Actions access. Apps install it under the alias @deepgrids/lark
+# (see packages/lark/README.md), so moving it to a Deepgrids org later changes no imports.
+on:
+  push:
+    tags: ["lark-v*"]
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: "@josephholzman"
+      - run: npm ci
+      - name: Check the tag matches the package version
+        run: |
+          v=$(node -p "require('./packages/lark/package.json').version")
+          test "lark-v$v" = "${GITHUB_REF_NAME}" || (echo "Tag ${GITHUB_REF_NAME} != lark-v$v" && exit 1)
+      - run: npm run verify
+      - run: npm publish ./packages/lark
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

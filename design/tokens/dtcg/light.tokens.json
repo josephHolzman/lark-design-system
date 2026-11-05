@@ -1,0 +1,455 @@
+{
+  "color": {
+    "canvas": {
+      "$type": "color",
+      "$value": "{color.sand.sand-50}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#FBF6EC"
+        }
+      }
+    },
+    "surface": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "surface-container-lowest": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "surface-container-low": {
+      "$type": "color",
+      "$value": "{color.paper.paper-04}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#FBFAF8"
+        }
+      }
+    },
+    "surface-container": {
+      "$type": "color",
+      "$value": "{color.paper.paper-08}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F5F4F2"
+        }
+      }
+    },
+    "surface-container-high": {
+      "$type": "color",
+      "$value": "{color.paper.paper-10}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F1EEEB"
+        }
+      }
+    },
+    "surface-container-highest": {
+      "$type": "color",
+      "$value": "{color.paper.paper-15}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#ECE9E5"
+        }
+      }
+    },
+    "on-surface": {
+      "$type": "color",
+      "$value": "{color.paper.paper-94}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#1E1B18"
+        }
+      }
+    },
+    "on-surface-variant": {
+      "$type": "color",
+      "$value": "{color.paper.paper-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#595147"
+        }
+      }
+    },
+    "on-surface-tertiary": {
+      "$type": "color",
+      "$value": "{color.paper.paper-60}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#6D665D"
+        }
+      }
+    },
+    "outline": {
+      "$type": "color",
+      "$value": "{color.paper.paper-55}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#87817A"
+        }
+      }
+    },
+    "outline-strong": {
+      "$type": "color",
+      "$value": "#1e1b181f",
+      "$description": "Literal value"
+    },
+    "outline-variant": {
+      "$type": "color",
+      "$value": "#1e1b1814",
+      "$description": "Literal value"
+    },
+    "outline-faint": {
+      "$type": "color",
+      "$value": "#1e1b180a",
+      "$description": "Literal value"
+    },
+    "brand": {
+      "$type": "color",
+      "$value": "{color.sky.sky-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#AFD2F2"
+        }
+      }
+    },
+    "brand-hover": {
+      "$type": "color",
+      "$value": "{color.sky.sky-400}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#93BCE6"
+        }
+      }
+    },
+    "brand-pressed": {
+      "$type": "color",
+      "$value": "{color.sky.sky-500}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#6790C4"
+        }
+      }
+    },
+    "on-brand": {
+      "$type": "color",
+      "$value": "{color.paper.paper-94}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#1E1B18"
+        }
+      }
+    },
+    "primary": {
+      "$type": "color",
+      "$value": "{color.sky.sky-650}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#416AA2"
+        }
+      }
+    },
+    "on-primary": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "primary-container": {
+      "$type": "color",
+      "$value": "{color.sky.sky-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#E3F1FD"
+        }
+      }
+    },
+    "on-primary-container": {
+      "$type": "color",
+      "$value": "{color.sky.sky-900}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#1A3051"
+        }
+      }
+    },
+    "secondary-container": {
+      "$type": "color",
+      "$value": "{color.sand.sand-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F7EEDA"
+        }
+      }
+    },
+    "on-secondary-container": {
+      "$type": "color",
+      "$value": "{color.sand.sand-800}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#5D3C29"
+        }
+      }
+    },
+    "selected-strong": {
+      "$type": "color",
+      "$value": "{color.sand.sand-200}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#EFDEBB"
+        }
+      }
+    },
+    "selected-border": {
+      "$type": "color",
+      "$value": "{color.sand.sand-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#E6CA96"
+        }
+      }
+    },
+    "tertiary": {
+      "$type": "color",
+      "$value": "{color.iris.iris-60}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#603fab"
+        }
+      }
+    },
+    "on-tertiary": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "tertiary-container": {
+      "$type": "color",
+      "$value": "{color.iris.iris-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#e4dcf9"
+        }
+      }
+    },
+    "on-tertiary-container": {
+      "$type": "color",
+      "$value": "{color.iris.iris-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#3f2b73"
+        }
+      }
+    },
+    "ai-border": {
+      "$type": "color",
+      "$value": "{color.iris.iris-40}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#9d84dc"
+        }
+      }
+    },
+    "error": {
+      "$type": "color",
+      "$value": "{color.rust.rust-60}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#9e3225"
+        }
+      }
+    },
+    "on-error": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "error-container": {
+      "$type": "color",
+      "$value": "{color.rust.rust-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#fedbd7"
+        }
+      }
+    },
+    "on-error-container": {
+      "$type": "color",
+      "$value": "{color.rust.rust-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#6a2419"
+        }
+      }
+    },
+    "success": {
+      "$type": "color",
+      "$value": "{color.evergreen.evergreen-60}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#396039"
+        }
+      }
+    },
+    "on-success": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "success-container": {
+      "$type": "color",
+      "$value": "{color.evergreen.evergreen-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#d8e8da"
+        }
+      }
+    },
+    "on-success-container": {
+      "$type": "color",
+      "$value": "{color.evergreen.evergreen-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#274427"
+        }
+      }
+    },
+    "warning": {
+      "$type": "color",
+      "$value": "{color.ember.ember-60}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#884411"
+        }
+      }
+    },
+    "on-warning": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "warning-container": {
+      "$type": "color",
+      "$value": "{color.ember.ember-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#f3e2d3"
+        }
+      }
+    },
+    "on-warning-container": {
+      "$type": "color",
+      "$value": "{color.ember.ember-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#602f0c"
+        }
+      }
+    },
+    "tag-teal": {
+      "$type": "color",
+      "$value": "{color.tropic.tropic-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#d3e7e9"
+        }
+      }
+    },
+    "on-tag-teal": {
+      "$type": "color",
+      "$value": "{color.tropic.tropic-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#294343"
+        }
+      }
+    },
+    "tag-pink": {
+      "$type": "color",
+      "$value": "{color.sakura.sakura-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#f6daf5"
+        }
+      }
+    },
+    "on-tag-pink": {
+      "$type": "color",
+      "$value": "{color.sakura.sakura-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#5f235b"
+        }
+      }
+    },
+    "tag-olive": {
+      "$type": "color",
+      "$value": "{color.olive.olive-20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#dee5d1"
+        }
+      }
+    },
+    "on-tag-olive": {
+      "$type": "color",
+      "$value": "{color.olive.olive-70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#384224"
+        }
+      }
+    },
+    "inverse-surface": {
+      "$type": "color",
+      "$value": "{color.paper.paper-90}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#332D27"
+        }
+      }
+    },
+    "inverse-on-surface": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Literal value"
+    },
+    "inverse-primary": {
+      "$type": "color",
+      "$value": "{color.sky.sky-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#AFD2F2"
+        }
+      }
+    },
+    "scrim": {
+      "$type": "color",
+      "$value": "{color.paper.paper-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#141210"
+        }
+      }
+    },
+    "terminal": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-200}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#0A0F15"
+        }
+      }
+    },
+    "on-terminal": {
+      "$type": "color",
+      "$value": "{color.stone.stone-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F3EFE6"
+        }
+      }
+    }
+  }
+}

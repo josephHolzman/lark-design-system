@@ -1,0 +1,483 @@
+{
+  "color": {
+    "canvas": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "surface": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-200}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#0A0F15"
+        }
+      }
+    },
+    "surface-container-lowest": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "surface-container-low": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#0F141B"
+        }
+      }
+    },
+    "surface-container": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-400}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#141920"
+        }
+      }
+    },
+    "surface-container-high": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-500}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#1C2128"
+        }
+      }
+    },
+    "surface-container-highest": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-600}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#242931"
+        }
+      }
+    },
+    "on-surface": {
+      "$type": "color",
+      "$value": "{color.stone.stone-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F3EFE6"
+        }
+      }
+    },
+    "on-surface-variant": {
+      "$type": "color",
+      "$value": "{color.stone.stone-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#D4CDC2"
+        }
+      }
+    },
+    "on-surface-tertiary": {
+      "$type": "color",
+      "$value": "{color.stone.stone-400}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#BFB6AA"
+        }
+      }
+    },
+    "outline": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-800}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#808790"
+        }
+      }
+    },
+    "outline-strong": {
+      "$type": "color",
+      "$value": "#e9eef729",
+      "$description": "Literal value"
+    },
+    "outline-variant": {
+      "$type": "color",
+      "$value": "#e9eef71a",
+      "$description": "Literal value"
+    },
+    "outline-faint": {
+      "$type": "color",
+      "$value": "#e9eef70f",
+      "$description": "Literal value"
+    },
+    "brand": {
+      "$type": "color",
+      "$value": "{color.sky.sky-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#AFD2F2"
+        }
+      }
+    },
+    "brand-hover": {
+      "$type": "color",
+      "$value": "{color.sky.sky-200}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#CAE3F9"
+        }
+      }
+    },
+    "brand-pressed": {
+      "$type": "color",
+      "$value": "{color.sky.sky-400}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#93BCE6"
+        }
+      }
+    },
+    "on-brand": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "primary": {
+      "$type": "color",
+      "$value": "{color.sky.sky-300}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#AFD2F2"
+        }
+      }
+    },
+    "on-primary": {
+      "$type": "color",
+      "$value": "{color.sky.sky-950}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#0D1D34"
+        }
+      }
+    },
+    "primary-container": {
+      "$type": "color",
+      "$value": "{color.sky.sky-800}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#29456F"
+        }
+      }
+    },
+    "on-primary-container": {
+      "$type": "color",
+      "$value": "{color.sky.sky-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#E3F1FD"
+        }
+      }
+    },
+    "secondary-container": {
+      "$type": "color",
+      "$value": "{color.sand.sand-900}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#422A1A"
+        }
+      }
+    },
+    "on-secondary-container": {
+      "$type": "color",
+      "$value": "{color.sand.sand-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F7EEDA"
+        }
+      }
+    },
+    "selected-strong": {
+      "$type": "color",
+      "$value": "{color.sand.sand-800}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#5D3C29"
+        }
+      }
+    },
+    "selected-border": {
+      "$type": "color",
+      "$value": "{color.sand.sand-700}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#785037"
+        }
+      }
+    },
+    "tertiary": {
+      "$type": "color",
+      "$value": "{color.iris.iris-d50}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#B4A6E5"
+        }
+      }
+    },
+    "on-tertiary": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "tertiary-container": {
+      "$type": "color",
+      "$value": "{color.iris.iris-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#33294E"
+        }
+      }
+    },
+    "on-tertiary-container": {
+      "$type": "color",
+      "$value": "{color.iris.iris-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#D9D1F8"
+        }
+      }
+    },
+    "ai-border": {
+      "$type": "color",
+      "$value": "{color.iris.iris-d50}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#B4A6E5"
+        }
+      }
+    },
+    "error": {
+      "$type": "color",
+      "$value": "{color.rust.rust-d50}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#E49C8E"
+        }
+      }
+    },
+    "on-error": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "error-container": {
+      "$type": "color",
+      "$value": "{color.rust.rust-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#4C221B"
+        }
+      }
+    },
+    "on-error-container": {
+      "$type": "color",
+      "$value": "{color.rust.rust-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F9CBC2"
+        }
+      }
+    },
+    "success": {
+      "$type": "color",
+      "$value": "{color.evergreen.evergreen-d50}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#94BE96"
+        }
+      }
+    },
+    "on-success": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "success-container": {
+      "$type": "color",
+      "$value": "{color.evergreen.evergreen-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#1E3720"
+        }
+      }
+    },
+    "on-success-container": {
+      "$type": "color",
+      "$value": "{color.evergreen.evergreen-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#C6E0C7"
+        }
+      }
+    },
+    "warning": {
+      "$type": "color",
+      "$value": "{color.ember.ember-d50}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#DEA27A"
+        }
+      }
+    },
+    "on-warning": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "warning-container": {
+      "$type": "color",
+      "$value": "{color.ember.ember-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#49260A"
+        }
+      }
+    },
+    "on-warning-container": {
+      "$type": "color",
+      "$value": "{color.ember.ember-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F5CFB6"
+        }
+      }
+    },
+    "tag-teal": {
+      "$type": "color",
+      "$value": "{color.tropic.tropic-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#1C3536"
+        }
+      }
+    },
+    "on-tag-teal": {
+      "$type": "color",
+      "$value": "{color.tropic.tropic-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#C5DDDD"
+        }
+      }
+    },
+    "tag-pink": {
+      "$type": "color",
+      "$value": "{color.sakura.sakura-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#43233F"
+        }
+      }
+    },
+    "on-tag-pink": {
+      "$type": "color",
+      "$value": "{color.sakura.sakura-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#EECBE8"
+        }
+      }
+    },
+    "tag-olive": {
+      "$type": "color",
+      "$value": "{color.olive.olive-d20}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#2B341A"
+        }
+      }
+    },
+    "on-tag-olive": {
+      "$type": "color",
+      "$value": "{color.olive.olive-d70}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#D2DCC2"
+        }
+      }
+    },
+    "inverse-surface": {
+      "$type": "color",
+      "$value": "{color.stone.stone-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F3EFE6"
+        }
+      }
+    },
+    "inverse-on-surface": {
+      "$type": "color",
+      "$value": "{color.stone.stone-900}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#35281D"
+        }
+      }
+    },
+    "inverse-primary": {
+      "$type": "color",
+      "$value": "{color.sky.sky-650}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#416AA2"
+        }
+      }
+    },
+    "scrim": {
+      "$type": "color",
+      "$value": "#000000",
+      "$description": "Literal value"
+    },
+    "terminal": {
+      "$type": "color",
+      "$value": "{color.dusk.dusk-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#05080F"
+        }
+      }
+    },
+    "on-terminal": {
+      "$type": "color",
+      "$value": "{color.stone.stone-100}",
+      "$extensions": {
+        "com.deepgrids.lark": {
+          "resolved": "#F3EFE6"
+        }
+      }
+    }
+  }
+}
