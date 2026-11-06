@@ -28,6 +28,16 @@ change component APIs (each is listed here).
   app-provided mark (https:, `data:image/` or relative; anything else is ignored; see
   `safeLogoSrc()`).
 
+- **`HeroBand`** (`lark/bands`): a page's lead band. `eyebrow`, `title` (`as` "h1" | "h2"),
+  `description` (body-lg), `actions` (at most one brand button), `media` (decorative unless
+  `mediaAlt`), `tone` ("sky" | "sand" | "evergreen" | "ember" | "iris"). Radius 16, tinted fill;
+  stacks under 640 with media first; never sticky.
+- **`IllustratedChoiceCard`**: `href`, `title`, `description` (2 lines), `media` on a tinted
+  panel, `tone`, `cta` (default "Explore this role"), `current` (aria-current="true"). One link
+  named by the title; equal heights in a grid; hover lifts the edge to outline-strong.
+- **Tone tints**: `--tint-<tone>` and `--tint-<tone>-strong` (light and dusk) with Tailwind
+  colours `bg-tint-sky`, `bg-tint-sky-strong`, … for the five tones (`BAND_TONE`).
+
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6
   install without ERESOLVE).
@@ -66,6 +76,7 @@ change component APIs (each is listed here).
 - `useTheme` and `ThemeScript` (light, dusk, system; no flash on load).
 - Package ships `tokens.css` (variables only), DTCG token JSON (`tokens/*.tokens.json`) for
   Figma variables, and the Hanken Grotesk and Geist Mono variable fonts (OFL).
+
 
 ### Changed
 - Published as `@josephholzman/lark` on GitHub Packages (repo `josephHolzman/lark-design-system`);

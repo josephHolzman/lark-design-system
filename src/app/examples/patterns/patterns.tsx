@@ -5,6 +5,7 @@ import { type ReactNode, useState } from "react";
 
 import { AiRunCell, ConfidenceBadge, EvidencePopover, PlanReview, RunSteps } from "@/components/lark/ai";
 import { ActionCard, ChecklistCard, ChoiceCard, EntityCard, PromoCard, SectionCard, TemplateCard } from "@/components/lark/cards";
+import { HeroBand, IllustratedChoiceCard } from "@/components/lark/bands";
 import { ChangeReview, DiffValue, InlineEdit } from "@/components/lark/editing";
 import { Banner, DirtyMark, SaveStatus, SkeletonCard, SkeletonFigure, StatePanel, UnsavedChangesBar } from "@/components/lark/feedback";
 import { FigureCard } from "@/components/lark/figure";
@@ -63,6 +64,20 @@ function Spec({ name, when, children }: { name: string; when: string; children: 
   );
 }
 
+/** Placeholder art for the examples: a few soft shapes in the tone's hue. */
+function Illustration({ tone }: { tone: "sky" | "sand" | "evergreen" | "ember" | "iris" }) {
+  const hue = { sky: "var(--lark-sky-500)", sand: "var(--lark-sand-500)", evergreen: "var(--lark-evergreen-50)", ember: "var(--lark-ember-50)", iris: "var(--lark-iris-50)" }[tone];
+  return (
+    <svg fill="none" height="120" viewBox="0 0 200 120" width="200">
+      <rect fill={hue} height="72" opacity="0.18" rx="12" width="120" x="16" y="28" />
+      <rect fill={hue} height="10" opacity="0.5" rx="5" width="72" x="32" y="48" />
+      <rect fill={hue} height="10" opacity="0.3" rx="5" width="88" x="32" y="68" />
+      <circle cx="156" cy="44" fill={hue} opacity="0.35" r="28" />
+      <circle cx="156" cy="44" fill={hue} opacity="0.7" r="10" />
+    </svg>
+  );
+}
+
 export function Patterns() {
   const [promo, setPromo] = useState(true);
   const [view, setView] = useState("all");
@@ -104,6 +119,7 @@ export function Patterns() {
           ["tabs", "Tabs and switches"],
           ["ai", "AI patterns"],
           ["shell", "Shell and identity"],
+          ["leads", "Page leads"],
           ["layouts", "Layouts"],
         ].map(([id, label]) => (
           <Button asChild key={id} size="sm" variant="secondary">
@@ -602,6 +618,39 @@ export function Patterns() {
             </ul>
           </Spec>
         </div>
+      </Group>
+
+      <Group id="leads" title="Page leads" use="How a home or entry page opens: one tinted HeroBand, then the work. Entry pages offer a few big choices as IllustratedChoiceCards. Tints come from five tones; illustrations are decorative unless they carry information.">
+        <Spec name="Hero band" when="A role's home: eyebrow, title, one line, one or two actions (at most one brand button) and an illustration. Stacks under 640 with the illustration first; never sticky.">
+          <HeroBand
+            actions={
+              <>
+                <Button>Start a quote</Button>
+                <Button variant="secondary">See open quotes</Button>
+              </>
+            }
+            as="h2"
+            description="Draft, price and send quotes with ACE checking policy as you go."
+            eyebrow="Seller"
+            media={<Illustration tone="sky" />}
+            title="Quote with ACE"
+            tone="sky"
+          />
+        </Spec>
+        <Spec name="Illustrated choice cards" when="A few big options on an entry page (the four roles). The whole card is one link named by its title; the current one says so (aria-current). Equal heights in a grid; hover lifts the edge.">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {(
+              [
+                ["seller", "Seller", "Draft and price quotes with ACE, then send them for approval.", "sky"],
+                ["deal-desk", "Deal desk", "Review quotes and approvals, with policy checks and the price waterfall.", "sand"],
+                ["revops", "RevOps", "Watch pipeline health and fix the data behind the forecast.", "evergreen"],
+                ["sales-ops", "Sales ops", "Set pricing rules, approval routes and the guardrails ACE follows.", "iris"],
+              ] as const
+            ).map(([id, title, description, tone]) => (
+              <IllustratedChoiceCard current={id === role} description={description} href="#leads" key={id} media={<Illustration tone={tone} />} title={title} tone={tone} />
+            ))}
+          </div>
+        </Spec>
       </Group>
 
       <Group id="layouts" title="Layouts" use="Full bleed, always. The shell is the viewport; each archetype decides what scrolls.">

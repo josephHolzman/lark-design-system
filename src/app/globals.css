@@ -363,6 +363,36 @@
   --elevation-drawer: 0 0 0 1px rgb(233 238 247 / 0.08), -4px 0 12px -2px rgb(0 0 0 / 0.5);
 }
 
+/*
+  Tone tints (v0.5): the pale fills behind HeroBand, IllustratedChoiceCard media and graph icon
+  tiles. Each tone's 10 step (sky and sand: 50) and its 20 step (100) as "strong"; dusk uses the
+  derived d20 steps (sky and sand: 900 / 800). Text on a tint is on-surface.
+*/
+:root {
+  --tint-sky: var(--lark-sky-50);
+  --tint-sky-strong: var(--lark-sky-100);
+  --tint-sand: var(--lark-sand-50);
+  --tint-sand-strong: var(--lark-sand-100);
+  --tint-evergreen: var(--lark-evergreen-10);
+  --tint-evergreen-strong: var(--lark-evergreen-20);
+  --tint-ember: var(--lark-ember-10);
+  --tint-ember-strong: var(--lark-ember-20);
+  --tint-iris: var(--lark-iris-10);
+  --tint-iris-strong: var(--lark-iris-20);
+}
+.dark {
+  --tint-sky: var(--lark-sky-950);
+  --tint-sky-strong: var(--lark-sky-900);
+  --tint-sand: var(--lark-sand-950);
+  --tint-sand-strong: var(--lark-sand-900);
+  --tint-evergreen: var(--lark-evergreen-80);
+  --tint-evergreen-strong: var(--lark-evergreen-d20);
+  --tint-ember: var(--lark-ember-80);
+  --tint-ember-strong: var(--lark-ember-d20);
+  --tint-iris: var(--lark-iris-80);
+  --tint-iris-strong: var(--lark-iris-d20);
+}
+
 /* Motion (Beams): 120ms ease-in-out for colour and border changes; longer for movement. */
 :root {
   --radius: 8px; /* Beams sm; shadcn classes that compute from it */
@@ -564,6 +594,16 @@
   --color-scrim: var(--scrim);
   --color-terminal: var(--terminal);
   --color-on-terminal: var(--on-terminal);
+  --color-tint-sky: var(--tint-sky);
+  --color-tint-sky-strong: var(--tint-sky-strong);
+  --color-tint-sand: var(--tint-sand);
+  --color-tint-sand-strong: var(--tint-sand-strong);
+  --color-tint-evergreen: var(--tint-evergreen);
+  --color-tint-evergreen-strong: var(--tint-evergreen-strong);
+  --color-tint-ember: var(--tint-ember);
+  --color-tint-ember-strong: var(--tint-ember-strong);
+  --color-tint-iris: var(--tint-iris);
+  --color-tint-iris-strong: var(--tint-iris-strong);
 }
 
 /*
