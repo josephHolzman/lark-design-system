@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { FileTextIcon } from "lucide-react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -7,6 +8,7 @@ import { ActionReceipt, ActionReview, AnswerSources, ClarifyQuestion, Conversati
 import { type ColumnDef, DataGrid } from "@/components/lark/data-grid";
 import { InlineEdit } from "@/components/lark/editing";
 import { Banner, Callout, StatePanel } from "@/components/lark/feedback";
+import { Figure, FigureCard, FigureStrip } from "@/components/lark/figure";
 import { AppShell, AppSidebar, ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { themeEventName, themeScriptSource, useTheme } from "@/components/lark/theme";
 import { Badge } from "@/components/ui/badge";
@@ -299,6 +301,26 @@ describe("AppSidebar extras", () => {
     const { container } = render(<Shell defaultOpen={false} />);
     expect(screen.getByRole("link", { name: "Exports, 2 ready" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Approvals, 3 waiting" })).toBeTruthy();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe("Figure with icon and caption", () => {
+  it("is one link named by label and value, described by the caption", async () => {
+    const { container } = render(
+      <main>
+        <h1>Home</h1>
+        <FigureStrip columns={2}>
+          <Figure caption="Continue a draft" href="/quotes" icon={<FileTextIcon />} label="Quotes to work on" tone="primary" value={36} />
+          <FigureCard caption="See who needs to review" icon={<FileTextIcon />} label="Waiting for approval" value="3" />
+        </FigureStrip>
+      </main>
+    );
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "Quotes to work on: 36" }).getAttribute("href")).toBe("/quotes");
+    expect(screen.getByRole("link", { description: "Continue a draft" })).toBeTruthy();
+    expect(container.querySelectorAll('[data-slot="figure"] span[aria-hidden="true"].size-8')).toHaveLength(2);
     expect(await axeViolations(container)).toEqual([]);
   });
 });

@@ -20,6 +20,9 @@ change component APIs (each is listed here).
   `NavItem` takes `badge` + `badgeLabel` (a `CountPill`, a dot on the rail, the label in the link's
   name; default "<n> waiting"). Rail tooltips include the badge. New `ScopePill({ label, href?,
   tone })`: dot + words, 24px, a link when `href` is set.
+- **`Figure` / `FigureCard`**: `icon` is now a 32px round tinted tile beside the label (`tone`,
+  default neutral); `caption` is 12/18 tertiary. With `href` the card is one link named
+  "<label>: <value>" (override with `linkLabel`) and described by the caption.
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6

@@ -1,8 +1,10 @@
 import { ArrowDownRightIcon, ArrowRightIcon, ArrowUpRightIcon, MinusIcon } from "lucide-react";
 import { LarkLink as Link } from "./provider";
-import type { ComponentProps, ReactNode } from "react";
+import { type ComponentProps, type ReactNode, useId } from "react";
 
 import { cn } from "@/lib/utils";
+
+import { type ChipTone, IconChip } from "./cards";
 
 export type FigureDelta = {
   /** Printed as-is, e.g. "+12%" or "−3 deals". */
@@ -20,10 +22,18 @@ export type FigureProps = Omit<ComponentProps<"div">, "children"> & {
   /** Small unit after the value ("days", "%"). */
   unit?: ReactNode;
   delta?: FigureDelta;
+  /** One line under the value, 12/18 tertiary ("Continue a draft"). */
   caption?: ReactNode;
+  /** Shown in a 32px round tinted tile beside the label. Decorative. */
   icon?: ReactNode;
-  /** Makes the whole figure a link (to the filtered list it summarises). */
+  /** Tile tint. Default "neutral". */
+  tone?: ChipTone;
+  /** Makes the whole figure one link (to the filtered list it summarises). */
   href?: string;
+  /**
+   * The link's name when label or value aren't plain text. Default "<label>: <value> <unit>".
+   */
+  linkLabel?: string;
   /** Extra visual (sparkline, meter) under the value. */
   children?: ReactNode;
 };
@@ -49,31 +59,58 @@ function Delta({ value, direction, good, context }: FigureDelta) {
   );
 }
 
+const text = (n: ReactNode) => (typeof n === "string" || typeof n === "number" ? String(n) : undefined);
+
 /**
  * Beams metric: label 14 ink, value 22/28 450 tabular, delta as a tinted badge with an
- * arrow and a signed value, so direction never depends on colour.
+ * arrow and a signed value, so direction never depends on colour. With `href` the whole figure is
+ * one link named "<label>: <value>", with an arrow on hover and focus.
  */
-export function Figure({ label, value, unit, delta, caption, icon, href, className, children, ...props }: FigureProps) {
-  const body = (
+export function Figure({ label, value, unit, delta, caption, icon, tone = "neutral", href, linkLabel, className, children, ...props }: FigureProps) {
+  const captionId = useId();
+  const content = (
     <>
       <div className="flex items-center gap-1.5 text-sm text-on-surface">
-        {icon && <span aria-hidden="true" className="text-on-surface-variant [&_svg]:size-4">{icon}</span>}
         <span className="truncate">{label}</span>
-        {href && <ArrowRightIcon aria-hidden="true" className="ml-auto size-3.5 opacity-0 transition-opacity group-hover/figure:opacity-100 group-focus-visible/figure:opacity-100" />}
+        {href && <ArrowRightIcon aria-hidden="true" className="ml-auto size-3.5 shrink-0 opacity-0 transition-opacity group-hover/figure:opacity-100 group-focus-visible/figure:opacity-100" />}
       </div>
       <div className="flex items-baseline gap-1">
         <span className="text-xl font-medium tabular-nums">{value}</span>
         {unit && <span className="text-sm text-on-surface-variant">{unit}</span>}
       </div>
       {delta && <Delta {...delta} />}
-      {caption && <div className="text-body-sm text-on-surface-variant">{caption}</div>}
+      {caption && (
+        <div className="text-body-sm text-on-surface-tertiary" id={captionId}>
+          {caption}
+        </div>
+      )}
       {children}
     </>
   );
+  const body = icon ? (
+    <div className="flex min-w-0 items-start gap-3">
+      <IconChip size="md" tone={tone}>
+        {icon}
+      </IconChip>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">{content}</div>
+    </div>
+  ) : (
+    content
+  );
   const cls = cn("group/figure flex min-w-0 flex-col gap-1 bg-card p-4", className);
   if (href) {
+    const l = text(label);
+    const v = text(value);
+    const u = text(unit);
+    const name = linkLabel ?? (l && v ? `${l}: ${v}${u ? ` ${u}` : ""}` : undefined);
     return (
-      <Link className={cn(cls, "state-layer focus-ring relative outline-none")} data-slot="figure" href={href}>
+      <Link
+        aria-describedby={caption ? captionId : undefined}
+        aria-label={name}
+        className={cn(cls, "state-layer focus-ring relative outline-none")}
+        data-slot="figure"
+        href={href}
+      >
         {body}
       </Link>
     );

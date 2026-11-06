@@ -7,6 +7,7 @@ import { AiRunCell, ConfidenceBadge, EvidencePopover, PlanReview, RunSteps } fro
 import { ActionCard, ChecklistCard, ChoiceCard, EntityCard, PromoCard, SectionCard, TemplateCard } from "@/components/lark/cards";
 import { ChangeReview, DiffValue, InlineEdit } from "@/components/lark/editing";
 import { Banner, DirtyMark, SaveStatus, SkeletonCard, SkeletonFigure, StatePanel, UnsavedChangesBar } from "@/components/lark/feedback";
+import { FigureCard } from "@/components/lark/figure";
 import { Segmented } from "@/components/lark/filters";
 import { CompanyLogo } from "@/components/lark/identity";
 import { DashboardLayout } from "@/components/lark/layouts";
@@ -578,6 +579,12 @@ export function Patterns() {
               <ScopePill href="#shell" label="Example data · as of Oct 21" tone="caution" />
               <ScopePill label="Live · Salesforce" tone="positive" />
               <ScopePill label="Sandbox" />
+            </div>
+          </Spec>
+          <Spec name="Figure with icon and caption" when="A home page's next steps as numbers: icon tile (tone), label, value, one caption line. With href the whole card is one link named by label and value; the arrow shows on hover and focus.">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FigureCard caption="Continue a draft" href="#shell" icon={<FileTextIcon />} label="Quotes to work on" tone="primary" value={36} />
+              <FigureCard caption="See who needs to review" href="#shell" icon={<ScaleIcon />} label="Waiting for approval" tone="warning" value={3} />
             </div>
           </Spec>
         </div>
