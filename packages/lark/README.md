@@ -8,6 +8,8 @@ Tailwind CSS v4. Entry points:
 | `@deepgrids/lark` | Product components: **CPQ** (quote lines, price waterfall, policy checks, approval route, scenarios, invoice schedule, order matching), **chat states**, service logos, shell, layouts, DataGrid and cells, cards, feedback, editing, menus, AI patterns, theme | React |
 | `@deepgrids/lark/ui` | Primitives (shadcn, restyled): buttons, fields, combobox, date pickers, number input, file upload, menus, dialogs… | React |
 | `@deepgrids/lark/ai` | Vercel AI Elements, restyled: conversation, message, prompt input, reasoning, tool, sources, workflow canvas… | React + the optional peers below |
+| `@deepgrids/lark/graph` | `GraphNode` and `GraphEdgeLabel` for React Flow graphs (ontology, relationships). Doesn't import `@xyflow/react` itself | React (+ `@xyflow/react` in your app) |
+| `@deepgrids/lark/graph.css` | React Flow theme on Lark tokens: canvas dots, edges, handles, controls, minimap, dusk | `@xyflow/react`'s CSS first |
 | `@deepgrids/lark/utils` | `cn()` (tailwind-merge that knows Lark's type roles) | — |
 | `@deepgrids/lark/tokens` | Tokens as data: primitives, roles per mode, contrast checks | — |
 | `@deepgrids/lark/styles.css` | Tokens, theme, utilities, fonts (Tailwind v4 apps) | Tailwind 4.1+ |
@@ -39,7 +41,7 @@ the package to a Deepgrids org later changes nothing in app code.
 2. **Install under the alias:**
 
    ```bash
-   npm install @deepgrids/lark@npm:@josephholzman/lark@^0.4.0 react react-dom lucide-react tailwindcss@4 tw-animate-css
+   npm install @deepgrids/lark@npm:@josephholzman/lark@^0.5.0 react react-dom lucide-react tailwindcss@4 tw-animate-css
    ```
 
 3. **Using `/ai` as well?** Install its peers (optional, so apps that don't use AI Elements stay small):
@@ -92,6 +94,26 @@ To try an unreleased build: `npm run pack:lib` in the Lark repo writes
    `"data-theme"` for `data-theme="light|dark"`, or `"both"`) to all three; the change event is
    `"<storageKey>-change"`. Stored `"dark"` reads as dusk.
 
+   **ThemeScript options** (the same two go to `useTheme()` and `<ThemeToggle />`):
+
+   | Option | Values | Default | Effect |
+   |---|---|---|---|
+   | `storageKey` | any string | `"lark-theme"` | `localStorage` key read before paint and written on change; the event is `"<key>-change"` (`themeEventName(key)`) |
+   | `attribute` | `"class"`, `"data-theme"`, `"both"` | `"class"` | `"class"` toggles `.dark`; `"data-theme"` sets `data-theme="light"` or `"dark"`; `"both"` does both |
+
+   Lark's dusk tokens and Tailwind's `dark:` variant key off `.dark`, so an app whose own CSS reads
+   `data-theme` uses `"both"`; `"data-theme"` alone leaves Lark's components light. Lark writes
+   `"light"`, `"dusk"` or `"system"` to storage and reads `"dark"` as dusk. `themeScriptSource(opts)`
+   returns the script body for apps that boot the theme from their own file.
+
+   ```tsx
+   <html lang="en" suppressHydrationWarning>
+     <head>
+       <ThemeScript attribute="both" storageKey="deepgrids-intelligence-theme" />
+     </head>
+     …
+   ```
+
 5. **Toasts.** Render `<Toaster />` from `/ui` once; undo toasts and save results use it.
 
 ## Use
@@ -105,6 +127,70 @@ import { cn } from "@deepgrids/lark/utils";
 
 Every module is marked `"use client"`. Import from client components, or pass them as children
 from server components.
+
+### Profile menu
+
+`UserMenu` holds the person and everything about their session. Sections are ruled; one-of-many
+choices are `UserMenuRadioGroup`s, which announce the checked option.
+
+```tsx
+import { UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub, useTheme, type LarkTheme } from "@deepgrids/lark";
+
+function ProfileMenu({ role, setRole }: { role: string; setRole: (r: string) => void }) {
+  const { theme, setTheme } = useTheme({ storageKey: "deepgrids-intelligence-theme", attribute: "both" });
+  return (
+    <UserMenu name="Avery Chen" detail="Viewer · Deal Desk view">
+      <UserMenuSection>
+        <UserMenuItem href="/profile" icon={<UserIcon />}>Profile and preferences</UserMenuItem>
+        <UserMenuSub label="Switch workspace" icon={<LayoutGridIcon />}>
+          <UserMenuItem href="/platform">Platform</UserMenuItem>
+          <UserMenuItem href="/studio">AI Studio</UserMenuItem>
+        </UserMenuSub>
+      </UserMenuSection>
+      <UserMenuSection>
+        <UserMenuRadioGroup label="Working role" value={role} onValueChange={setRole}
+          options={[{ value: "seller", label: "Seller" }, { value: "deal-desk", label: "Deal desk" }]} />
+      </UserMenuSection>
+      <UserMenuSection>
+        <UserMenuRadioGroup label="Theme" value={theme} onValueChange={(v) => setTheme(v as LarkTheme)}
+          options={[{ value: "light", label: "Light" }, { value: "dusk", label: "Dark" }, { value: "system", label: "System" }]} />
+      </UserMenuSection>
+      <UserMenuSection>
+        <UserMenuItem href="/help" icon={<CircleHelpIcon />}>Help and documentation</UserMenuItem>
+        <UserMenuItem onSelect={refresh} icon={<RefreshCwIcon />}>Refresh workspace</UserMenuItem>
+      </UserMenuSection>
+    </UserMenu>
+  );
+}
+```
+
+### Graphs (React Flow)
+
+`@xyflow/react` stays an optional peer; the main entry never imports it. Load the theme after
+React Flow's CSS, and draw nodes with `GraphNode` inside a custom node type:
+
+```css
+@import "@xyflow/react/dist/style.css";
+@import "@deepgrids/lark/graph.css";
+```
+
+```tsx
+import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { GraphNode } from "@deepgrids/lark/graph";
+
+function RecordNode({ data, selected }: NodeProps<RecordNodeType>) {
+  return (
+    <GraphNode title={data.name} meta={`${data.category} · ${data.detail}`} icon={data.icon} tone={data.tone} selected={selected} dimmed={data.dimmed}>
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
+    </GraphNode>
+  );
+}
+```
+
+`GraphEdgeLabel` is the edge's pill; render it in `EdgeLabelRenderer` and position it with
+`style={{ transform: "translate(-50%, -50%) translate(<x>px, <y>px)" }}`. Use `<Background
+variant={BackgroundVariant.Dots} />` or the class `lark-graph-dots` for the dotted canvas.
 
 ### Notes
 
