@@ -11,6 +11,7 @@ import {
   FileTextIcon,
   HouseIcon,
   InboxIcon,
+  LayoutGridIcon,
   LayersIcon,
   MessagesSquareIcon,
   ReceiptTextIcon,
@@ -18,7 +19,6 @@ import {
   SparklesIcon,
   UserPlusIcon,
 } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Meter } from "@/components/lark/figure";
@@ -28,13 +28,13 @@ import {
   AskAceButton,
   type Crumb,
   type NavGroup,
+  ScopePill,
   SearchCommand,
   ThemeToggle,
   Topbar,
   TopbarIconButton,
   UserMenu,
 } from "@/components/lark/shell";
-import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -44,14 +44,14 @@ const nav = (current: Section): NavGroup[] => [
   {
     items: [
       { label: "Home", href: "#", icon: <HouseIcon />, current: current === "home" },
-      { label: "Work inbox", href: "#", icon: <InboxIcon />, count: 12, countLabel: "12 need action", current: current === "inbox" },
+      { label: "Work inbox", href: "#", icon: <InboxIcon />, badge: 12, badgeLabel: "12 need action", current: current === "inbox" },
       { label: "Ask ACE", href: "/examples/chat", icon: <SparklesIcon />, current: current === "ace" },
     ],
   },
   {
     label: "Revenue",
     items: [
-      { label: "Deal desk", href: "/examples/dashboard", icon: <BriefcaseBusinessIcon />, count: 8, countLabel: "8 awaiting decision", current: current === "deals" },
+      { label: "Deal desk", href: "/examples/dashboard", icon: <BriefcaseBusinessIcon />, badge: 8, badgeLabel: "8 awaiting decision", current: current === "deals" },
       { label: "All deals", href: "/examples/deals", icon: <ChartColumnIcon />, count: 24, countLabel: "24 deals", current: current === "deals-list" },
       { label: "Quote workbench", href: "/examples/quote", icon: <ReceiptTextIcon />, current: current === "quote" },
       { label: "Accounts", href: "#", icon: <Building2Icon /> },
@@ -70,6 +70,7 @@ const nav = (current: Section): NavGroup[] => [
   },
   {
     label: "Operate",
+    collapsible: true,
     items: [
       { label: "Agent studio", href: "#", icon: <BotIcon /> },
       { label: "Connections", href: "#", icon: <CableIcon /> },
@@ -112,12 +113,6 @@ function SidebarFooterCard() {
         <span className="font-mono text-xs text-on-surface-variant">6,240 / 10k</span>
       </div>
       <Meter label="ACE credits used" max={10000} value={6240} />
-      <Button asChild className="mt-1 justify-start" size="xs" variant="ghost">
-        <Link href="#">
-          <UserPlusIcon />
-          Add teammates
-        </Link>
-      </Button>
     </div>
   );
 }
@@ -137,7 +132,12 @@ export function DeepgridsShell({
         sidebar={
           <AppSidebar
             footer={<SidebarFooterCard />}
+            footerItems={[
+              { label: "Add teammates", href: "#", icon: <UserPlusIcon /> },
+              { label: "All spaces", href: "#", icon: <LayoutGridIcon /> },
+            ]}
             groups={nav(current)}
+            scope={<ScopePill href="/examples/patterns#shell" label="Example data · as of Oct 21" tone="caution" />}
             workspace={{ name: "Deepgrids", subtitle: "Revenue workspace" }}
           />
         }

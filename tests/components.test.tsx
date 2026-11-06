@@ -7,7 +7,7 @@ import { ActionReceipt, ActionReview, AnswerSources, ClarifyQuestion, Conversati
 import { type ColumnDef, DataGrid } from "@/components/lark/data-grid";
 import { InlineEdit } from "@/components/lark/editing";
 import { Banner, Callout, StatePanel } from "@/components/lark/feedback";
-import { ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
+import { AppShell, AppSidebar, ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { themeEventName, themeScriptSource, useTheme } from "@/components/lark/theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -249,6 +249,57 @@ describe("UserMenu", () => {
     render(<UserMenu email="avery@example.com" name="Avery Chen" />);
     await user.click(screen.getByRole("button", { name: "Account: Avery Chen" }));
     expect(await screen.findByRole("menuitem", { name: "Sign out" })).toBeTruthy();
+  });
+});
+
+describe("AppSidebar extras", () => {
+  function Shell({ defaultOpen = true, onDocs = () => {} }: { defaultOpen?: boolean; onDocs?: (o: boolean) => void }) {
+    return (
+      <AppShell
+        compactBelow={0}
+        defaultOpen={defaultOpen}
+        sidebar={
+          <AppSidebar
+            footerItems={[{ label: "Add teammates", href: "/team" }]}
+            groups={[
+              { items: [{ label: "Approvals", href: "/approvals", badge: 3, current: true }] },
+              { label: "Documents", collapsible: true, onOpenChange: onDocs, items: [{ label: "Quotes", href: "/quotes" }] },
+              { label: "More tools", collapsible: true, defaultOpen: false, items: [{ label: "Exports", href: "/exports", badge: 2, badgeLabel: "2 ready" }] },
+            ]}
+            scope={<ScopePill href="/about-data" label="Example data · as of Oct 21" tone="caution" />}
+            workspace={{ name: "Deepgrids", subtitle: "Deal desk" }}
+          />
+        }
+      >
+        <h1>Home</h1>
+      </AppShell>
+    );
+  }
+
+  it("shows the scope, badges in the name, collapsible groups and footer items", async () => {
+    const user = userEvent.setup();
+    const onDocs = vi.fn();
+    const { container } = render(<Shell onDocs={onDocs} />);
+    expect(screen.getByRole("link", { name: "Example data · as of Oct 21" }).getAttribute("href")).toBe("/about-data");
+    expect(screen.getByRole("link", { name: "Approvals, 3 waiting" }).getAttribute("aria-current")).toBe("page");
+    const docs = screen.getByRole("button", { name: "Documents" });
+    expect(docs.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("link", { name: "Quotes" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "More tools" }).getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("link", { name: /Exports/ })).toBeNull();
+    expect(screen.getByRole("link", { name: "Add teammates" })).toBeTruthy();
+    expect(await axeViolations(container)).toEqual([]);
+    await user.click(docs);
+    expect(onDocs).toHaveBeenCalledWith(false);
+    expect(docs.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("link", { name: "Quotes" })).toBeNull();
+  });
+
+  it("on the rail keeps every group's items and the count in the name", async () => {
+    const { container } = render(<Shell defaultOpen={false} />);
+    expect(screen.getByRole("link", { name: "Exports, 2 ready" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Approvals, 3 waiting" })).toBeTruthy();
+    expect(await axeViolations(container)).toEqual([]);
   });
 });
 

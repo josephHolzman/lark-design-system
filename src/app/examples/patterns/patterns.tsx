@@ -12,7 +12,7 @@ import { CompanyLogo } from "@/components/lark/identity";
 import { DashboardLayout } from "@/components/lark/layouts";
 import { ActionMenu, ColumnsPanel, CountSegments, FacetFilterMenu, FacetList, SavedViewMenu, SplitButton, VerticalNav } from "@/components/lark/menus";
 import { PageHeader } from "@/components/lark/page-header";
-import { ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
+import { ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { type LarkTheme, useTheme } from "@/components/lark/theme";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -571,6 +571,13 @@ export function Patterns() {
                 </UserMenuSection>
               </UserMenu>
               <span className="text-body-sm text-on-surface-variant">Open the avatar</span>
+            </div>
+          </Spec>
+          <Spec name="Sidebar: scope, badges, collapsible groups, footer" when="AppSidebar takes scope (a ScopePill under the logo), groups that collapse (collapsible, defaultOpen, or open + onOpenChange to remember), item badges for things waiting (CountPill, a dot on the rail, the count always in the name) and footerItems. The sidebar on this page uses all four.">
+            <div className="flex flex-wrap items-center gap-2">
+              <ScopePill href="#shell" label="Example data · as of Oct 21" tone="caution" />
+              <ScopePill label="Live · Salesforce" tone="positive" />
+              <ScopePill label="Sandbox" />
             </div>
           </Spec>
         </div>

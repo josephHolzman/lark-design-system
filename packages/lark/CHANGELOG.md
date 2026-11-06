@@ -15,6 +15,11 @@ change component APIs (each is listed here).
   destructive, disabled), `UserMenuSub` (label, icon) and `UserMenuRadioGroup` (label, value,
   onValueChange, options with descriptions; checked state announced). With no children it still
   shows Profile, Admin and Sign out.
+- **Sidebar extras**: `AppSidebar` takes `scope` (under the logo; hidden on the rail) and
+  `footerItems`; `NavGroup` takes `collapsible`, `defaultOpen`, `open` + `onOpenChange`;
+  `NavItem` takes `badge` + `badgeLabel` (a `CountPill`, a dot on the rail, the label in the link's
+  name; default "<n> waiting"). Rail tooltips include the badge. New `ScopePill({ label, href?,
+  tone })`: dot + words, 24px, a link when `href` is set.
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6

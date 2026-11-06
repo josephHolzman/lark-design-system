@@ -64,11 +64,13 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 import { AceMark, PersonAvatar } from "./identity";
+import { CountPill } from "./lists";
 
 /* ---------------------------------------------------------------- AppShell */
 
@@ -122,6 +124,11 @@ export type NavItem = {
   label: string;
   href: string;
   icon?: ReactNode;
+  /** A count that needs attention (Approvals 3): a CountPill, a dot on the rail. */
+  badge?: number;
+  /** Accessible meaning of the badge, e.g. "3 waiting". Default "<n> waiting". */
+  badgeLabel?: string;
+  /** Quiet count (no pill), e.g. a list's size. Prefer `badge` for things to act on. */
   count?: number;
   /** Accessible meaning of the count, e.g. "12 need action". */
   countLabel?: string;
@@ -129,15 +136,175 @@ export type NavItem = {
   items?: { label: string; href: string; current?: boolean }[];
 };
 
-export type NavGroup = { label?: string; items: NavItem[] };
+export type NavGroup = {
+  label?: string;
+  items: NavItem[];
+  /** The label becomes a button that shows and hides the items (needs a label). */
+  collapsible?: boolean;
+  /** Starting state when uncontrolled. Default true. */
+  defaultOpen?: boolean;
+  /** Controlled state, for apps that remember it. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+const SCOPE_DOT = {
+  neutral: "bg-on-surface-variant",
+  info: "bg-primary",
+  caution: "bg-warning",
+  positive: "bg-success",
+  ai: "bg-on-tertiary-container",
+} as const;
+export type ScopeTone = keyof typeof SCOPE_DOT;
+
+/**
+ * Which data the app is showing ("Example data · as of Oct 21"): a dot and words, 24px tall.
+ * With `href` it is a link to an explanation.
+ */
+export function ScopePill({ label, href, tone = "neutral", className }: { label: string; href?: string; tone?: ScopeTone; className?: string }) {
+  const cls = cn(
+    "inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-outline-variant bg-surface px-2 text-label-md text-on-surface-variant",
+    href && "state-layer [--state-hover:0.05] focus-ring outline-none",
+    className
+  );
+  const body = (
+    <>
+      <span aria-hidden="true" className={cn("size-1.5 shrink-0 rounded-full", SCOPE_DOT[tone])} />
+      <span className="truncate">{label}</span>
+    </>
+  );
+  return href ? (
+    <Link className={cls} data-slot="scope-pill" href={href}>
+      {body}
+    </Link>
+  ) : (
+    <span className={cls} data-slot="scope-pill">
+      {body}
+    </span>
+  );
+}
+
+function NavLinkItem({ item }: { item: NavItem }) {
+  const badgeText = item.badge != null ? (item.badgeLabel ?? `${item.badge} waiting`) : undefined;
+  const tooltip = badgeText ? `${item.label} · ${badgeText}` : item.label;
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild isActive={item.current} tooltip={tooltip}>
+        <Link
+          aria-current={item.current ? "page" : undefined}
+          // A name, not an sr-only span: flex children would read "Approvals , 3 waiting".
+          aria-label={badgeText ? `${item.label}, ${badgeText}` : undefined}
+          className="relative"
+          href={item.href}
+        >
+          {item.icon}
+          <span>{item.label}</span>
+          {!badgeText && item.count != null && item.countLabel && <span className="sr-only">, {item.countLabel}</span>}
+          {item.badge != null && item.badge > 0 && (
+            // On the rail the pill can't fit: a dot on the icon (the count stays in the name).
+            <span aria-hidden="true" className="absolute top-1 right-1 hidden size-1.5 rounded-full bg-on-surface group-data-[collapsible=icon]:block" />
+          )}
+        </Link>
+      </SidebarMenuButton>
+      {item.badge != null ? (
+        <SidebarMenuBadge aria-hidden="true">
+          <CountPill value={item.badge} variant="pill" />
+        </SidebarMenuBadge>
+      ) : (
+        item.count != null && <SidebarMenuBadge aria-hidden="true">{item.count}</SidebarMenuBadge>
+      )}
+    </SidebarMenuItem>
+  );
+}
+
+function NavItems({ items }: { items: NavItem[] }) {
+  return (
+    <SidebarMenu>
+      {items.map((item) =>
+        item.items ? (
+          <Collapsible asChild defaultOpen={item.items.some((s) => s.current)} key={item.label}>
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton className="group/collapsible" tooltip={item.label}>
+                  {item.icon}
+                  <span>{item.label}</span>
+                  <ChevronRightIcon
+                    aria-hidden="true"
+                    className="ml-auto text-on-surface-variant transition-transform group-data-[state=open]/collapsible:rotate-90"
+                  />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {item.items.map((s) => (
+                    <SidebarMenuSubItem key={s.label}>
+                      <SidebarMenuSubButton asChild isActive={s.current}>
+                        <Link aria-current={s.current ? "page" : undefined} href={s.href}>
+                          <span>{s.label}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
+        ) : (
+          <NavLinkItem item={item} key={item.label} />
+        )
+      )}
+    </SidebarMenu>
+  );
+}
+
+function NavGroupSection({ group }: { group: NavGroup }) {
+  const { state, isMobile } = useSidebar();
+  const [inner, setInner] = useState(group.defaultOpen ?? true);
+  if (!group.collapsible || !group.label) {
+    return (
+      <SidebarGroup>
+        {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+        <NavItems items={group.items} />
+      </SidebarGroup>
+    );
+  }
+  const open = group.open ?? inner;
+  const setOpen = (next: boolean) => {
+    if (group.open === undefined) setInner(next);
+    group.onOpenChange?.(next);
+  };
+  // On the rail the labels are hidden, so every group shows its icons.
+  const rail = state === "collapsed" && !isMobile;
+  return (
+    <Collapsible asChild onOpenChange={setOpen} open={rail || open}>
+      <SidebarGroup>
+        <SidebarGroupLabel asChild>
+          <CollapsibleTrigger className="group/label state-layer [--state-hover:0.05] w-full text-left">
+            <span className="flex-1">{group.label}</span>
+            <ChevronRightIcon aria-hidden="true" className="transition-transform group-data-[state=open]/label:rotate-90" />
+          </CollapsibleTrigger>
+        </SidebarGroupLabel>
+        <CollapsibleContent>
+          <NavItems items={group.items} />
+        </CollapsibleContent>
+      </SidebarGroup>
+    </Collapsible>
+  );
+}
 
 export function AppSidebar({
   workspace,
+  scope,
   groups,
+  footerItems,
   footer,
 }: {
   workspace: { name: string; subtitle: string; mark?: ReactNode };
+  /** Under the logo, usually a ScopePill. Hidden on the rail. */
+  scope?: ReactNode;
   groups: NavGroup[];
+  /** Links pinned to the bottom (Add teammates, Admin settings, All spaces). */
+  footerItems?: NavItem[];
   footer?: ReactNode;
 }) {
   return (
@@ -168,59 +335,19 @@ export function AppSidebar({
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
+        {scope && <div className="flex min-w-0 px-2 pb-1 group-data-[collapsible=icon]:hidden">{scope}</div>}
       </SidebarHeader>
       <SidebarContent>
         {groups.map((g, gi) => (
-          <SidebarGroup key={g.label ?? gi}>
-            {g.label && <SidebarGroupLabel>{g.label}</SidebarGroupLabel>}
-            <SidebarMenu>
-              {g.items.map((item) =>
-                item.items ? (
-                  <Collapsible asChild defaultOpen={item.items.some((s) => s.current)} key={item.label}>
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="group/collapsible" tooltip={item.label}>
-                          {item.icon}
-                          <span>{item.label}</span>
-                          <ChevronRightIcon
-                            aria-hidden="true"
-                            className="ml-auto text-on-surface-variant transition-transform group-data-[state=open]/collapsible:rotate-90"
-                          />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.items.map((s) => (
-                            <SidebarMenuSubItem key={s.label}>
-                              <SidebarMenuSubButton asChild isActive={s.current}>
-                                <Link aria-current={s.current ? "page" : undefined} href={s.href}>
-                                  <span>{s.label}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
-                ) : (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton asChild isActive={item.current} tooltip={item.label}>
-                      <Link aria-current={item.current ? "page" : undefined} href={item.href}>
-                        {item.icon}
-                        <span>{item.label}</span>
-                        {item.count != null && item.countLabel && <span className="sr-only">, {item.countLabel}</span>}
-                      </Link>
-                    </SidebarMenuButton>
-                    {item.count != null && <SidebarMenuBadge aria-hidden="true">{item.count}</SidebarMenuBadge>}
-                  </SidebarMenuItem>
-                )
-              )}
-            </SidebarMenu>
-          </SidebarGroup>
+          <NavGroupSection group={g} key={g.label ?? gi} />
         ))}
       </SidebarContent>
-      {footer && <SidebarFooter>{footer}</SidebarFooter>}
+      {(footerItems?.length || footer) && (
+        <SidebarFooter>
+          {footerItems && footerItems.length > 0 && <NavItems items={footerItems} />}
+          {footer}
+        </SidebarFooter>
+      )}
       <SidebarRail />
     </Sidebar>
   );
