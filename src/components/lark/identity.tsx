@@ -131,13 +131,19 @@ export function AceMark({
   );
 }
 
-/** Maps a service name, or a label that names one, to its logo key (same rules as deepgrids-ACE). */
+/**
+ * Maps a service name, or a label that names one, to its logo key (deepgrids-ACE's rules, plus
+ * Snowflake, MCP and email). Generic mail is the neutral envelope; only "Outlook" gets Outlook's mark.
+ */
 export function serviceKey(name?: string): string | null {
   if (!name) return null;
   const n = name.toLowerCase();
   if (/\bace\b/.test(n) && !/place|space|race|trace|face/.test(n)) return "ace";
   if (/salesforce|\bcpq\b/.test(n)) return "salesforce";
-  if (/outlook|mailbox|\bemail\b|\bmail\b/.test(n)) return "outlook";
+  if (/outlook/.test(n)) return "outlook";
+  if (/snowflake/.test(n)) return "snowflake";
+  if (/\bmcp\b|model context protocol/.test(n)) return "mcp";
+  if (/\be-?mail\b|\bmail\b|mailbox/.test(n)) return "email";
   if (/slack/.test(n)) return "slack";
   if (/teams/.test(n)) return "teams";
   if (/sharepoint/.test(n)) return "sharepoint";
@@ -148,13 +154,44 @@ export function serviceKey(name?: string): string | null {
   return null;
 }
 
+/** https:, data:image/… or a relative path ("/x.svg", "./x.svg", "x.svg"); never javascript: or //host. */
+export function safeLogoSrc(src?: string): string | undefined {
+  const s = src?.trim();
+  if (!s) return undefined;
+  if (/^https:\/\//i.test(s)) return s;
+  if (/^data:image\//i.test(s)) return s;
+  if (s.startsWith("//") || s.startsWith("\\")) return undefined;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return undefined;
+  return s;
+}
+
 /**
  * A connected service's logo (Salesforce, Outlook, Slack, Teams, SharePoint, Meet, Zoom, Excel,
- * Word, ACE). Decorative by default: the service's name is always in the text beside it. Unknown
- * services get a neutral two-letter mark, never a guessed logo.
+ * Word, Snowflake, ACE; a neutral plug for MCP servers and an envelope for email). Decorative by
+ * default: the service's name is always in the text beside it. Unknown services get a neutral
+ * two-letter mark, never a guessed logo. `src` shows a mark the app provides (https:, data:image/
+ * or a relative path; anything else is ignored).
  */
-export function ServiceLogo({ service, size = 16, label, className }: { service: string; size?: number; label?: string; className?: string }) {
+export function ServiceLogo({
+  service,
+  size = 16,
+  label,
+  src,
+  className,
+}: {
+  service: string;
+  size?: number;
+  label?: string;
+  src?: string;
+  className?: string;
+}) {
   const key = serviceKey(service);
+  const own = safeLogoSrc(src);
+  if (own)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- app-provided mark, sized by the caller
+      <img alt={label ?? ""} aria-hidden={label ? undefined : true} className={cn("shrink-0 object-contain", className)} data-slot="service-logo" height={size} src={own} style={{ width: size, height: size }} width={size} />
+    );
   if (key === "ace")
     return (
       <span aria-hidden={label ? undefined : true} aria-label={label} className={cn("inline-flex shrink-0", className)} role={label ? "img" : undefined} style={{ width: size, height: size }}>

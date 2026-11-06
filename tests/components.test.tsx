@@ -9,6 +9,8 @@ import { type ColumnDef, DataGrid } from "@/components/lark/data-grid";
 import { InlineEdit } from "@/components/lark/editing";
 import { Banner, Callout, StatePanel } from "@/components/lark/feedback";
 import { Figure, FigureCard, FigureStrip } from "@/components/lark/figure";
+import { safeLogoSrc, ServiceLogo, serviceKey } from "@/components/lark/identity";
+import { LOGO_SRC } from "@/components/lark/logos.data";
 import { AppShell, AppSidebar, ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { themeEventName, themeScriptSource, useTheme } from "@/components/lark/theme";
 import { Badge } from "@/components/ui/badge";
@@ -321,6 +323,37 @@ describe("Figure with icon and caption", () => {
     expect(screen.getByRole("link", { name: "Quotes to work on: 36" }).getAttribute("href")).toBe("/quotes");
     expect(screen.getByRole("link", { description: "Continue a draft" })).toBeTruthy();
     expect(container.querySelectorAll('[data-slot="figure"] span[aria-hidden="true"].size-8')).toHaveLength(2);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe("service logos", () => {
+  it("maps Snowflake, MCP and email names to their marks", () => {
+    expect(serviceKey("Snowflake warehouse")).toBe("snowflake");
+    expect(serviceKey("MCP server")).toBe("mcp");
+    expect(serviceKey("Model Context Protocol")).toBe("mcp");
+    expect(serviceKey("Email")).toBe("email");
+    expect(serviceKey("Shared mail")).toBe("email");
+    expect(serviceKey("Outlook")).toBe("outlook");
+    for (const k of ["snowflake", "mcp", "email"]) expect(LOGO_SRC[k]).toMatch(/^data:image\/svg\+xml,/);
+  });
+
+  it("shows an app-provided src only when it is https, data:image or relative", async () => {
+    const { container } = render(
+      <p>
+        <ServiceLogo label="Acme CRM" service="Acme CRM" src="https://cdn.example.com/acme.svg" />
+        <ServiceLogo label="Local" service="Local" src="/logos/local.svg" />
+        <ServiceLogo label="Bad" service="Bad" src="javascript:alert(1)" />
+        <ServiceLogo label="Snowflake" service="Snowflake" />
+      </p>
+    );
+    expect(screen.getByRole("img", { name: "Acme CRM" }).getAttribute("src")).toBe("https://cdn.example.com/acme.svg");
+    expect(screen.getByRole("img", { name: "Local" }).getAttribute("src")).toBe("/logos/local.svg");
+    expect(screen.getByRole("img", { name: "Bad" }).tagName).toBe("SPAN");
+    expect(screen.getByRole("img", { name: "Snowflake" }).getAttribute("src")).toBe(LOGO_SRC.snowflake);
+    expect(safeLogoSrc("//evil.example/x.svg")).toBeUndefined();
+    expect(safeLogoSrc("http://example.com/x.svg")).toBeUndefined();
+    expect(safeLogoSrc("data:text/html,<b>")).toBeUndefined();
     expect(await axeViolations(container)).toEqual([]);
   });
 });

@@ -9,7 +9,7 @@ import { ChangeReview, DiffValue, InlineEdit } from "@/components/lark/editing";
 import { Banner, DirtyMark, SaveStatus, SkeletonCard, SkeletonFigure, StatePanel, UnsavedChangesBar } from "@/components/lark/feedback";
 import { FigureCard } from "@/components/lark/figure";
 import { Segmented } from "@/components/lark/filters";
-import { CompanyLogo } from "@/components/lark/identity";
+import { CompanyLogo, ServiceLogo } from "@/components/lark/identity";
 import { DashboardLayout } from "@/components/lark/layouts";
 import { ActionMenu, ColumnsPanel, CountSegments, FacetFilterMenu, FacetList, SavedViewMenu, SplitButton, VerticalNav } from "@/components/lark/menus";
 import { PageHeader } from "@/components/lark/page-header";
@@ -586,6 +586,20 @@ export function Patterns() {
               <FigureCard caption="Continue a draft" href="#shell" icon={<FileTextIcon />} label="Quotes to work on" tone="primary" value={36} />
               <FigureCard caption="See who needs to review" href="#shell" icon={<ScaleIcon />} label="Waiting for approval" tone="warning" value={3} />
             </div>
+          </Spec>
+          <Spec name="Service logos" when="Identify a connected service, always beside its name, never as decoration. MCP servers get a neutral plug and generic email an envelope; pass src for a mark your app provides (https, data:image or a relative path).">
+            <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              {["Snowflake", "Salesforce", "Slack", "Outlook", "Zoom", "MCP server", "Email"].map((s) => (
+                <li className="inline-flex items-center gap-1.5" key={s}>
+                  <ServiceLogo service={s} />
+                  {s}
+                </li>
+              ))}
+              <li className="inline-flex items-center gap-1.5">
+                <ServiceLogo service="Lark" src="/file.svg" />
+                App-provided mark
+              </li>
+            </ul>
           </Spec>
         </div>
       </Group>

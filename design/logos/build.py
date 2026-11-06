@@ -4,7 +4,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 OUT = HERE.parent.parent / "src/components/lark/logos.data.ts"
-NAMES = ["salesforce", "outlook", "slack", "teams", "sharepoint", "meet", "zoom", "excel", "word"]
+NAMES = ["salesforce", "outlook", "slack", "teams", "sharepoint", "meet", "zoom", "excel", "word", "snowflake", "mcp", "email"]
 
 lines = [
     "// Generated from design/logos/*.svg by design/logos/build.py. Do not edit by hand.",

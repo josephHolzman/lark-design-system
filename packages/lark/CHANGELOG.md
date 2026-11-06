@@ -23,6 +23,10 @@ change component APIs (each is listed here).
 - **`Figure` / `FigureCard`**: `icon` is now a 32px round tinted tile beside the label (`tone`,
   default neutral); `caption` is 12/18 tertiary. With `href` the card is one link named
   "<label>: <value>" (override with `linkLabel`) and described by the caption.
+- **Logos**: Snowflake, plus Lark's neutral MCP plug and email envelope. `serviceKey()` knows
+  "snowflake", "mcp" / "model context protocol", "email" / "mail". `ServiceLogo` takes `src` for an
+  app-provided mark (https:, `data:image/` or relative; anything else is ignored; see
+  `safeLogoSrc()`).
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6
@@ -30,6 +34,9 @@ change component APIs (each is listed here).
 - `react-day-picker` dependency is `^9.13.0 || ^10.0.0`. The date pickers pass their tests and
   type-check on 9.13 and 10.0.2; `Calendar` now styles the grid through `month_grid` (the old
   `table` class key is gone in 10). The repo develops on 10.
+- `serviceKey("Email")`, `"mail"` and `"mailbox"` now return `"email"` (neutral envelope) instead of
+  Outlook; only names containing "Outlook" get Outlook's mark.
+- `Figure` captions are tertiary (were secondary) and `icon` is a 32px tile (was a 16px glyph).
 
 ## 0.4.0 (2026-11-05)
 
