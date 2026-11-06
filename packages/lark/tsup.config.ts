@@ -8,6 +8,8 @@ const src = (p: string) => path.join(root, "src", p);
 export default defineConfig({
   entry: {
     index: src("components/lark/index.ts"),
+    // Separate so the main entry never pulls in anything React Flow-specific.
+    graph: src("components/lark/graph.tsx"),
     ui: src("components/ui/index.ts"),
     ai: src("components/ai-elements/index.ts"),
     utils: src("lib/utils.ts"),

@@ -24,6 +24,7 @@ import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
 import fs from "node:fs";
 import { createRequire } from "node:module";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import * as lark from "@deepgrids/lark";
 import * as ui from "@deepgrids/lark/ui";
 import { cn } from "@deepgrids/lark/utils";
@@ -45,9 +46,23 @@ if (!modes.light.roles["on-surface"]) fail("tokens");
 for (const f of ["@deepgrids/lark/styles.css", "@deepgrids/lark/tokens.css", "@deepgrids/lark/tokens/light.tokens.json", "@deepgrids/lark/fonts/HankenGrotesk-Variable.woff2"]) {
   if (!fs.existsSync(require.resolve(f))) fail("missing " + f);
 }
+// The graph entry renders with React only, and the main entry never reaches @xyflow/react.
+const graph = await import("@deepgrids/lark/graph");
+const graphHtml = renderToString(h(graph.GraphNode, { title: "Northwind", meta: "Account", tone: "sky", selected: true }));
+if (!graphHtml.includes("Northwind") || !graphHtml.includes("selected")) fail("GraphNode render");
+if (!fs.existsSync(require.resolve("@deepgrids/lark/graph.css"))) fail("missing @deepgrids/lark/graph.css");
+const seen = new Set();
+const walk = (file) => {
+  if (seen.has(file)) return;
+  seen.add(file);
+  const src = fs.readFileSync(file, "utf8");
+  if (/from\\s*["']@xyflow\\/react|import\\(["']@xyflow\\/react/.test(src)) fail("main entry imports @xyflow/react via " + file);
+  for (const m of src.matchAll(/(?:from|import)\\s*\\(?["'](\\.\\.?\\/[^"']+)["']/g)) walk(fileURLToPath(new URL(m[1], pathToFileURL(file))));
+};
+walk(fileURLToPath(import.meta.resolve("@deepgrids/lark")));
 let aiLoaded = true;
 try { await import("@deepgrids/lark/ai"); } catch { aiLoaded = false; }
-console.log(JSON.stringify({ lark: Object.keys(lark).length, ui: Object.keys(ui).length, html: html.length, aiEntryWithoutPeers: aiLoaded ? "loaded" : "needs optional peers (expected)" }));
+console.log(JSON.stringify({ lark: Object.keys(lark).length, ui: Object.keys(ui).length, html: html.length, mainEntryModules: seen.size, graph: Object.keys(graph).length, aiEntryWithoutPeers: aiLoaded ? "loaded" : "needs optional peers (expected)" }));
 `
 );
 console.log(run("node", ["smoke.mjs"], tmp));

@@ -1,6 +1,7 @@
 // Builds the package's CSS and fonts from the app's sources:
 //   dist/styles.css  tokens, Tailwind theme, utilities, @font-face (Tailwind v4 apps)
 //   dist/tokens.css  the CSS variables only (any app, no Tailwind needed)
+//   dist/graph.css   the React Flow theme (copied from packages/lark/src/graph.css)
 //   dist/fonts/      Hanken Grotesk and Geist Mono variable fonts, with their OFL licences
 // Consumers (Tailwind v4):  @import "tailwindcss";  @import "@deepgrids/lark/styles.css";
 import fs from "node:fs";
@@ -62,9 +63,15 @@ fs.writeFileSync(path.join(dist, "styles.css"), header + withFonts);
 const block = css.match(/\/\* @lark-tokens:start[\s\S]*?\/\* @lark-tokens:end \*\//);
 if (!block) throw new Error("build-styles: no @lark-tokens block in globals.css");
 const elevation = css.match(/:root\s*\{\s*--elevation-raised[\s\S]*?\}\s*\.dark\s*\{\s*--elevation-raised[\s\S]*?\}/);
+const tints = css.match(/:root\s*\{\s*--tint-sky[\s\S]*?\}\s*\.dark\s*\{\s*--tint-sky[\s\S]*?\}/);
+if (!tints) throw new Error("build-styles: the --tint-* blocks moved; update the match above.");
 fs.writeFileSync(
   path.join(dist, "tokens.css"),
-  `/* @deepgrids/lark tokens: CSS variables only, for apps without Tailwind.\n   Light on :root, dusk on .dark. Generated; do not edit. */\n${block[0]}\n${elevation ? elevation[0] : ""}\n`
+  `/* @deepgrids/lark tokens: CSS variables only, for apps without Tailwind.\n   Light on :root, dusk on .dark. Generated; do not edit. */\n${block[0]}\n${elevation ? elevation[0] : ""}\n${tints[0]}\n`
 );
+
+/* ---------------------------------------------------------------- graph.css */
+// React Flow theme; opt-in, so apps without @xyflow/react never load it.
+fs.copyFileSync(path.join(root, "packages/lark/src/graph.css"), path.join(dist, "graph.css"));
 
 console.log(`styles.css ${styles.length} bytes, tokens.css, ${fonts.length} font files`);

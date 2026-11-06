@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HeroBand, IllustratedChoiceCard } from "@/components/lark/bands";
+import { GraphEdgeLabel, GraphNode } from "@/components/lark/graph";
 import { StepList } from "@/components/lark/steps";
 import { offsetDuration, Transcript, TranscriptLine } from "@/components/lark/transcript";
 import { Button } from "@/components/ui/button";
@@ -150,5 +151,44 @@ describe("Transcript (G11)", () => {
     expect(offsetDuration("1:02:05")).toBe("PT1H2M5S");
     expect(offsetDuration("12:31")).toBe("PT12M31S");
     expect(offsetDuration("10:42 AM")).toBeUndefined();
+  });
+});
+
+describe("Graph (G10)", () => {
+  it("GraphNode renders without React Flow: 216x64, tone tile, meta in words, selected announced, dimmed faded", async () => {
+    const { container } = render(
+      <main>
+        <GraphNode icon={art} meta="Account · Renewal" selected title="Northwind" tone="sky" />
+        <GraphNode dimmed meta="Contact" title="Dana" />
+        <div className="relative">
+          <GraphEdgeLabel>renews</GraphEdgeLabel>
+        </div>
+      </main>
+    );
+    const [a, b] = Array.from(container.querySelectorAll('[data-slot="graph-node"]')) as HTMLElement[];
+    expect(a.className).toContain("w-[216px]");
+    expect(a.className).toContain("h-16");
+    expect(a.className).toContain("rounded-lg");
+    expect(a.textContent).toBe("NorthwindAccount · Renewal, selected");
+    expect(a.querySelector('[data-slot="graph-node-icon"]')!.className).toContain("bg-tint-sky-strong");
+    expect(a.querySelector('[data-slot="graph-node-icon"]')!.getAttribute("aria-hidden")).toBe("true");
+    expect(b.hasAttribute("data-dimmed")).toBe(true);
+    expect(b.className).toContain("opacity-40");
+    expect(b.getAttribute("data-tone")).toBe("neutral");
+    const label = screen.getByText("renews");
+    expect(label.className).toContain("rounded-full");
+    expect(label.className).toContain("border-outline-variant");
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it("the main entry doesn't import @xyflow/react or the graph module", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const dir = path.resolve(__dirname, "../src/components/lark");
+    for (const f of fs.readdirSync(dir).filter((n) => /\.(tsx?)$/.test(n))) {
+      const src = fs.readFileSync(path.join(dir, f), "utf8");
+      expect(src, f).not.toMatch(/from\s*["']@xyflow\/react/);
+    }
+    expect(fs.readFileSync(path.join(dir, "index.ts"), "utf8")).not.toMatch(/\.\/graph/);
   });
 });

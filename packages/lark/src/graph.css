@@ -1,0 +1,116 @@
+/*
+  @deepgrids/lark/graph.css: Lark's theme for React Flow (@xyflow/react).
+  Import after React Flow's own CSS and after Lark's styles (it reads Lark's tokens):
+    @import "@xyflow/react/dist/style.css";
+    @import "@deepgrids/lark/graph.css";
+  Light on :root, dusk under .dark (Lark's roles flip there; the few values that don't are below).
+  Nodes: render GraphNode from "@deepgrids/lark/graph" inside a custom node type.
+*/
+
+.react-flow {
+  /* Canvas */
+  --xy-background-color: var(--canvas);
+  --xy-background-pattern-color: var(--outline-strong);
+  --xy-background-pattern-dots-color-default: var(--outline-strong);
+  --xy-background-pattern-lines-color-default: var(--outline-faint);
+  --xy-background-pattern-cross-color-default: var(--outline-variant);
+
+  /* Edges: outline at rest, primary when selected or connecting */
+  --xy-edge-stroke: var(--outline);
+  --xy-edge-stroke-width: 1.5;
+  --xy-edge-stroke-selected: var(--primary);
+  --xy-connectionline-stroke: var(--primary);
+  --xy-connectionline-stroke-width: 1.5;
+  --xy-edge-label-background-color: var(--surface);
+  --xy-edge-label-color: var(--on-surface-variant);
+
+  /* Nodes (the default node type; GraphNode draws its own box) */
+  --xy-node-color: var(--on-surface);
+  --xy-node-border: 1px solid var(--outline-variant);
+  --xy-node-background-color: var(--surface);
+  --xy-node-group-background-color: color-mix(in oklch, var(--surface-container) 40%, transparent);
+  --xy-node-border-radius: 12px;
+  --xy-node-boxshadow-hover: none;
+  --xy-node-boxshadow-selected: 0 0 0 2px var(--primary);
+
+  /* Handles */
+  --xy-handle-background-color: var(--surface);
+  --xy-handle-border-color: var(--outline);
+
+  /* Selection box */
+  --xy-selection-background-color: color-mix(in oklch, var(--primary) 8%, transparent);
+  --xy-selection-border: 1px solid var(--primary);
+
+  /* Controls: popover style */
+  --xy-controls-button-background-color: var(--popover);
+  --xy-controls-button-background-color-hover: var(--surface-container);
+  --xy-controls-button-color: var(--on-surface-variant);
+  --xy-controls-button-color-hover: var(--on-surface);
+  --xy-controls-button-border-color: var(--outline-faint);
+  --xy-controls-box-shadow: var(--elevation-menu);
+
+  /* Minimap */
+  --xy-minimap-background-color: var(--surface);
+  --xy-minimap-mask-background-color: color-mix(in oklch, var(--canvas) 70%, transparent);
+  --xy-minimap-mask-stroke-color: var(--outline-strong);
+  --xy-minimap-mask-stroke-width: 1;
+  --xy-minimap-node-background-color: var(--surface-container-high);
+  --xy-minimap-node-stroke-color: transparent;
+
+  --xy-attribution-background-color: transparent;
+  --xy-resize-background-color: var(--primary);
+  color: var(--on-surface);
+  font-family: var(--font-sans, inherit);
+}
+
+/* Dusk: the canvas mask needs more weight on dark surfaces. */
+.dark .react-flow,
+.react-flow.dark {
+  --xy-minimap-mask-background-color: color-mix(in oklch, var(--canvas) 80%, transparent);
+  --xy-minimap-node-background-color: var(--surface-container-highest);
+  --xy-handle-background-color: var(--surface-container-high);
+}
+
+/* Edges */
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus-visible .react-flow__edge-path { stroke: var(--primary); }
+.react-flow__edge-textbg { fill: var(--surface); }
+.react-flow__edge-text { fill: var(--on-surface-variant); font-size: 12px; }
+
+/* Nodes */
+.react-flow__node:focus-visible { outline: 2px solid var(--ring, var(--primary)); outline-offset: 2px; border-radius: 12px; }
+
+/* Handles: 8px, a ring in the outline colour; primary while connecting */
+.react-flow__handle { width: 8px; height: 8px; border-width: 1.5px; }
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto,
+.react-flow__handle.valid { background-color: var(--primary); border-color: var(--primary); }
+
+/* Controls: a popover (radius 8, hairline, menu shadow), 32px buttons */
+.react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  background: var(--popover);
+}
+.react-flow__controls-button { width: 32px; height: 32px; padding: 8px; }
+.react-flow__controls-button svg { max-width: 14px; max-height: 14px; }
+.react-flow__controls-button:focus-visible { outline: 2px solid var(--ring, var(--primary)); outline-offset: -2px; }
+.react-flow__controls-button:disabled { color: var(--on-surface-tertiary); opacity: 0.6; }
+
+/* Minimap: a card */
+.react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+}
+
+/* Attribution: small and quiet */
+.react-flow__attribution { font-size: 10px; opacity: 0.6; }
+.react-flow__attribution a { color: var(--on-surface-variant); }
+
+/* A dotted canvas without React Flow's <Background>: add class "lark-graph-dots" to <ReactFlow>. */
+.lark-graph-dots {
+  background-image: radial-gradient(circle, var(--outline-strong) 1px, transparent 1.2px);
+  background-size: 16px 16px;
+}

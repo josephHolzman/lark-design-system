@@ -46,6 +46,15 @@ change component APIs (each is listed here).
   `<ol>`; `TranscriptLine({ speaker, time, dateTime?, flag?, children })` shows the speaker at 450,
   the time as `<time>` in mono 12 (offsets like "12:31" get a duration `dateTime` via
   `offsetDuration()`), a flag as a Badge ("Commitment", "Risk", "Question"); long lines wrap.
+- **Graph theme for React Flow**: new entry `@deepgrids/lark/graph` with `GraphNode({ title,
+  meta, icon?, tone?, selected?, dimmed?, children })` (216×64, radius 12, 32px icon tile by tone,
+  meta names the category in words, Handles as children) and `GraphEdgeLabel` (pill,
+  outline-variant edge). `@deepgrids/lark/graph.css` maps React Flow's variables and classes to
+  Lark tokens: edges outline, selected edge primary, handles, controls in popover style, minimap,
+  dotted canvas (`.lark-graph-dots` without `<Background>`), dusk values. Neither imports
+  `@xyflow/react` (still an optional peer); the main entry doesn't import the graph entry (the
+  smoke test checks every module it reaches).
+- `tokens.css` now includes the `--tint-*` variables.
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6

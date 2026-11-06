@@ -18,6 +18,7 @@ import { ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, Use
 import { type LarkTheme, useTheme } from "@/components/lark/theme";
 import { StepList } from "@/components/lark/steps";
 import { Transcript, TranscriptLine } from "@/components/lark/transcript";
+import { GraphExample } from "./graph-example";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -694,6 +695,9 @@ export function Patterns() {
               If legal can&apos;t review the data processing addendum this month, signature slips to Q1.
             </TranscriptLine>
           </Transcript>
+        </Spec>
+        <Spec name="Graph (React Flow)" when="Records and how they relate (the ontology graph). GraphNode from @deepgrids/lark/graph inside a custom node, GraphEdgeLabel on edges, and @deepgrids/lark/graph.css for the canvas, edges, handles, controls and minimap. The meta line names each category in words; dimmed nodes are off the selected path.">
+          <GraphExample />
         </Spec>
       </Group>
 

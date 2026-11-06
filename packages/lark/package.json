@@ -44,6 +44,10 @@
       "types": "./dist/ai.d.mts",
       "import": "./dist/ai.js"
     },
+    "./graph": {
+      "types": "./dist/graph.d.mts",
+      "import": "./dist/graph.js"
+    },
     "./utils": {
       "types": "./dist/utils.d.mts",
       "import": "./dist/utils.js"
@@ -54,6 +58,7 @@
     },
     "./styles.css": "./dist/styles.css",
     "./tokens.css": "./dist/tokens.css",
+    "./graph.css": "./dist/graph.css",
     "./tokens/*.json": "./dist/tokens/*.json",
     "./fonts/*": "./dist/fonts/*",
     "./package.json": "./package.json"
