@@ -1,6 +1,6 @@
 "use client";
 
-import { ArchiveIcon, CopyIcon, FileTextIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, ScaleIcon, SparklesIcon, Trash2Icon } from "lucide-react";
+import { ArchiveIcon, CircleHelpIcon, CoinsIcon, CopyIcon, FileTextIcon, LayoutDashboardIcon, LayoutGridIcon, PencilIcon, PlusIcon, RefreshCwIcon, ScaleIcon, SparklesIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { AiRunCell, ConfidenceBadge, EvidencePopover, PlanReview, RunSteps } from "@/components/lark/ai";
@@ -12,7 +12,8 @@ import { CompanyLogo } from "@/components/lark/identity";
 import { DashboardLayout } from "@/components/lark/layouts";
 import { ActionMenu, ColumnsPanel, CountSegments, FacetFilterMenu, FacetList, SavedViewMenu, SplitButton, VerticalNav } from "@/components/lark/menus";
 import { PageHeader } from "@/components/lark/page-header";
-import { ThemeToggle } from "@/components/lark/shell";
+import { ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
+import { type LarkTheme, useTheme } from "@/components/lark/theme";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,13 @@ import { CopyButton, IconButton, ProgressRing, TextLink } from "@/components/ui/
 import { Label } from "@/components/ui/label";
 import { NumberInput } from "@/components/ui/number-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const roles = [
+  { value: "seller", label: "Seller", description: "Quote with ACE" },
+  { value: "deal-desk", label: "Deal desk", description: "Review quotes and approvals" },
+  { value: "revops", label: "RevOps" },
+  { value: "sales-ops", label: "Sales ops" },
+];
 
 function Group({ id, title, use, children }: { id: string; title: string; use: string; children: ReactNode }) {
   return (
@@ -79,6 +87,8 @@ export function Patterns() {
     { id: "f3", name: "Contracts.zip", state: "refused", detail: "archives aren't supported. Upload the files inside it." },
   ]);
   const [pinned, setPinned] = useState(false);
+  const [role, setRole] = useState("deal-desk");
+  const { theme, setTheme } = useTheme();
 
   return (
     <DashboardLayout header={<PageHeader className="pb-4" description="Every Lark pattern with when to use it. Live components; interact with them." title="Patterns" />}>
@@ -516,6 +526,51 @@ export function Patterns() {
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <code className="font-mono text-body-sm text-on-surface-variant">{`<ThemeScript storageKey="app-theme" attribute="both" />`}</code>
+            </div>
+          </Spec>
+          <Spec name="User menu" when="The person, their role and everything about their session: profile, workspaces, working role, theme, help. Sections are ruled; one-of-many choices are radio items that say which is on.">
+            <div className="flex items-center gap-2">
+              <UserMenu detail={`${roles.find((r) => r.value === role)?.label} · Deal Desk view`} name="Avery Chen">
+                <UserMenuSection>
+                  <UserMenuItem href="#shell" icon={<UserIcon />} shortcut="Ctrl ,">
+                    Profile and preferences
+                  </UserMenuItem>
+                  <UserMenuSub icon={<LayoutGridIcon />} label="Switch workspace">
+                    {["Platform", "AI Studio", "Company ontology", "ACE Calls", "Companion", "All spaces"].map((w) => (
+                      <UserMenuItem href="#shell" key={w}>
+                        {w}
+                      </UserMenuItem>
+                    ))}
+                  </UserMenuSub>
+                </UserMenuSection>
+                <UserMenuSection>
+                  <UserMenuRadioGroup label="Working role" onValueChange={setRole} options={roles} value={role} />
+                </UserMenuSection>
+                <UserMenuSection>
+                  <UserMenuRadioGroup
+                    label="Theme"
+                    onValueChange={(v) => setTheme(v as LarkTheme)}
+                    options={[
+                      { value: "light", label: "Light" },
+                      { value: "dusk", label: "Dark" },
+                      { value: "system", label: "System" },
+                    ]}
+                    value={theme}
+                  />
+                </UserMenuSection>
+                <UserMenuSection>
+                  <UserMenuItem href="#shell" icon={<CircleHelpIcon />}>
+                    Help and documentation
+                  </UserMenuItem>
+                  <UserMenuItem href="#shell" icon={<CoinsIcon />}>
+                    Usage and credits
+                  </UserMenuItem>
+                  <UserMenuItem icon={<RefreshCwIcon />} onSelect={() => {}}>
+                    Refresh workspace
+                  </UserMenuItem>
+                </UserMenuSection>
+              </UserMenu>
+              <span className="text-body-sm text-on-surface-variant">Open the avatar</span>
             </div>
           </Spec>
         </div>

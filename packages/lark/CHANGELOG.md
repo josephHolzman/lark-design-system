@@ -10,6 +10,11 @@ change component APIs (each is listed here).
   `"lark-theme"`) and `attribute` (`"class"` default, `"data-theme"`, `"both"`). The change event
   is `"<storageKey>-change"` (`themeEventName()`); `themeScriptSource()` returns the boot script.
   A stored `"dark"` reads as dusk.
+- **Composable `UserMenu`**: `UserMenu({ name, detail?, email?, avatar?, children })` with
+  `UserMenuSection` (optional label), `UserMenuItem` (icon, `href` or `onSelect`, shortcut,
+  destructive, disabled), `UserMenuSub` (label, icon) and `UserMenuRadioGroup` (label, value,
+  onValueChange, options with descriptions; checked state announced). With no children it still
+  shows Profile, Admin and Sign out.
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6

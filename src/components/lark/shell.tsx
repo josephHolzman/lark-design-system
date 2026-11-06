@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { LarkLink as Link } from "./provider";
 import { type ThemeOptions, useTheme } from "./theme";
-import { Fragment, type ReactNode, useEffect, useState } from "react";
+import { Fragment, type ReactNode, useEffect, useId, useState } from "react";
 
 import {
   Breadcrumb,
@@ -32,9 +32,16 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Kbd } from "@/components/ui/kbd";
@@ -408,7 +415,31 @@ export function ThemeToggle(options: ThemeOptions = {}) {
   );
 }
 
-export function UserMenu({ name, email }: { name: string; email: string }) {
+/* ---------------------------------------------------------------- UserMenu */
+
+/**
+ * The person's menu, opened from their avatar at the right of the top bar. Compose it from
+ * `UserMenuSection`, `UserMenuItem`, `UserMenuSub` and `UserMenuRadioGroup`; with no children it
+ * shows Profile, Admin and Sign out. Escape closes it and returns focus to the avatar.
+ */
+export function UserMenu({
+  name,
+  detail,
+  email,
+  avatar,
+  children,
+  className,
+}: {
+  name: string;
+  /** Second line under the name, e.g. "Viewer · Deal Desk view". */
+  detail?: ReactNode;
+  /** Shown in mono under the name (and detail). */
+  email?: string;
+  /** Replaces the initials avatar in the trigger. */
+  avatar?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -417,20 +448,132 @@ export function UserMenu({ name, email }: { name: string; email: string }) {
           className="focus-ring hit-area ml-1 inline-flex rounded-full outline-none"
           type="button"
         >
-          <PersonAvatar name={name} size="md" />
+          {avatar ?? <PersonAvatar name={name} size="md" />}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="flex flex-col">
+      <DropdownMenuContent align="end" className={cn("w-64", className)}>
+        <DropdownMenuLabel className="flex flex-col gap-0.5">
           <span className="text-title-sm">{name}</span>
-          <span className="font-mono text-xs font-normal text-on-surface-variant">{email}</span>
+          {detail && <span className="text-body-sm font-normal text-on-surface-variant">{detail}</span>}
+          {email && <span className="font-mono text-xs font-normal text-on-surface-variant">{email}</span>}
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>Admin</DropdownMenuItem>
-        <DropdownMenuItem>Sign out</DropdownMenuItem>
+        {children ?? (
+          <UserMenuSection>
+            <UserMenuItem>Profile</UserMenuItem>
+            <UserMenuItem>Admin</UserMenuItem>
+            <UserMenuItem>Sign out</UserMenuItem>
+          </UserMenuSection>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+/** A ruled group of items, with an optional label (sentence case, 12/18). */
+export function UserMenuSection({ label, children }: { label?: string; children: ReactNode }) {
+  const id = useId();
+  return (
+    <>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup aria-labelledby={label ? id : undefined}>
+        {label && (
+          <DropdownMenuLabel className="text-label-md font-normal text-on-surface-variant" id={id}>
+            {label}
+          </DropdownMenuLabel>
+        )}
+        {children}
+      </DropdownMenuGroup>
+    </>
+  );
+}
+
+/** One menu item: a link (href) or an action (onSelect), with an optional icon and shortcut. */
+export function UserMenuItem({
+  icon,
+  href,
+  onSelect,
+  shortcut,
+  destructive,
+  disabled,
+  children,
+}: {
+  icon?: ReactNode;
+  href?: string;
+  onSelect?: () => void;
+  /** Shown right-aligned, e.g. "Ctrl ,". Display only; bind the key yourself. */
+  shortcut?: string;
+  destructive?: boolean;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  const body = (
+    <>
+      {icon}
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      {shortcut && <DropdownMenuShortcut className="tracking-normal">{shortcut}</DropdownMenuShortcut>}
+    </>
+  );
+  if (href && !disabled) {
+    return (
+      <DropdownMenuItem asChild onSelect={onSelect} variant={destructive ? "destructive" : "default"}>
+        <Link href={href}>{body}</Link>
+      </DropdownMenuItem>
+    );
+  }
+  return (
+    <DropdownMenuItem disabled={disabled} onSelect={onSelect} variant={destructive ? "destructive" : "default"}>
+      {body}
+    </DropdownMenuItem>
+  );
+}
+
+/** An item that opens a submenu (right arrow, or Enter / Space / → from the keyboard). */
+export function UserMenuSub({ label, icon, children }: { label: string; icon?: ReactNode; children: ReactNode }) {
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        {icon}
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent className="min-w-48 rounded-md border-outline-variant shadow-md">{children}</DropdownMenuSubContent>
+    </DropdownMenuSub>
+  );
+}
+
+export type UserMenuOption = { value: string; label: string; description?: string };
+
+/**
+ * Pick one (role, theme). Items are menuitemradio with aria-checked, and the chosen one shows a
+ * dot, so the state is both announced and visible.
+ */
+export function UserMenuRadioGroup({
+  label,
+  value,
+  onValueChange,
+  options,
+}: {
+  label?: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: UserMenuOption[];
+}) {
+  const id = useId();
+  return (
+    <DropdownMenuRadioGroup aria-labelledby={label ? id : undefined} onValueChange={onValueChange} value={value}>
+      {label && (
+        <DropdownMenuLabel className="text-label-md font-normal text-on-surface-variant" id={id}>
+          {label}
+        </DropdownMenuLabel>
+      )}
+      {options.map((o) => (
+        <DropdownMenuRadioItem className="items-start" key={o.value} value={o.value}>
+          <span className="flex min-w-0 flex-col">
+            <span className={cn(o.value === value && "font-medium text-on-surface")}>{o.label}</span>
+            {o.description && <span className="text-body-sm text-on-surface-variant">{o.description}</span>}
+          </span>
+        </DropdownMenuRadioItem>
+      ))}
+    </DropdownMenuRadioGroup>
   );
 }
 

@@ -7,7 +7,7 @@ import { ActionReceipt, ActionReview, AnswerSources, ClarifyQuestion, Conversati
 import { type ColumnDef, DataGrid } from "@/components/lark/data-grid";
 import { InlineEdit } from "@/components/lark/editing";
 import { Banner, Callout, StatePanel } from "@/components/lark/feedback";
-import { ThemeToggle } from "@/components/lark/shell";
+import { ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { themeEventName, themeScriptSource, useTheme } from "@/components/lark/theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -179,6 +179,76 @@ describe("date pickers", () => {
     expect(onValueChange.mock.lastCall?.[0]).toEqual({ from: new Date(2026, 9, 1), to: new Date(2026, 9, 9) });
     await user.click(screen.getByRole("button", { name: "This quarter" }));
     expect(onValueChange).toHaveBeenLastCalledWith(range);
+  });
+});
+
+describe("UserMenu", () => {
+  function Menu({ onRole = () => {} }: { onRole?: (v: string) => void }) {
+    const [role, setRole] = useState("viewer");
+    return (
+      <UserMenu detail="Viewer · Deal Desk view" name="Avery Chen">
+        <UserMenuSection>
+          <UserMenuItem href="/profile" shortcut="Ctrl ,">
+            Profile and preferences
+          </UserMenuItem>
+          <UserMenuSub label="Switch workspace">
+            <UserMenuItem href="/studio">AI Studio</UserMenuItem>
+          </UserMenuSub>
+        </UserMenuSection>
+        <UserMenuSection label="Working role">
+          <UserMenuRadioGroup
+            onValueChange={(v) => {
+              setRole(v);
+              onRole(v);
+            }}
+            options={[
+              { value: "seller", label: "Seller", description: "Quote with ACE" },
+              { value: "viewer", label: "Viewer" },
+            ]}
+            value={role}
+          />
+        </UserMenuSection>
+      </UserMenu>
+    );
+  }
+
+  it("announces the checked role, switches it and has no axe violations", async () => {
+    const user = userEvent.setup();
+    const onRole = vi.fn();
+    render(<Menu onRole={onRole} />);
+    await user.click(screen.getByRole("button", { name: "Account: Avery Chen" }));
+    const menu = await screen.findByRole("menu");
+    expect(screen.getByText("Viewer · Deal Desk view")).toBeTruthy();
+    expect(within(menu).getByRole("menuitemradio", { name: "Viewer" }).getAttribute("aria-checked")).toBe("true");
+    expect(within(menu).getByRole("menuitemradio", { name: /Seller/ }).getAttribute("aria-checked")).toBe("false");
+    expect(within(menu).getByRole("group", { name: "Working role" })).toBeTruthy();
+    expect(within(menu).getByRole("menuitem", { name: /Profile and preferences/ }).getAttribute("href")).toBe("/profile");
+    expect(await axeViolations(menu)).toEqual([]);
+    await user.click(within(menu).getByRole("menuitemradio", { name: /Seller/ }));
+    expect(onRole).toHaveBeenCalledWith("seller");
+  });
+
+  it("opens the submenu from the keyboard and Escape returns focus to the avatar", async () => {
+    const user = userEvent.setup();
+    render(<Menu />);
+    const trigger = screen.getByRole("button", { name: "Account: Avery Chen" });
+    trigger.focus();
+    await user.keyboard("{Enter}");
+    const sub = await screen.findByRole("menuitem", { name: "Switch workspace" });
+    sub.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(await screen.findByRole("menuitem", { name: "AI Studio" })).toBeTruthy();
+    await user.keyboard("{Escape}");
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("still renders the default items for callers without children", async () => {
+    const user = userEvent.setup();
+    render(<UserMenu email="avery@example.com" name="Avery Chen" />);
+    await user.click(screen.getByRole("button", { name: "Account: Avery Chen" }));
+    expect(await screen.findByRole("menuitem", { name: "Sign out" })).toBeTruthy();
   });
 });
 
