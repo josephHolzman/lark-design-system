@@ -1,6 +1,6 @@
 {
   "name": "@josephholzman/lark",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Lark, Deepgrids' design system: Apollo Beams structure with the lark palette. React 19 + Tailwind v4 components, AI chat states, data grid and tokens.",
   "license": "UNLICENSED",
   "author": "Deepgrids",
