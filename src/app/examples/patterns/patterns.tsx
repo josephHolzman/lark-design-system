@@ -648,7 +648,7 @@ export function Patterns() {
                 ["seller", "Seller", "Draft and price quotes with ACE, then send them for approval.", "sky"],
                 ["deal-desk", "Deal desk", "Review quotes and approvals, with policy checks and the price waterfall.", "sand"],
                 ["revops", "RevOps", "Watch pipeline health and fix the data behind the forecast.", "evergreen"],
-                ["sales-ops", "Sales ops", "Set pricing rules, approval routes and the guardrails ACE follows.", "iris"],
+                ["sales-ops", "Sales ops", "Set pricing rules, approval routes and the guardrails ACE follows.", "ember"],
               ] as const
             ).map(([id, title, description, tone]) => (
               <IllustratedChoiceCard current={id === role} description={description} href="#leads" key={id} media={<Illustration tone={tone} />} title={title} tone={tone} />
