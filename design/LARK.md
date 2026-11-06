@@ -220,3 +220,25 @@ answer lands (`"settle"`); an answer's zones rise in 70ms apart (`.lark-render-i
 a zone a beat later (`.lark-stagger`); figures count up (`CountUp`); bars grow from their start
 (`.lark-bar-grow`); one arriving card pops in (`.lark-pop-in`). Under prefers-reduced-motion
 everything is still and final values show at once.
+
+## v0.5: for the Deepgrids workspace
+
+New in 0.5 (gap list G1–G11). Live examples: `/examples/patterns` ("Page leads", "Steps,
+transcripts and graphs", "Shell, identity and figures").
+
+| Component | Use it when |
+|---|---|
+| `ThemeScript` / `useTheme` / `ThemeToggle` `storageKey`, `attribute` | The app already stores a theme under its own key or keys its CSS off `data-theme` (use `"both"` so Lark's `.dark` tokens still apply). |
+| `UserMenu` + `UserMenuSection`, `UserMenuItem`, `UserMenuSub`, `UserMenuRadioGroup` | The avatar menu: the person and role, profile, workspace switcher, working role and theme as radio groups, help. |
+| `AppSidebar` `scope`, `footerItems`; `NavGroup` `collapsible`; `NavItem` `badge`; `ScopePill` | The sidebar says which data it shows (example data, sandbox), groups collapse, counts mark what's waiting. |
+| `HeroBand` | A home or role page opens: one tinted band, title, one line, one or two actions (one brand at most), an illustration. Once per page; never sticky. |
+| `IllustratedChoiceCard` | An entry page offers a few big choices (the roles): each card is one link with an illustration; the current one is marked. |
+| `Figure` / `FigureCard` `icon`, `caption`, `href` | A home's next steps as numbers that link to the list behind them ("Quotes to work on 36 · Continue a draft"). |
+| `ServiceLogo` (Snowflake, MCP, email; `src`) | Naming a connected source, always beside its name; `src` for a mark only the app has. |
+| `StepList` | Steps in order with state: setup, onboarding, a check's stages. Not for navigation (that's `PageTabs`) or running AI work (`RunSteps`). |
+| `GraphNode`, `GraphEdgeLabel`, `graph.css` (`@deepgrids/lark/graph`) | Records and their relationships on a React Flow canvas (the ontology graph). Workflow canvases keep `/ai`'s `Node`. |
+| `Transcript` / `TranscriptLine` | What was said: a meeting transcript or a deal room's chat lines, with speaker, time and Commitment / Risk / Question flags. Not for ACE conversations (`lark/chat`). |
+
+Tones for bands, choice cards and graph tiles are `sky`, `sand`, `evergreen`, `ember`, `iris`
+(`--tint-<tone>` and `--tint-<tone>-strong`). Iris still means AI: don't use it for a role or
+category that isn't ACE's.
