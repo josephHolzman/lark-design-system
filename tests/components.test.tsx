@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
+import { DatePicker, DateRangePicker } from "@/components/ui/date-picker";
 import { FileRow } from "@/components/ui/file-dropzone";
 import { NumberInput } from "@/components/ui/number-input";
 
@@ -150,6 +151,34 @@ describe("behaviour", () => {
     await user.click(screen.getByRole("combobox", { name: "Account" }));
     await user.click(await screen.findByRole("option", { name: /Halvorsen/ }));
     expect(onValueChange).toHaveBeenCalledWith("hg");
+  });
+});
+
+describe("date pickers", () => {
+  it("DatePicker opens a calendar, picks a day and names the value", async () => {
+    const user = userEvent.setup();
+    function Host() {
+      const [d, setD] = useState<Date | undefined>(new Date(2026, 10, 14));
+      return <DatePicker aria-label="Close date" onValueChange={setD} value={d} />;
+    }
+    render(<Host />);
+    await user.click(screen.getByRole("button", { name: "Close date, Nov 14, 2026" }));
+    const grid = await screen.findByRole("grid");
+    expect(await axeViolations(grid)).toEqual([]);
+    await user.click(within(grid).getByRole("button", { name: /November 20/ }));
+    expect(screen.getByRole("button", { name: "Close date, Nov 20, 2026" })).toBeTruthy();
+  });
+
+  it("DateRangePicker applies a preset and picks a range", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const range = { from: new Date(2026, 9, 1), to: new Date(2026, 11, 31) };
+    render(<DateRangePicker aria-label="Period" onValueChange={onValueChange} presets={[{ label: "This quarter", range: () => range }]} value={{ from: new Date(2026, 9, 1) }} />);
+    await user.click(screen.getByRole("button", { name: /Period, Oct 1, 2026 – pick an end date/ }));
+    await user.click(screen.getAllByRole("button", { name: /October 9/ })[0]);
+    expect(onValueChange.mock.lastCall?.[0]).toEqual({ from: new Date(2026, 9, 1), to: new Date(2026, 9, 9) });
+    await user.click(screen.getByRole("button", { name: "This quarter" }));
+    expect(onValueChange).toHaveBeenLastCalledWith(range);
   });
 });
 

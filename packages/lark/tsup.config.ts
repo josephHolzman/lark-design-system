@@ -22,7 +22,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   // Everything that isn't relative or the @/ alias is a dependency the consumer installs.
-  external: [/^(?!@\/)(?![./])/],
+  // (Windows absolute paths like C:\ are local too, or the entries themselves become external.)
+  external: [/^(?!@\/)(?![./])(?![A-Za-z]:[\\/])/],
   esbuildOptions(options) {
     options.alias = { "@": path.join(root, "src") };
     options.jsx = "automatic";

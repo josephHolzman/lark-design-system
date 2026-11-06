@@ -11,6 +11,13 @@ change component APIs (each is listed here).
   is `"<storageKey>-change"` (`themeEventName()`); `themeScriptSource()` returns the boot script.
   A stored `"dark"` reads as dusk.
 
+### Changed
+- Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6
+  install without ERESOLVE).
+- `react-day-picker` dependency is `^9.13.0 || ^10.0.0`. The date pickers pass their tests and
+  type-check on 9.13 and 10.0.2; `Calendar` now styles the grid through `month_grid` (the old
+  `table` class key is gone in 10). The repo develops on 10.
+
 ## 0.4.0 (2026-11-05)
 
 ### Added
