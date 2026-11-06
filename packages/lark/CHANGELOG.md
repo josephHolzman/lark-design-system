@@ -3,7 +3,26 @@
 All notable changes to Lark (`@josephholzman/lark`, imported as `@deepgrids/lark`). Versions follow semver; until 1.0, minor versions may
 change component APIs (each is listed here).
 
-## Unreleased
+## 0.5.0 (2026-11-05)
+
+What the Deepgrids workspace needs (gap list G1–G11):
+
+- G1 Theme storage and attribute options: `storageKey` and `attribute` on `ThemeScript`, `useTheme`, `ThemeToggle`.
+- G2 Optional peer ranges: `motion` `>=12 <15`, `nanoid` `>=5 <7`; `react-day-picker` 9.13 or 10.
+- G3 Composable `UserMenu` with sections, items, a submenu and radio groups.
+- G4 Sidebar extras: `scope` (`ScopePill`), collapsible groups, item badges, footer items.
+- G5 `HeroBand`: a page's tinted lead band.
+- G6 `IllustratedChoiceCard`: a big one-link choice with an illustration.
+- G7 `Figure` / `FigureCard` with an icon tile and a caption; the whole card is one link.
+- G8 Snowflake, MCP and email logos; `ServiceLogo` `src` for app-provided marks.
+- G9 `StepList`: ordered steps with state in words.
+- G10 Graph theme for React Flow: `@deepgrids/lark/graph` (`GraphNode`, `GraphEdgeLabel`) and `@deepgrids/lark/graph.css`.
+- G11 `Transcript` / `TranscriptLine`: speaker, `<time>`, flag badges.
+
+**Breaking changes: none.** Every new prop is optional or on a new component, and 0.4 code
+compiles and renders unchanged. Three things look or resolve differently (listed under Changed):
+`serviceKey("Email")` returns the email envelope instead of Outlook, `Figure` captions are
+tertiary, and `Figure` `icon` is a 32px tile.
 
 ### Added
 - **Theme options**: `ThemeScript`, `useTheme` and `ThemeToggle` take `storageKey` (default
@@ -27,7 +46,6 @@ change component APIs (each is listed here).
   "snowflake", "mcp" / "model context protocol", "email" / "mail". `ServiceLogo` takes `src` for an
   app-provided mark (https:, `data:image/` or relative; anything else is ignored; see
   `safeLogoSrc()`).
-
 - **`HeroBand`** (`lark/bands`): a page's lead band. `eyebrow`, `title` (`as` "h1" | "h2"),
   `description` (body-lg), `actions` (at most one brand button), `media` (decorative unless
   `mediaAlt`), `tone` ("sky" | "sand" | "evergreen" | "ember" | "iris"). Radius 16, tinted fill;
@@ -94,7 +112,6 @@ change component APIs (each is listed here).
 - `useTheme` and `ThemeScript` (light, dusk, system; no flash on load).
 - Package ships `tokens.css` (variables only), DTCG token JSON (`tokens/*.tokens.json`) for
   Figma variables, and the Hanken Grotesk and Geist Mono variable fonts (OFL).
-
 
 ### Changed
 - Published as `@josephholzman/lark` on GitHub Packages (repo `josephHolzman/lark-design-system`);
