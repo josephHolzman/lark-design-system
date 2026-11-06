@@ -23,3 +23,4 @@ export * from "./shell";
 export * from "./status-badge";
 export * from "./steps";
 export * from "./theme";
+export * from "./transcript";

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { HeroBand, IllustratedChoiceCard } from "@/components/lark/bands";
 import { StepList } from "@/components/lark/steps";
+import { offsetDuration, Transcript, TranscriptLine } from "@/components/lark/transcript";
 import { Button } from "@/components/ui/button";
 
 import { axeViolations } from "./axe";
@@ -113,5 +114,41 @@ describe("StepList (G9)", () => {
     expect(screen.getByRole("list").getAttribute("data-orientation")).toBe("horizontal");
     expect(container.querySelector('[data-slot="step-marker"]')!.textContent).toBe("");
     expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe("Transcript (G11)", () => {
+  it("is a labelled ordered list of lines with <time> and flag badges", async () => {
+    const long = "word ".repeat(80).trim();
+    const { container } = render(
+      <main>
+        <Transcript label="Northwind call">
+          <TranscriptLine speaker="Dana" time="03:40" flag="Question">
+            Can seats start in January?
+          </TranscriptLine>
+          <TranscriptLine dateTime="2026-11-03T10:42" speaker="Avery" time="10:42 AM">
+            {long}
+          </TranscriptLine>
+        </Transcript>
+      </main>
+    );
+    const list = screen.getByRole("list", { name: "Northwind call" });
+    expect(list.tagName).toBe("OL");
+    const lines = screen.getAllByRole("listitem");
+    expect(lines).toHaveLength(2);
+    const times = container.querySelectorAll("time");
+    expect(times[0].getAttribute("dateTime")).toBe("PT3M40S");
+    expect(times[0].className).toContain("font-mono");
+    expect(times[1].getAttribute("dateTime")).toBe("2026-11-03T10:42");
+    expect(screen.getByText("Question").getAttribute("data-slot")).toBe("badge");
+    expect(lines[0].getAttribute("data-flag")).toBe("Question");
+    expect(screen.getByText(long).className).toContain("break-words");
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it("offsetDuration reads mm:ss and h:mm:ss only", () => {
+    expect(offsetDuration("1:02:05")).toBe("PT1H2M5S");
+    expect(offsetDuration("12:31")).toBe("PT12M31S");
+    expect(offsetDuration("10:42 AM")).toBeUndefined();
   });
 });

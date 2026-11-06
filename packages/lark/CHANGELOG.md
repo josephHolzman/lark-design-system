@@ -42,6 +42,10 @@ change component APIs (each is listed here).
   stacks under 640), `numbered` (default true). An `<ol>`; state in words for screen readers
   (`STEP_STATE_LABEL`); the current step has aria-current="step"; done shows a check; blocked
   shows its reason in the description.
+- **`Transcript` / `TranscriptLine`** (`lark/transcript`): `Transcript({ label, children })` is an
+  `<ol>`; `TranscriptLine({ speaker, time, dateTime?, flag?, children })` shows the speaker at 450,
+  the time as `<time>` in mono 12 (offsets like "12:31" get a duration `dateTime` via
+  `offsetDuration()`), a flag as a Badge ("Commitment", "Risk", "Question"); long lines wrap.
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6

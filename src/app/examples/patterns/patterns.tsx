@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/lark/page-header";
 import { ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { type LarkTheme, useTheme } from "@/components/lark/theme";
 import { StepList } from "@/components/lark/steps";
+import { Transcript, TranscriptLine } from "@/components/lark/transcript";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -677,6 +678,22 @@ export function Patterns() {
               ]}
             />
           </div>
+        </Spec>
+        <Spec name="Transcript" when="What was said in a call or a deal room: speaker, time (an offset or a clock time) and the words; flags mark commitments, risks and questions. An ordered list, so position is announced; long lines wrap.">
+          <Transcript className="max-w-[720px]" label="Northwind renewal call, Nov 3">
+            <TranscriptLine speaker="Dana Whitfield" time="02:14">
+              Thanks for sending the revised quote. Procurement has a few questions before Friday.
+            </TranscriptLine>
+            <TranscriptLine flag="Question" speaker="Dana Whitfield" time="03:40">
+              Can the 1,200 analytics seats start in January instead of December, without changing the annual price?
+            </TranscriptLine>
+            <TranscriptLine flag="Commitment" speaker="Avery Chen" time="04:05">
+              Yes. I&apos;ll send an updated schedule with a January start by Wednesday.
+            </TranscriptLine>
+            <TranscriptLine flag="Risk" speaker="Dana Whitfield" time="1:02:31">
+              If legal can&apos;t review the data processing addendum this month, signature slips to Q1.
+            </TranscriptLine>
+          </Transcript>
         </Spec>
       </Group>
 
