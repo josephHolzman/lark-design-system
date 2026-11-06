@@ -12,6 +12,7 @@ import { CompanyLogo } from "@/components/lark/identity";
 import { DashboardLayout } from "@/components/lark/layouts";
 import { ActionMenu, ColumnsPanel, CountSegments, FacetFilterMenu, FacetList, SavedViewMenu, SplitButton, VerticalNav } from "@/components/lark/menus";
 import { PageHeader } from "@/components/lark/page-header";
+import { ThemeToggle } from "@/components/lark/shell";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,7 @@ export function Patterns() {
           ["fields", "Fields and inputs"],
           ["tabs", "Tabs and switches"],
           ["ai", "AI patterns"],
+          ["shell", "Shell and identity"],
           ["layouts", "Layouts"],
         ].map(([id, label]) => (
           <Button asChild key={id} size="sm" variant="secondary">
@@ -505,6 +507,17 @@ export function Patterns() {
             <RunSteps steps={[{ id: "a", title: "Read quote R4", state: "done" }, { id: "b", title: "Check policy", state: "done" }, { id: "c", title: "Check MSA", state: "failed", detail: "Contract not found in Drive" }]} title="Pricing review" />
             <ChangeReview changes={[{ id: "1", field: "Platform discount", from: "24%", to: "20%", by: "ACE" }, { id: "2", field: "Payment terms", from: "Net 45", to: "Net 30", by: "Priya Raman" }]} />
           </div>
+        </div>
+      </Group>
+
+      <Group id="shell" title="Shell, identity and figures" use="The frame around every page: theme, the person's menu, the sidebar, headline figures and the marks of the services Lark connects to.">
+        <div className="grid items-start gap-4 lg:grid-cols-2">
+          <Spec name="Theme" when="ThemeScript in <head>, then useTheme or ThemeToggle. Apps with their own stored theme pass storageKey and attribute (class, data-theme or both) to all three.">
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <code className="font-mono text-body-sm text-on-surface-variant">{`<ThemeScript storageKey="app-theme" attribute="both" />`}</code>
+            </div>
+          </Spec>
         </div>
       </Group>
 

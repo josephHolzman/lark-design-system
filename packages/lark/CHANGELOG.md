@@ -3,6 +3,14 @@
 All notable changes to Lark (`@josephholzman/lark`, imported as `@deepgrids/lark`). Versions follow semver; until 1.0, minor versions may
 change component APIs (each is listed here).
 
+## Unreleased
+
+### Added
+- **Theme options**: `ThemeScript`, `useTheme` and `ThemeToggle` take `storageKey` (default
+  `"lark-theme"`) and `attribute` (`"class"` default, `"data-theme"`, `"both"`). The change event
+  is `"<storageKey>-change"` (`themeEventName()`); `themeScriptSource()` returns the boot script.
+  A stored `"dark"` reads as dusk.
+
 ## 0.4.0 (2026-11-05)
 
 ### Added

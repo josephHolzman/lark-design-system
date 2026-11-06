@@ -7,6 +7,8 @@ import { ActionReceipt, ActionReview, AnswerSources, ClarifyQuestion, Conversati
 import { type ColumnDef, DataGrid } from "@/components/lark/data-grid";
 import { InlineEdit } from "@/components/lark/editing";
 import { Banner, Callout, StatePanel } from "@/components/lark/feedback";
+import { ThemeToggle } from "@/components/lark/shell";
+import { themeEventName, themeScriptSource, useTheme } from "@/components/lark/theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -148,5 +150,76 @@ describe("behaviour", () => {
     await user.click(screen.getByRole("combobox", { name: "Account" }));
     await user.click(await screen.findByRole("option", { name: /Halvorsen/ }));
     expect(onValueChange).toHaveBeenCalledWith("hg");
+  });
+});
+
+describe("theme options", () => {
+  const html = document.documentElement;
+  const reset = () => {
+    localStorage.clear();
+    html.className = "";
+    html.removeAttribute("data-theme");
+  };
+
+  it("ThemeScript (class, default key) reads lark-theme and sets .dark only", () => {
+    reset();
+    localStorage.setItem("lark-theme", "dusk");
+    new Function(themeScriptSource())();
+    expect(html.classList.contains("dark")).toBe(true);
+    expect(html.hasAttribute("data-theme")).toBe(false);
+  });
+
+  it("ThemeScript with data-theme and a custom key writes the attribute, not the class", () => {
+    reset();
+    localStorage.setItem("deepgrids-intelligence-theme", "dark");
+    new Function(themeScriptSource({ storageKey: "deepgrids-intelligence-theme", attribute: "data-theme" }))();
+    expect(html.getAttribute("data-theme")).toBe("dark");
+    expect(html.classList.contains("dark")).toBe(false);
+    localStorage.setItem("deepgrids-intelligence-theme", "light");
+    new Function(themeScriptSource({ storageKey: "deepgrids-intelligence-theme", attribute: "both" }))();
+    expect(html.getAttribute("data-theme")).toBe("light");
+    expect(html.classList.contains("dark")).toBe(false);
+  });
+
+  it("ThemeScript escapes the key so it can't close the script", () => {
+    expect(themeScriptSource({ storageKey: "</script><b>" })).not.toContain("</script>");
+  });
+
+  it("ThemeToggle with attribute both and a custom key stores under that key and fires its event", async () => {
+    reset();
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    window.addEventListener(themeEventName("app-theme"), onChange);
+    render(<ThemeToggle attribute="both" storageKey="app-theme" />);
+    const toggle = screen.getByRole("button", { name: "Dusk theme" });
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    await user.click(toggle);
+    expect(localStorage.getItem("app-theme")).toBe("dusk");
+    expect(localStorage.getItem("lark-theme")).toBeNull();
+    expect(html.classList.contains("dark")).toBe(true);
+    expect(html.getAttribute("data-theme")).toBe("dark");
+    expect(onChange).toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Dusk theme" }).getAttribute("aria-pressed")).toBe("true");
+    window.removeEventListener(themeEventName("app-theme"), onChange);
+    reset();
+  });
+
+  it("useTheme in data-theme mode resolves from the attribute", async () => {
+    reset();
+    const user = userEvent.setup();
+    function Probe() {
+      const { theme, resolved, setTheme } = useTheme({ attribute: "data-theme", storageKey: "k" });
+      return (
+        <button onClick={() => setTheme("dusk")} type="button">
+          {theme}/{resolved}
+        </button>
+      );
+    }
+    render(<Probe />);
+    await user.click(screen.getByRole("button"));
+    expect(screen.getByRole("button").textContent).toBe("dusk/dusk");
+    expect(html.classList.contains("dark")).toBe(false);
+    expect(themeEventName()).toBe("lark-theme-change");
+    reset();
   });
 });

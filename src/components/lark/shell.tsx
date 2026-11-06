@@ -8,7 +8,7 @@ import {
   SunIcon,
 } from "lucide-react";
 import { LarkLink as Link } from "./provider";
-import { useTheme } from "./theme";
+import { type ThemeOptions, useTheme } from "./theme";
 import { Fragment, type ReactNode, useEffect, useState } from "react";
 
 import {
@@ -398,8 +398,8 @@ export function AskAceButton({ onClick, label = "Ask ACE" }: { onClick?: () => v
 }
 
 /** Light / dusk switch (see theme.tsx). Remembered per browser; follows the system until used. */
-export function ThemeToggle() {
-  const { resolved, setTheme } = useTheme();
+export function ThemeToggle(options: ThemeOptions = {}) {
+  const { resolved, setTheme } = useTheme(options);
   const dark = resolved === "dusk";
   return (
     <TopbarIconButton label="Dusk theme" onClick={() => setTheme(dark ? "light" : "dusk")} pressed={dark}>

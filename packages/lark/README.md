@@ -87,7 +87,10 @@ To try an unreleased build: `npm run pack:lib` in the Lark repo writes
 
 4. **Theme.** Put `<ThemeScript />` in `<head>` (sets light or dusk before first paint, following
    the system until someone chooses) and use `useTheme()` or `<ThemeToggle />` to switch. Dusk is
-   the `.dark` class on `<html>`; add `suppressHydrationWarning` to `<html>`.
+   the `.dark` class on `<html>`; add `suppressHydrationWarning` to `<html>`. Apps that already
+   store a theme pass the same `storageKey` (default `"lark-theme"`) and `attribute` (`"class"`,
+   `"data-theme"` for `data-theme="light|dark"`, or `"both"`) to all three; the change event is
+   `"<storageKey>-change"`. Stored `"dark"` reads as dusk.
 
 5. **Toasts.** Render `<Toaster />` from `/ui` once; undo toasts and save results use it.
 
