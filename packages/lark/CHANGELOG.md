@@ -37,6 +37,11 @@ change component APIs (each is listed here).
   named by the title; equal heights in a grid; hover lifts the edge to outline-strong.
 - **Tone tints**: `--tint-<tone>` and `--tint-<tone>-strong` (light and dusk) with Tailwind
   colours `bg-tint-sky`, `bg-tint-sky-strong`, … for the five tones (`BAND_TONE`).
+- **`StepList`** (`lark/steps`): `steps` (`{ id, title, description?, state: "todo" | "current" |
+  "done" | "blocked" | "skipped", action? }`), `orientation` ("vertical" default, "horizontal"
+  stacks under 640), `numbered` (default true). An `<ol>`; state in words for screen readers
+  (`STEP_STATE_LABEL`); the current step has aria-current="step"; done shows a check; blocked
+  shows its reason in the description.
 
 ### Changed
 - Optional peers widened: `motion` `>=12 <15`, `nanoid` `>=5 <7` (apps on motion 14 and nanoid 6

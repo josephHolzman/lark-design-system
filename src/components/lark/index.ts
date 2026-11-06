@@ -21,4 +21,5 @@ export * from "./progress";
 export * from "./provider";
 export * from "./shell";
 export * from "./status-badge";
+export * from "./steps";
 export * from "./theme";

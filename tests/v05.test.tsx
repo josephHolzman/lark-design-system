@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HeroBand, IllustratedChoiceCard } from "@/components/lark/bands";
+import { StepList } from "@/components/lark/steps";
 import { Button } from "@/components/ui/button";
 
 import { axeViolations } from "./axe";
@@ -66,6 +67,51 @@ describe("IllustratedChoiceCard (G6)", () => {
     expect(desk.textContent).toContain("Open");
     expect(desk.className).toContain("hover:border-outline-strong");
     expect(desk.className).not.toMatch(/shadow/);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe("StepList (G9)", () => {
+  const steps = [
+    { id: "a", title: "Install", state: "done" as const },
+    { id: "b", title: "Select the deal", state: "current" as const, action: <Button size="sm">Choose</Button> },
+    { id: "c", title: "Check", description: "Needs a deal first.", state: "blocked" as const },
+    { id: "d", title: "Share", state: "skipped" as const },
+    { id: "e", title: "Send", state: "todo" as const },
+  ];
+
+  it("is an ordered list with state in words and aria-current=step only on the current step", async () => {
+    const { container } = render(
+      <main>
+        <StepList aria-label="Setup" steps={steps} />
+      </main>
+    );
+    const list = screen.getByRole("list", { name: "Setup" });
+    expect(list.tagName).toBe("OL");
+    const items = screen.getAllByRole("listitem");
+    // Markers are aria-hidden: the number only shows on steps without a glyph.
+    expect(items.map((li) => li.textContent)).toEqual([
+      "Install, Done",
+      "2Select the deal, Current stepChoose",
+      "Check, BlockedNeeds a deal first.",
+      "Share, Skipped",
+      "5Send, Not started",
+    ]);
+    expect(items.map((li) => li.getAttribute("aria-current"))).toEqual([null, "step", null, null, null]);
+    // Done shows a check, not a number, and isn't styled as current.
+    const marker = (li: HTMLElement) => li.querySelector('[data-slot="step-marker"]')!;
+    expect(marker(items[0]).querySelector("svg")).toBeTruthy();
+    expect(marker(items[0]).getAttribute("aria-hidden")).toBe("true");
+    expect(marker(items[0]).className).not.toContain("bg-inverse-surface");
+    expect(marker(items[1]).className).toContain("bg-inverse-surface");
+    expect(screen.getByRole("button", { name: "Choose" })).toBeTruthy();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it("horizontal and un-numbered", async () => {
+    const { container } = render(<StepList aria-label="Try" numbered={false} orientation="horizontal" steps={steps.slice(4)} />);
+    expect(screen.getByRole("list").getAttribute("data-orientation")).toBe("horizontal");
+    expect(container.querySelector('[data-slot="step-marker"]')!.textContent).toBe("");
     expect(await axeViolations(container)).toEqual([]);
   });
 });

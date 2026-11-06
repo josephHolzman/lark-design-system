@@ -16,6 +16,7 @@ import { ActionMenu, ColumnsPanel, CountSegments, FacetFilterMenu, FacetList, Sa
 import { PageHeader } from "@/components/lark/page-header";
 import { ScopePill, ThemeToggle, UserMenu, UserMenuItem, UserMenuRadioGroup, UserMenuSection, UserMenuSub } from "@/components/lark/shell";
 import { type LarkTheme, useTheme } from "@/components/lark/theme";
+import { StepList } from "@/components/lark/steps";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,7 @@ export function Patterns() {
           ["ai", "AI patterns"],
           ["shell", "Shell and identity"],
           ["leads", "Page leads"],
+          ["sequences", "Steps, transcripts, graphs"],
           ["layouts", "Layouts"],
         ].map(([id, label]) => (
           <Button asChild key={id} size="sm" variant="secondary">
@@ -649,6 +651,31 @@ export function Patterns() {
             ).map(([id, title, description, tone]) => (
               <IllustratedChoiceCard current={id === role} description={description} href="#leads" key={id} media={<Illustration tone={tone} />} title={title} tone={tone} />
             ))}
+          </div>
+        </Spec>
+      </Group>
+
+      <Group id="sequences" title="Steps, transcripts and graphs" use="Things that happen in order or connect: steps with state, what was said in a meeting, records and how they relate.">
+        <Spec name="Step list" when="Numbered steps with state: setup, onboarding, a check's stages. State is in words for screen readers; the current step is aria-current=step; a blocked step says why in its description. Horizontal for 3–5 short steps, vertical otherwise.">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <StepList
+              aria-label="Companion setup"
+              steps={[
+                { id: "install", title: "Install Companion", description: "Added to Chrome on Nov 3.", state: "done" },
+                { id: "deal", title: "Select the deal", description: "Pick the opportunity you're working on.", state: "current", action: <Button size="sm">Choose a deal</Button> },
+                { id: "check", title: "Check and resolve", description: "Needs a deal first.", state: "blocked" },
+                { id: "share", title: "Share with your manager", state: "skipped" },
+              ]}
+            />
+            <StepList
+              aria-label="Here's what you can try"
+              orientation="horizontal"
+              steps={[
+                { id: "a", title: "Try a quote", state: "done" },
+                { id: "b", title: "Review approvals", state: "current" },
+                { id: "c", title: "Send to customer", state: "todo" },
+              ]}
+            />
           </div>
         </Spec>
       </Group>
