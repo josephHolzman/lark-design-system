@@ -204,7 +204,7 @@ export function PlanReview({ steps: initial, onApprove, onCancel, className }: {
       return n;
     });
   return (
-    <section className={cn("flex flex-col rounded-lg border border-outline-variant bg-card shadow-raised", className)} data-slot="plan-review">
+    <section className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="plan-review">
       <header className="flex items-center gap-2 px-4 pt-3 pb-2">
         <SparklesIcon aria-hidden="true" className="size-4 text-tertiary" />
         <h3 className="text-title-sm">ACE&apos;s plan</h3>
@@ -257,7 +257,7 @@ export function RunSteps({ title, steps, className }: { title: ReactNode; steps:
   const done = steps.filter((s) => s.state === "done").length;
   const failed = steps.some((s) => s.state === "failed");
   return (
-    <div className={cn("rounded-lg border border-outline-variant bg-card", className)} data-slot="run-steps">
+    <div className={cn("rounded-lg border border-edge bg-card", className)} data-slot="run-steps">
       <button aria-expanded={open} className="state-layer [--state-hover:0.03] focus-ring flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left outline-none" onClick={() => setOpen(!open)} type="button">
         {failed ? (
           <AlertCircleIcon aria-hidden="true" className="size-4 text-error" />

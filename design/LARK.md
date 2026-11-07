@@ -4,6 +4,10 @@ Since 2026-11-05 Lark follows Apollo's **Beams** design system for structure, an
 the lark for identity. This replaces `RECONCILIATION.md` (the Material 3 version).
 Source measurements: Claude project doc `lark-beams-extraction.md`.
 
+> **v0.6:** "One system (v0.6)" at the end of this file is the current rule set. Where an
+> earlier section disagrees (canvas, title weights, segmented, icon tiles, card actions,
+> shadows), v0.6 wins; those rows below are updated.
+
 ## What comes from where
 
 | From Beams | From the lark |
@@ -29,7 +33,7 @@ Source measurements: Claude project doc `lark-beams-extraction.md`.
 | Role | Light | Dusk | Use |
 |---|---|---|---|
 | `surface` | white | dusk-200 | page, sidebar, header band, list pages |
-| `canvas` | sand-50 | dusk-100 | dashboard and record bodies (cards sit on it) |
+| `canvas` | paper-04 (v0.6; was sand-50) | dusk-100 | dashboard and record bodies (cards sit on it) |
 | `surface-container-low … highest` | paper 04 · 08 · 10 · 15 | dusk 300–600 | hovers, wells, counts, tracks |
 | `on-surface` / `-variant` / `-tertiary` | paper 94 · 70 · 60 | stone 100 · 300 · 400 | primary, secondary, tertiary text |
 | `outline-faint` / `-variant` / `-strong` | ink 4 · 8 · 12% | light 6 · 10 · 16% | dividers · cards, tables, menus · buttons, chips |
@@ -50,7 +54,7 @@ All text and control pairs are contrast-checked by `design/tokens/build_tokens.p
 | Role | Lark | Beams | Use |
 |---|---|---|---|
 | `title-lg` | 26/32 450 | 24/32 | large headings, landings |
-| `title-md` | 22/28 450, −0.01em | 20/28 | page titles, metric values |
+| `title-md` | 24/32 400, −0.015em (v0.6) | 20/28 | page titles, metric values |
 | `title-sm` | 16/24 450 | 15/24 | card, section, drawer and dialog titles |
 | `body-lg` | 16/24 400 | 15/24 | lead text |
 | `text-sm` / `body-md` | 14/20 400 | 13/20 | body, cells, nav, chat |
@@ -69,14 +73,14 @@ All text and control pairs are contrast-checked by `design/tokens/build_tokens.p
 - **Menus/popovers/selects** radius 8, ink 8% edge, `shadow-md`, items 32 with a 5% hover. **Tooltip** paper-90, radius 8, 12/18, max 260.
 - **Dialog** radius 16, white, edge, `shadow-lg`, title-sm, backdrop ink 10%. **Sheet** flush (no radius), 480, `shadow-drawer`, header and footer ruled. **Command** 624, radius 16.
 - **Table** header 40 label-md; rows 55 (compact 40); ink 8% rules; hover paper-04; selected tan.
-- **Card / SectionCard** radius 12, ink 8%, no shadow, title-sm header at 16 inset. **ActionCard** white, edge, 32 round tinted icon.
+- **Card / SectionCard** radius 12, `border-edge` (4%) on the stone canvas, no shadow, title-sm header at 16 inset. Every module on a page grid is one; the last card in each column grows so columns end on one line. **ActionCard** white, edge, 32 square tinted tile, action under the text (v0.6).
 - **Sidebar** flush 240, white, hairline; rows 28 radius 8, 14 secondary; selected ink 8% + 450 ink; rail 48.
 - **Top bar** 48, white, hairline; search field 32 radius 8 with a faint lift; Ask ACE = reversed.
-- **Page header** white band with tabs on its edge; title-md; optional 12/18 tertiary description; body below on `canvas`.
-- **Figure strip** one card, cells split by hairlines; label 14 ink, value 22/28, delta as a tinted badge with arrow.
-- **Segmented** recessed track (34, radius 8, paper-04), items 28 radius 6; selected = ink fill, white text.
+- **Page header** white band with tabs on its edge; title-md; optional 14/20 secondary description (v0.6); no eyebrow; body below on `canvas`.
+- **Figure strip** one card, cells split by hairlines; label 14 ink, value 24/32 400, delta as a tinted badge with arrow.
+- **Segmented** recessed track (34, radius 8, paper-04), items 28 radius 6; selected = white segment, hairline, ink text (v0.6; was ink fill).
 - **FilterChip** a 32 secondary button; applied = tan fill + tan edge + check.
-- **Chat** 720 column; assistant 14/20 plain; user bubble paper-04, radius 12, secondary text; reasoning line tertiary; result cards (tool, confirmation) bordered; composer radius 16, ink 8% edge, no shadow, focus = 2px action blue.
+- **Chat** 760 column; your words in a sky bubble and ACE's in stone blocks, both radius 24, 16/24 text; claims iris-tinted; sources iris-tinted cards; composer radius 16, ink 8% edge, no shadow, focus = 2px action blue.
 - **Workflow nodes** radius 12, edge, raised; 28 round icon by kind (blue trigger, iris AI, ember decision, neutral tool, green output); floating controls in popover style.
 
 ## Patterns (v0.3): which one, when
@@ -99,7 +103,7 @@ collapsible with a summary while closed). `ActionCard` = a next step (one link o
 `ChecklistCard` = first-run setup, one primary button on the first open item. `ChoiceCard` = ACE
 needs a decision: radio list, one Recommended, Continue disabled until chosen, locks after submit.
 `PromoCard` = inline, dismissible, never a floating box over content. `EntityCard` in a hover card
-previews a linked record. Only result cards and the checklist get `shadow-raised`.
+previews a linked record. No resting shadows (v0.6): only overlays have one.
 
 **Banners.** `layout="strip"` runs edge to edge between header and toolbar for account-level
 problems (sync paused, billing). `layout="inset"` notes something about this page. One line, one
@@ -239,6 +243,172 @@ transcripts and graphs", "Shell, identity and figures").
 | `GraphNode`, `GraphEdgeLabel`, `graph.css` (`@deepgrids/lark/graph`) | Records and their relationships on a React Flow canvas (the ontology graph). Workflow canvases keep `/ai`'s `Node`. |
 | `Transcript` / `TranscriptLine` | What was said: a meeting transcript or a deal room's chat lines, with speaker, time and Commitment / Risk / Question flags. Not for ACE conversations (`lark/chat`). |
 
-Tones for bands, choice cards and graph tiles are `sky`, `sand`, `evergreen`, `ember`, `iris`
+Tones for bands, choice cards and graph tiles are `sky`, `coral` (v0.6), `evergreen`, `ember`, `iris` (`sand` is legacy)
 (`--tint-<tone>` and `--tint-<tone>-strong`). Iris still means AI: don't use it for a role or
 category that isn't ACE's.
+
+## v0.6: shapes from Cohere's product UI, cited answers (unreleased)
+
+Live examples: `/examples/patterns` ("Trays, contained fields and provisional marks") and
+`/examples/chat-states` ("Cited answer for an approver"). Taken from Cohere's product UI and
+fitted to Lark: sentence case, 12px floor, meaning never by colour or line style alone.
+`/examples/dashboard` uses most of it. The rules that tie it together are in "One system (v0.6)"
+below. Not taken:
+the slash cut on buttons and toggles, mono all-caps labels, dot-only active nav.
+
+| Component | Use it when |
+|---|---|
+| `Tray` + `TrayCard` | Several related cards belong together inside one surface: an answer, a drawer, a chat panel. Stone tray, 24px corners (`rounded-2xl`, trays only), 12px padding, 12px cards: inner radius = outer − padding. Flat. Not for one card, and **never a page module**: on a page grid every module is a `SectionCard` (one radius, one edge), so a 24px tray never sits beside 12px cards. Lanes on a page are `ApprovalChain layout="lanes"` inside a flush SectionCard. |
+| `SectionCard` `variant="strip"` | Stacked sections of one record that must read as separate parts. Title in a 40px stone band. Never tan (tan means selected). |
+| `CardStatusFooter` | A card's one action on the left and its state (a `StatusBadge`) on the right. |
+| `ContainedField` / `ContainedInput` / `ContainedTextarea` (`/ui`) | Labelled form fields. Label inside the box, whole box is the target, one focus ring around the box. `error` tints the box and links the message; `disabledReason` disables and says why; `suffix` for units. Bare `Input` stays for toolbars, filters and cells. Use one style per form. |
+| `ProvisionalBadge` (`proposed`, `unsaved`, `ai`), `provisionalEdge` | Anything not committed: previews, AI-filled values. Dashed edge plus the word, always. |
+| `CompoundTag` | A value and its qualifier in one pill ("Discount \| 92%"); reads "Discount, 92% confidence". |
+| `Freshness`, `Figure` `updated`, `useNow` | Every computed number says when it was computed; past `staleAfter` minutes it says "may be out of date" with a clock. |
+| `BestFor`, `Choice.bestFor`, `Scenario.bestFor` / `provisional` | Options people pick by fit. Unsaved previews say "Not saved". |
+| `ApprovalMatrix` | Who approves what: each row (a band, a term) picks one approver. Native radios per row; the chosen cell is tan and names the approver; edited rows say "Changed". |
+| `Claim` | Every figure or decision-relevant fact in an answer. Iris highlight + underline + source number; the whole claim is one button that opens the excerpt. A number with no Claim has no source. Numbers come from the pricing engine, never the model. |
+| `AssistantTurn` `agent`, `lead` | Name ACE with an "AI" badge and the time; one line saying what ACE checked. Never "Here's what I found". |
+| `AnswerSources` `collapsible` | Sources closed under the answer in a stone panel, so the answer reads first. |
+| `SplitButton` `size`, `disabled` | Main action plus a menu of real alternatives, straight 2px seam, group named by the action. Not for a decorative "+" or "→". |
+
+## One system (v0.6)
+
+One set of rules for every component. Where Apollo/Beams, Cohere and earlier Lark disagree,
+this section decides. Live: `/examples/patterns#system`.
+
+### What comes from where
+
+| Kept from | What |
+|---|---|
+| Lark | The palette's jobs: sky acts (brand button, links, focus), iris is AI, tan is selected data, dusk is dark mode, status hues are status. Hanken Grotesk and Geist Mono. Sentence case. WCAG 2.2 AA everywhere. |
+| Apollo / Beams | Density (32px controls, 12px cards, ink-alpha hairlines), tables, lists, filters, status badges, the page layouts. |
+| Cohere / North | Card anatomy; regular-weight display titles; colour in tiles and washes, not chrome; flat surfaces; trays and header strips; contained fields; white-on-grey segmented control; meta in the footer; versions in mono chips; service stacks; provisional and freshness marks; cited answers. |
+| Dropped | Sand as a surface (cream canvas, sand bands as the default warm tone): it reads as generated. Eyebrows above page titles. Text buttons and links in card headers. Round tinted tiles for objects. Black-filled segmented items. Resting shadows on cards. Cohere's slash cut and mono all-caps labels. |
+
+### Surfaces and colour
+- Canvas `paper-08` (`#f5f4f2`, v0.6.1; was `paper-04`); cards and the header band white; trays, ACE's blocks and insets stone (`surface-container`). Dusk unchanged. Flat: shadows only on overlays (menus, dialogs, popovers, floating bars).
+- **Elevation is a change of fill, not a line (v0.6.1, Cohere).** One step per level: stone canvas → white card → stone inset → white card inside it. A boundary gets one cue:
+  - The edge of a card on the canvas is `border-edge` (4% ink): a whisper; the fill does the work.
+  - Inside a surface, nested blocks (notes, insets, ACE's blocks, white cards in an answer) have **no edge**, only their fill. Callouts are tinted fills with no edge; the icon and title carry the meaning.
+  - Dividers inside a surface (rows, columns, header and footer rules) are `outline-variant`.
+  - Lines that carry meaning stay: controls' 3:1 edges (inputs, checkboxes, secondary buttons), focus rings, the selected edge, a conflict's amber ring, dashed provisional edges.
+- Colour has one job each and appears as small, deliberate areas: the brand button, iris for anything ACE did, tan for what's selected, status hues on badges, solid identity tiles (`IconChip variant="solid"`), and at most one wash per page (`HeroBand` / band tones).
+- Warm comes from **coral** (`--lark-coral-50`, Cohere's coral darkened to 3:1 on white): the second chart colour and the `coral` wash (`bg-tint-coral`). Coral never means status. `sand` stays as a tone for compatibility; don't start new work with it. Tan stays only as "selected".
+- Charts: cobalt, coral, teal, plum, amber (`--chart-1…5`, `viz-*` and `coral-50` primitives), in
+  that order; every mark reaches 3:1 on white; lighter versions in dusk. Decreases are coral,
+  increases teal, totals cobalt. Never status colours for data.
+
+### Type
+| Role | Token | Use |
+|---|---|---|
+| Figure | `text-display-sm` 40/48 **400**, −2.5% (v0.6.1) | Headline numbers (Figure "lg"), chart readouts. `text-display-md` 56/64 for a single hero number |
+| Page title | `text-title-lg` 30/36 **400**, −2% (v0.6.1; 24 on phones) | The h1, hero bands |
+| Section title | `text-title-md` 24/32 **400**, −1.5% | Groups of cards; answer headlines; Figure "md" |
+| Card title | `text-title-sm` 16/24 450 | SectionCard, ObjectCard, drawers |
+| Card title / control | `text-label-lg` 14/20 450 | ActionCard, TrayCard, buttons |
+| Body | `text-sm` 14/20 | Descriptions under page titles, card descriptions |
+| Meta | `text-body-sm` 12/18, `on-surface-variant` | Bylines, counts, freshness |
+| IDs, versions, code | Geist Mono | `OPP-20431`, `v2.0.2` (in a chip) |
+
+Size carries hierarchy at the top; weight carries it in dense parts. Never bold (no 600+), never all caps.
+
+**Large numbers (v0.6.1).** Like Cohere, set the numbers people decide on large and the words around them small: a 14px label, a 40px value, a 12px caption. A Figure is display-size when its box has room (14rem); in a `FigureStrip` every value takes one size, display once each column is 16rem. Headline values are short (`$1.84M`); the exact amount goes in the caption. Conversation text (yours and ACE's words) is 16/24; data inside answers stays 14/20.
+
+### Headers
+- **Page header:** optional `back` link ("← Back to deals") · title + one badge (lifecycle "Beta" outlined, or a StatusBadge) · description (one or two lines, 14/20 secondary) · meta line · text actions on the right (the only header with text buttons; one brand button at most) · PageTabs on its edge. No eyebrow: the shell's breadcrumb says where you are.
+- **Section and card headers:** title · optional description · on the right, **controls only**: an icon button or menu, or a segmented control or filter that changes the card's content. A text action goes in the footer; "see more" is `link` (footer, with an arrow).
+- **Trays:** same rule (`footer`, `link`).
+
+### Card anatomy
+Every card is some subset of this, in this order:
+
+    identity (tile, logo, avatar or service stack) · title + badge · byline ...... icon controls
+    description (two lines, clamped on browse cards)
+    body (facts, a table, a chart)
+    footer: facts or one action on the left .......................... state or link on the right
+
+- `ObjectCard` is the browse card (agents, automations, templates, views, integrations); `ActionCard` is a thing to do (its action sits in the footer); `SectionCard` holds a part of a page; `TrayCard` sits in a Tray.
+- One destination → the whole card is the link (title link stretched); other controls sit above it as their own tab stops.
+- Identity tiles are square (6/8/10 corners at 24/32/40); people are round avatars. Tinted tiles for actions and figures, solid for an object's kind.
+
+### Controls
+- Segmented control and segmented tabs: grey track, the selected item a white segment with a hairline and ink text.
+- Buttons: brand (sky) once per view, secondary, ghost, AI (iris); split button only with real alternatives.
+- Fields: contained fields for labelled forms; bare inputs in toolbars, filters and cells.
+- Navigation location is neutral (grey fill, ink, 450); tan is for selected data, not where you are.
+
+### Alignment and rows
+- **Top-aligned.** Rows align to their first line: a label beside a two-line value sits level with
+  the value's first line, radios and icons with the first line of their text, arrows with the
+  titles they connect. Buttons in a footer align to the bottom (the prompt's last line). Centre only
+  things that are one line on both sides.
+- **Cards in a row share one height.** Grids of cards stretch (no `items-start`); a card's footer
+  is pushed to the bottom (`mt-auto`). Stacks of cards go in a column wrapper so columns can differ.
+
+### Marks
+- Lifecycle: outlined neutral badge after the title ("Beta", "Alpha"). Status: StatusBadge with icon and word.
+- Not committed yet: ProvisionalBadge (dashed edge plus word). Computed numbers: Freshness.
+- Counts and versions: `ObjectFact` (icon + number, mono chip), spoken with their noun.
+
+## Chat and answers (v0.6)
+
+ACE answers with inline widgets, not walls of text. Live: `/examples/chat` (full page),
+`/examples/chat-panel` (docked beside a record), `/examples/widgets` (every widget),
+`/examples/chat-states` (every state a turn can be in).
+
+### The thread
+- **You** on the right in a sky bubble (radius 24) with your name and the time inside it; **ACE** on
+  the left in stone blocks (radius 24, no edge). Cohere's shapes; Lark keeps the two voices on
+  opposite sides. Sky is the person's colour (sky acts); iris marks what ACE claims.
+- An ACE turn is a stack of blocks, 8px apart: the first block holds the header (mark, "ACE", an
+  AI badge, time), `process` (`Reasoning` and `WorkLog`, closed, the same trigger shape: icon,
+  words, chevron) and `lead`, ACE's words at 16/24. Then the answer (`AnswerView`, a block of white
+  cards), more `TurnBlock`s for prose, `AnswerSources` (a block of iris-tinted source cards), then
+  `TurnActions` and `SuggestionChips`. ACE's words never float outside a block.
+- Every figure an approver acts on is a `Claim` (iris highlight, opens its source) or sits in a
+  widget whose sources are listed. Numbers come from the pricing engine, never the model.
+- `ChatComposer`: one surface (radius 16 like dialogs, no shadow, 8px buttons); attach, sources, mode (Guide, Prepare, Execute; modes above
+  the organization's ceiling stay visible and disabled), send. Enter sends, Shift+Enter is a new
+  line; Stop replaces Send while ACE replies. One line under it: "ACE can make mistakes."
+- `ChatLayout` (full page, 760 column, composer docked) and `ChatPanel` (420 beside a page, with
+  what ACE is working on, new chat, open full page, close; a sheet under `lg`).
+
+### The answer (`AnswerView`)
+A stone surface (radius 24, `surface-container`) holding white widget cards:
+header (record tag, headline, subtitle, lead) · key figures · body (stack, split or bento; or
+tabs) · notices · **Next step** tray · sources (closed). It lays out by its own width (container
+queries), so one answer works in the full page and the panel: bento and split collapse under
+~42rem.
+
+Rules: information is neutral (white cards, radius 12, on the 24-radius surface with 12 padding);
+what the person can do is an `ActionTray`: no box of its own, state and prompt left, buttons right
+(bottom-aligned), one brand button; inside a card it is the footer under a hairline, at the end of
+an answer it sits in a white card, and it only appears when there is something to do. "Send via
+Slack" shows Sending, then Sent. Status is words in their tone with an icon; warnings are ringed
+callouts across the full row; detail opens in place; charts get tooltips, a legend for two or more
+series, a readout (a Figure) for the chosen point and View data.
+
+**Widgets are compositions of Lark components, not restyled copies:** key figures and readouts
+are `Figure` / `FigureStrip`; properties are `DescriptionList`; lists are `List` + `ListItem`
+(`wrap`); steps are `StepList`; flow nodes and tiles are `ActionCard`; questions are
+`ClarifyQuestion`; links are `TextLink`; point pickers are `Segmented`; notes are `Callout`; fields
+are contained fields; buttons are `Button` (radius 8, never round). Type uses Lark's roles only.
+
+### Widgets (one per kind of information, from the ACE state library)
+The 404 ACE states (~4,000 widgets) all render through `AnswerView` with no errors and no axe
+violations (checked Nov 6, 2026).
+
+| Family | Types |
+|---|---|
+| Figures and facts | `stats` (hero, row, cards), `properties` (list or figures; editable values), `compare` (→, vs, ≠ conflict) |
+| Lists and records | `list` (selectable, ordered), `table` (selectable rows open detail in place), `master`, `links`, `tiles` |
+| Choices and input | `options` (radio cards; `variant` switches the answer), `question` (ask someone via a service), `form` (contained fields) |
+| Charts and time | `chart` (bar, stacked, grouped, line, step, area, segments, waterfall, range), `bars`, `waterfall`, `timeline` |
+| Process | `steps`, `flow` |
+| Messages | `draft` (Outlook or Slack; editable, thread, Send via), `message`, `quote`, `text` |
+| Structure | `note`, `disclosure`, `group`, `media` |
+| Acting | `ActionTray` (answer's next step, or a section's `actions`) |
+
+Each type is also its own component (`StatsWidget`, `CompareWidget`, `ChartWidget`, …) for use
+outside an answer, inside `AnswerSurface`.

@@ -5,6 +5,7 @@ import {
   OctagonAlertIcon,
   CheckCircle2Icon,
   CloudOffIcon,
+  InboxIcon,
   InfoIcon,
   LoaderCircleIcon,
   LockIcon,
@@ -93,12 +94,14 @@ export function Banner({
 
 /* ================================================================ Callout */
 
+/* v0.6.1: callouts are tinted fills with no edge (Cohere): the icon and the title carry the
+   meaning; the tint only groups. */
 const CALLOUT = {
-  info: { ring: "border-outline-variant bg-surface-container-low", title: "text-on-surface", icon: InfoIcon, role: undefined },
-  caution: { ring: "border-warning bg-warning-container/60", title: "text-on-warning-container", icon: AlertTriangleIcon, role: undefined },
-  critical: { ring: "border-error bg-error-container/60", title: "text-on-error-container", icon: OctagonAlertIcon, role: "alert" },
-  positive: { ring: "border-success/60 bg-success-container/50", title: "text-on-success-container", icon: CheckCircle2Icon, role: undefined },
-  ai: { ring: "border-ai-border bg-tertiary-container/50", title: "text-on-tertiary-container", icon: SparklesIcon, role: undefined },
+  info: { ring: "bg-surface-container", title: "text-on-surface", icon: InfoIcon, role: undefined },
+  caution: { ring: "bg-warning-container/70", title: "text-on-warning-container", icon: AlertTriangleIcon, role: undefined },
+  critical: { ring: "bg-error-container/70", title: "text-on-error-container", icon: OctagonAlertIcon, role: "alert" },
+  positive: { ring: "bg-success-container/60", title: "text-on-success-container", icon: CheckCircle2Icon, role: undefined },
+  ai: { ring: "bg-tertiary-container/60", title: "text-on-tertiary-container", icon: SparklesIcon, role: undefined },
 } as const;
 
 export type CalloutTone = keyof typeof CALLOUT;
@@ -134,7 +137,7 @@ export function Callout({
   const Icon = t.icon;
   return (
     <div
-      className={cn("flex gap-3 rounded-lg border p-3.5 text-sm", t.ring, className)}
+      className={cn("flex gap-3 rounded-lg p-3.5 text-sm", t.ring, className)}
       data-slot="callout"
       data-tone={tone}
       role={live ? (tone === "critical" ? "alert" : "status") : undefined}
@@ -154,7 +157,7 @@ export function Callout({
 /* ================================================================ States */
 
 const STATE_ICON = {
-  "first-run": null,
+  "first-run": InboxIcon,
   "no-results": SearchXIcon,
   "no-permission": LockIcon,
   error: XCircleIcon,
@@ -177,10 +180,13 @@ export function StatePanel({
   actions,
   details,
   compact,
+  titleAs: T = "p",
   className,
 }: {
   kind: StateKind;
   title: ReactNode;
+  /** Make the title a heading when the state is the page's or section's content (an empty list, a not-found page). Default a paragraph. */
+  titleAs?: "p" | "h1" | "h2" | "h3";
   description?: ReactNode;
   /** Illustration slot (first-run states). Decorative. */
   illustration?: ReactNode;
@@ -194,7 +200,7 @@ export function StatePanel({
   const Icon = STATE_ICON[kind];
   return (
     <div
-      className={cn("flex flex-col items-center justify-center gap-3 text-center", compact ? "px-4 py-8" : "px-6 py-16", className)}
+      className={cn("flex flex-col items-center justify-start gap-3 text-center", compact ? "px-4 py-8" : "px-6 py-16", className)}
       data-kind={kind}
       data-slot="state-panel"
       role={kind === "error" || kind === "offline" ? "alert" : undefined}
@@ -217,7 +223,7 @@ export function StatePanel({
         )
       )}
       <div className="flex max-w-[480px] flex-col gap-1">
-        <p className="text-title-sm">{title}</p>
+        <T className="text-title-sm">{title}</T>
         {description && <p className="text-sm text-on-surface-variant">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap justify-center gap-2">{actions}</div>}
@@ -241,7 +247,7 @@ export function SkeletonLines({ lines = 3, className }: { lines?: number; classN
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div aria-hidden="true" className={cn("flex flex-col gap-4 rounded-lg border border-outline-variant bg-card p-4", className)}>
+    <div aria-hidden="true" className={cn("flex flex-col gap-4 rounded-lg border border-edge bg-card p-4", className)}>
       <Skeleton className="h-4 w-40" />
       <SkeletonLines />
     </div>

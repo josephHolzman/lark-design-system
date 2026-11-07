@@ -16,6 +16,7 @@ export * from "./checkbox";
 export * from "./collapsible";
 export * from "./combobox";
 export * from "./command";
+export * from "./contained-field";
 export * from "./context-menu";
 export * from "./date-picker";
 export * from "./dialog";

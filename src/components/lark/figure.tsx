@@ -5,6 +5,7 @@ import { type ComponentProps, type ReactNode, useId } from "react";
 import { cn } from "@/lib/utils";
 
 import { type ChipTone, IconChip } from "./cards";
+import { Freshness, type FreshnessProps } from "./surfaces";
 
 export type FigureDelta = {
   /** Printed as-is, e.g. "+12%" or "−3 deals". */
@@ -36,6 +37,14 @@ export type FigureProps = Omit<ComponentProps<"div">, "children"> & {
   linkLabel?: string;
   /** Extra visual (sparkline, meter) under the value. */
   children?: ReactNode;
+  /** v0.6: when the value was computed ("Updated 2 min ago"); flags it past `staleAfter`. */
+  updated?: FreshnessProps;
+  /**
+   * v0.6.1. "lg" (default): a headline number, display size (40/48) when its content box is 14rem or
+   * wider, 30/36 below. Headline values are short ($1.84M); put the exact amount in `caption`. "md": 24/32 for figures inside
+   * comparisons, tables and answers' secondary rows.
+   */
+  size?: "md" | "lg";
 };
 
 const DeltaIcon = { up: ArrowUpRightIcon, down: ArrowDownRightIcon, flat: MinusIcon };
@@ -62,21 +71,25 @@ function Delta({ value, direction, good, context }: FigureDelta) {
 const text = (n: ReactNode) => (typeof n === "string" || typeof n === "number" ? String(n) : undefined);
 
 /**
- * Beams metric: label 14 ink, value 22/28 450 tabular, delta as a tinted badge with an
+ * Metric: label 14 ink, value display-size at regular weight, tabular (size, not weight, makes it
+ * the headline), delta as a tinted badge with an
  * arrow and a signed value, so direction never depends on colour. With `href` the whole figure is
  * one link named "<label>: <value>", with an arrow on hover and focus.
  */
-export function Figure({ label, value, unit, delta, caption, icon, tone = "neutral", href, linkLabel, className, children, ...props }: FigureProps) {
+export function Figure({ label, value, unit, delta, caption, icon, tone = "neutral", href, linkLabel, updated, size = "lg", className, children, ...props }: FigureProps) {
   const captionId = useId();
   const content = (
     <>
-      <div className="flex items-center gap-1.5 text-sm text-on-surface">
-        <span className="truncate">{label}</span>
-        {href && <ArrowRightIcon aria-hidden="true" className="ml-auto size-3.5 shrink-0 opacity-0 transition-opacity group-hover/figure:opacity-100 group-focus-visible/figure:opacity-100" />}
+      <div className="flex items-start gap-1.5 text-sm text-on-surface">
+        {/* Wraps, never cut: a narrow column must still show the whole label. */}
+        <span className="min-w-0">{label}</span>
+        {href && <ArrowRightIcon aria-hidden="true" className="mt-0.5 ml-auto size-3.5 shrink-0 opacity-0 transition-opacity group-hover/figure:opacity-100 group-focus-visible/figure:opacity-100" />}
       </div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-xl font-medium tabular-nums">{value}</span>
-        {unit && <span className="text-sm text-on-surface-variant">{unit}</span>}
+      <div className={cn("flex flex-wrap items-baseline gap-x-1.5", size === "lg" && "pt-1")}>
+        <span className={cn("min-w-0 tabular-nums [overflow-wrap:anywhere]", size === "lg" ? "text-title-lg @[14rem]/figure:text-display-sm" : "text-title-md")} data-slot="figure-value">
+          {value}
+        </span>
+        {unit && <span className={cn("text-on-surface-variant", size === "lg" ? "text-title-sm" : "text-sm")}>{unit}</span>}
       </div>
       {delta && <Delta {...delta} />}
       {caption && (
@@ -85,6 +98,7 @@ export function Figure({ label, value, unit, delta, caption, icon, tone = "neutr
         </div>
       )}
       {children}
+      {updated && <Freshness {...updated} />}
     </>
   );
   const body = icon ? (
@@ -97,7 +111,7 @@ export function Figure({ label, value, unit, delta, caption, icon, tone = "neutr
   ) : (
     content
   );
-  const cls = cn("group/figure flex min-w-0 flex-col gap-1 bg-card p-4", className);
+  const cls = cn("group/figure @container/figure flex min-w-0 flex-col gap-1 bg-card p-4", className);
   if (href) {
     const l = text(label);
     const v = text(value);
@@ -126,22 +140,35 @@ export type FigureStripProps = ComponentProps<"div"> & { columns?: 2 | 3 | 4 | 5
 
 /**
  * Several figures in one card, split by hairlines (the Apollo pattern). The 1px gap over
- * an outline-variant background draws the rules at every breakpoint.
+ * an outline-variant background draws the rules at every breakpoint. v0.6.1: columns follow the
+ * strip's own width (a container), not the window's, so the same strip works on a dashboard, in
+ * an answer and in a side panel: 1 column under 24rem, 2 from 24rem, then `columns` from 40rem
+ * (3), 52rem (4) or 64rem (5).
  */
 export function FigureStrip({ columns = 4, className, ...props }: FigureStripProps) {
   return (
-    <div
-      className={cn(
-        "grid gap-px overflow-hidden rounded-lg border border-outline-variant bg-outline-variant",
-        "grid-cols-1 min-[480px]:grid-cols-2",
-        columns === 3 && "lg:grid-cols-3",
-        columns === 4 && "lg:grid-cols-4",
-        columns === 5 && "lg:grid-cols-5",
-        className
-      )}
-      data-slot="figure-strip"
-      {...props}
-    />
+    <div className="@container/strip min-w-0" data-slot="figure-strip-frame">
+      <div
+        className={cn(
+          "grid gap-px overflow-hidden rounded-lg border border-edge bg-outline-variant",
+          // One size for every value in a strip: display only once each column has room for it.
+          "[&_[data-slot=figure-value]]:text-title-lg",
+          columns === 2 && "@[32rem]/strip:[&_[data-slot=figure-value]]:text-display-sm",
+          columns === 3 && "@[48rem]/strip:[&_[data-slot=figure-value]]:text-display-sm",
+          columns === 4 && "@[64rem]/strip:[&_[data-slot=figure-value]]:text-display-sm",
+          columns === 5 && "@[80rem]/strip:[&_[data-slot=figure-value]]:text-display-sm",
+          "grid-cols-1 @[24rem]/strip:grid-cols-2",
+          // In two columns an odd last figure spans both, so no empty grey cell is left over.
+          columns === 2 && "@[24rem]/strip:[&>:last-child:nth-child(odd)]:col-span-2",
+          columns === 3 && "@[24rem]/strip:@max-[40rem]/strip:[&>:last-child:nth-child(odd)]:col-span-2 @[40rem]/strip:grid-cols-3",
+          columns === 4 && "@[24rem]/strip:@max-[52rem]/strip:[&>:last-child:nth-child(odd)]:col-span-2 @[52rem]/strip:grid-cols-4",
+          columns === 5 && "@[24rem]/strip:@max-[64rem]/strip:[&>:last-child:nth-child(odd)]:col-span-2 @[64rem]/strip:grid-cols-5",
+          className
+        )}
+        data-slot="figure-strip"
+        {...props}
+      />
+    </div>
   );
 }
 
@@ -149,7 +176,7 @@ export type FigureCardProps = FigureProps;
 
 /** A single figure as its own card. */
 export function FigureCard({ className, ...props }: FigureCardProps) {
-  return <Figure className={cn("rounded-lg border border-outline-variant", className)} {...props} />;
+  return <Figure className={cn("rounded-lg border border-edge", className)} {...props} />;
 }
 
 /** A tiny inline sparkline (decorative; the figure's value carries the meaning). */

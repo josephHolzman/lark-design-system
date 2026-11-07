@@ -2,10 +2,10 @@
   "color": {
     "canvas": {
       "$type": "color",
-      "$value": "{color.sand.sand-50}",
+      "$value": "{color.paper.paper-08}",
       "$extensions": {
         "com.deepgrids.lark": {
-          "resolved": "#FBF6EC"
+          "resolved": "#F5F4F2"
         }
       }
     },

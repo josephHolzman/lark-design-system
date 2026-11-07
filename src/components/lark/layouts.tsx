@@ -94,7 +94,7 @@ export function RecordLayout({
       <div className="bg-canvas max-md:flex-none md:min-h-0 md:flex-1 md:overflow-auto">
         {/* The aside sits beside the main column from 1280 (where the sidebar is expanded and the
             main column still gets ~800px); below that it stacks, so tables keep their width. */}
-        <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-4 p-4", aside && "xl:grid-cols-[360px_minmax(0,1fr)]")}>
+        <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-4 p-4 md:px-6", aside && "xl:grid-cols-[360px_minmax(0,1fr)]")}>
           {aside && <div className={cn("flex min-w-0 flex-col gap-4", asideOnSmall === "after" && "max-xl:order-2")}>{aside}</div>}
           <div className="flex min-w-0 flex-col gap-4">{children}</div>
         </div>
@@ -109,21 +109,21 @@ export function DashboardLayout({ header, children, className }: { header: React
     <div className={cn("flex min-h-0 flex-col max-md:flex-none md:flex-1", className)} data-slot="dashboard-layout">
       <HeaderBand bordered={false}>{header}</HeaderBand>
       <div className="bg-canvas max-md:flex-none md:min-h-0 md:flex-1 md:overflow-auto">
-        <div className="flex flex-col gap-4 p-4">{children}</div>
+        <div className="flex flex-col gap-4 p-4 md:px-6">{children}</div>
       </div>
     </div>
   );
 }
 
 /**
- * Responsive card grid: `main` + `side` (side column 360), or equal columns. Cards keep
- * their own heights (items-start) so a short card doesn't stretch to its neighbour.
+ * Responsive card grid: `main` + `side` (side column 360), or equal columns. v0.6: cards in a
+ * row share one height (the grid stretches them); put stacks of cards in a column wrapper.
  */
 export function DashboardGrid({ variant = "main-side", children, className }: { variant?: "main-side" | "halves" | "thirds"; children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
-        "grid min-w-0 items-start gap-4",
+        "grid min-w-0 gap-4",
         variant === "main-side" && "xl:grid-cols-[minmax(0,1fr)_360px]",
         variant === "halves" && "lg:grid-cols-2",
         variant === "thirds" && "md:grid-cols-2 xl:grid-cols-3",
@@ -163,7 +163,7 @@ export function SettingsLayout({
         </details>
         <HeaderBand>{header}</HeaderBand>
         <div className="min-h-0 flex-1 overflow-auto bg-canvas">
-          <div className="flex flex-col gap-4 p-4">{children}</div>
+          <div className="flex flex-col gap-4 p-4 md:px-6">{children}</div>
         </div>
       </div>
     </div>

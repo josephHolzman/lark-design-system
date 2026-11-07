@@ -180,12 +180,12 @@ export function Settings() {
         </div>
 
         <SectionCard
-          action={
+          flush
+          footer={
             <Button size="sm" variant="secondary">
               Invite people
             </Button>
           }
-          flush
           title="Approvers and users"
         >
           <DataGrid caption="Users" columns={userCols} data={USERS} density="compact" getRowId={(u) => u.id} selectable />

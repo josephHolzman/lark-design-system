@@ -38,6 +38,8 @@ import {
   ChatWelcome,
   ClarifyQuestion,
   Cite,
+  Claim,
+  TurnBlock,
   ComposerNotice,
   ConflictCompare,
   ConversationListItem,
@@ -73,6 +75,12 @@ const SOURCES: ChatSource[] = [
   { id: "s4", label: "Credit review", system: "SharePoint", usedFor: "Payment terms", meta: "From Jun 2", state: "stale", excerpt: "Approved for Net 45 up to $450,000." },
   { id: "s5", label: "Finance approvals channel", system: "Slack", usedFor: "Prior decision", state: "inaccessible" },
   { id: "s6", label: "Order form draft v2", system: "SharePoint", usedFor: "Billing contact", state: "deleted" },
+];
+
+const POLICY_SOURCES: ChatSource[] = [
+  { id: "p1", label: "Quote R4, platform line", system: "Pricing engine", usedFor: "Discount and net price", meta: "Calculated 9:14 AM", excerpt: "PLT-ENT-36: list $281,820.00, discount 22%, net $219,819.60." },
+  { id: "p2", label: "EMEA discount policy FY27", system: "SharePoint", usedFor: "Desk limit", meta: "Version 3, effective Jul 1", excerpt: "Deal desk may approve up to 15% on 24-month terms. Above 15% needs Finance." },
+  { id: "p3", label: "Closed-won renewals, EMEA, 24 months", system: "Salesforce", usedFor: "Precedent", meta: "38 deals since Jan 2025", excerpt: "Median discount 14%. 90th percentile 21%." },
 ];
 
 const RUNNING: ToolCall[] = [
@@ -256,7 +264,8 @@ export function ChatStates() {
 
             <Frame id="picker" title="Account and deal picker" when="The request names no deal, or names more than one. Search, not a long select.">
               <AssistantTurn>
-                <p>Which deal is this about?</p>
+                <TurnBlock>
+                <p className="text-body-lg">Which deal is this about?</p>
                 <Combobox
                   aria-label="Deal"
                   clearable
@@ -271,6 +280,7 @@ export function ChatStates() {
                   placeholder="Choose a deal"
                   value={account}
                 />
+                </TurnBlock>
               </AssistantTurn>
             </Frame>
 
@@ -349,21 +359,27 @@ export function ChatStates() {
 
             <Frame id="thinking" title="Thinking, then retrieving context" when="Say what ACE is doing, not just that it's busy. The work log opens while it runs.">
               <UserTurn time="9:41">Why does Northwind need VP approval?</UserTurn>
-              <AssistantTurn>
-                <ThinkingRow detail="Reading the Northwind quote" />
-                <WorkLog calls={RUNNING} />
-              </AssistantTurn>
+              <AssistantTurn
+                process={
+                  <>
+                    <ThinkingRow detail="Reading the Northwind quote" />
+                    <WorkLog calls={RUNNING} />
+                  </>
+                }
+              />
             </Frame>
 
             <Frame id="streaming" title="Streaming answer" when="Text arrives in bursts. Screen readers hear it once, when it's finished.">
-              <AssistantTurn>
-                <WorkLog calls={RUNNING.map((c) => ({ ...c, state: "done" as const, duration: c.duration ?? "2s" }))} />
-                <StreamingText streaming>
-                  <p>
-                    Northwind needs VP Finance because the platform line is discounted 24%, and FY27 policy caps the desk at 20% for 36-month renewals. The rest of the quote is within
-                  </p>
-                </StreamingText>
-              </AssistantTurn>
+              <AssistantTurn
+                lead={
+                  <StreamingText streaming>
+                    <p>
+                      Northwind needs VP Finance because the platform line is discounted 24%, and FY27 policy caps the desk at 20% for 36-month renewals. The rest of the quote is within
+                    </p>
+                  </StreamingText>
+                }
+                process={<WorkLog calls={RUNNING.map((c) => ({ ...c, state: "done" as const, duration: c.duration ?? "2s" }))} />}
+              />
               <Composer status="streaming" />
             </Frame>
 
@@ -374,10 +390,14 @@ export function ChatStates() {
             </Frame>
 
             <Frame id="explaining" title="Tools finished, explanation pending" when="The work is done and the answer is being written. Don't leave a silent gap.">
-              <AssistantTurn>
-                <WorkLog calls={RUNNING.map((c) => ({ ...c, state: "done" as const, duration: c.duration ?? "2s" }))} />
-                <ThinkingRow label="Writing the answer" />
-              </AssistantTurn>
+              <AssistantTurn
+                process={
+                  <>
+                    <WorkLog calls={RUNNING.map((c) => ({ ...c, state: "done" as const, duration: c.duration ?? "2s" }))} />
+                    <ThinkingRow label="Writing the answer" />
+                  </>
+                }
+              />
             </Frame>
 
             <Frame id="background" title="Working in the background" when="Long work continues when people leave. The return shows what arrived, without jumping the scroll.">
@@ -400,9 +420,7 @@ export function ChatStates() {
               <Callout live tone="info" title="Reconnected">
                 ACE resumed from the last confirmed step, <strong className="font-semibold">Read quote R4</strong>. Steps after it ran once; nothing was repeated.
               </Callout>
-              <AssistantTurn>
-                <WorkLog calls={RUNNING} />
-              </AssistantTurn>
+              <AssistantTurn process={<WorkLog calls={RUNNING} />} />
             </Frame>
 
             <Frame id="queued-turn" title="A queued message in the thread" when="Sent while ACE was replying. It shows where it will land and when.">
@@ -413,14 +431,38 @@ export function ChatStates() {
           {/* ===================================================== evidence */}
           <Group description="Answers carry their evidence: inline citations, one list of sources at the end, and plain statements when sources disagree, are old, or can't be opened." id="evidence" title="Evidence and sources">
             <Frame id="sources" title="Answer with citations and sources" when="Citations open the excerpt in place (click or Enter). Each source states its problem, if it has one." wide>
-              <AssistantTurn actions={<Actions />}>
-                <p>
-                  Northwind needs VP Finance because the platform line is discounted 24%
-                  <Cite n={2} source={SOURCES[1]} />, and FY27 policy caps the desk at 20% for 36-month renewals
-                  <Cite n={1} source={SOURCES[0]} />. Mobile starts in April, after web in January
-                  <Cite n={3} source={SOURCES[2]} />.
-                </p>
+              <AssistantTurn
+                actions={<Actions />}
+                lead={
+                  <p>
+                    Northwind needs VP Finance because the platform line is discounted 24%
+                    <Cite n={2} source={SOURCES[1]} />, and FY27 policy caps the desk at 20% for 36-month renewals
+                    <Cite n={1} source={SOURCES[0]} />. Mobile starts in April, after web in January
+                    <Cite n={3} source={SOURCES[2]} />.
+                  </p>
+                }
+              >
                 <AnswerSources sources={SOURCES} />
+              </AssistantTurn>
+            </Frame>
+
+            <Frame id="cited" title="Cited answer for an approver (v0.6)" when="Every figure an approver decides on is a highlighted claim that opens its source. A header names ACE as AI; one line says what ACE checked; sources sit closed under the answer." wide>
+              <UserTurn time="9:15 AM">Why is the Northwind discount over policy?</UserTurn>
+              <AssistantTurn actions={<Actions />} agent={{ time: "9:16 AM" }} lead="Checked quote R4, the EMEA discount policy and 38 closed-won renewals.">
+                <TurnBlock>
+                <ul className="flex list-disc flex-col gap-2 pl-5 text-body-lg">
+                  <li>
+                    The platform line is discounted <Claim n={1} source={POLICY_SOURCES[0]}>22%, net $219,819.60</Claim>.
+                  </li>
+                  <li>
+                    On a 24-month term the desk can approve <Claim n={2} source={POLICY_SOURCES[1]}>up to 15%</Claim>, so this needs Finance.
+                  </li>
+                  <li>
+                    It sits above most comparable deals: <Claim n={3} source={POLICY_SOURCES[2]}>median 14%, 90th percentile 21%</Claim>.
+                  </li>
+                </ul>
+                </TurnBlock>
+                <AnswerSources collapsible sources={POLICY_SOURCES} />
               </AssistantTurn>
             </Frame>
 
@@ -684,9 +726,10 @@ export function ChatStates() {
               <UserTurn branch={<BranchSwitcher index={branch} onNext={() => setBranch((b) => b + 1)} onPrevious={() => setBranch((b) => b - 1)} total={2} />} onEdit={() => toast("Editing")}>
                 {branch === 2 ? "Compare Net 45 instead, using the same product scope" : "Compare Net 60, using the same product scope"}
               </UserTurn>
-              <AssistantTurn actions={<Actions voted="up" />}>
-                <p>{branch === 2 ? "At Net 45, cash arrives 15 days sooner and the credit review still covers it." : "Net 60 is outside the credit review; Finance would need to approve it."}</p>
-              </AssistantTurn>
+              <AssistantTurn
+                actions={<Actions voted="up" />}
+                lead={branch === 2 ? "At Net 45, cash arrives 15 days sooner and the credit review still covers it." : "Net 60 is outside the credit review; Finance would need to approve it."}
+              />
             </Frame>
           </Group>
         </div>

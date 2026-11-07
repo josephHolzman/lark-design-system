@@ -26,12 +26,15 @@ export function initials(name: string) {
 }
 
 const SIZE = {
-  xs: "size-5 rounded-[5px] text-[10px]",
-  sm: "size-6 rounded-[6px] text-[11px]",
-  md: "size-8 rounded-md text-xs",
-  lg: "size-10 rounded-md text-sm",
-  xl: "size-12 rounded-lg text-base",
+  xs: "size-5 text-xs",
+  sm: "size-6 text-xs",
+  md: "size-8 text-xs",
+  lg: "size-10 text-sm",
+  xl: "size-12 text-base",
 } as const;
+
+/** Companies are rounded squares (corner grows with size); people and ACE are circles. */
+const SQUARE = { xs: "rounded-[5px]", sm: "rounded-[6px]", md: "rounded-md", lg: "rounded-md", xl: "rounded-lg" } as const;
 
 export type CompanyLogoProps = Omit<ComponentProps<"span">, "children"> & {
   name: string;
@@ -54,6 +57,7 @@ export function CompanyLogo({ name, src, size = "md", decorative = true, classNa
       className={cn(
         "inline-flex shrink-0 items-center justify-center overflow-hidden font-semibold select-none",
         SIZE[size],
+        SQUARE[size],
         !src && TONES[hash(name) % TONES.length],
         src && "bg-surface-container-lowest ring-1 ring-outline-variant ring-inset",
         className
@@ -81,7 +85,7 @@ export function PersonAvatar({ name, size = "sm", decorative = true, className, 
       aria-hidden={decorative || undefined}
       aria-label={decorative ? undefined : name}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full! font-semibold select-none",
+        "inline-flex shrink-0 items-center justify-center rounded-full font-semibold select-none",
         SIZE[size],
         TONES[hash(name) % TONES.length],
         className
@@ -114,7 +118,7 @@ export function AceMark({
       aria-hidden="true"
       className={cn(
         "inline-flex shrink-0 items-center justify-center",
-        variant === "badge" ? "rounded-full! bg-tertiary text-on-tertiary" : "text-tertiary",
+        variant === "badge" ? "rounded-full bg-tertiary text-on-tertiary" : "text-tertiary",
         SIZE[size],
         variant === "bare" && "bg-transparent",
         className
@@ -195,7 +199,7 @@ export function ServiceLogo({
   if (key === "ace")
     return (
       <span aria-hidden={label ? undefined : true} aria-label={label} className={cn("inline-flex shrink-0", className)} role={label ? "img" : undefined} style={{ width: size, height: size }}>
-        <AceMark className="size-full rounded-full!" size="xs" />
+        <AceMark className="size-full" size="xs" />
       </span>
     );
   if (key && LOGO_SRC[key])
@@ -221,6 +225,38 @@ export function ServiceLogo({
       style={{ width: size, height: size, fontSize: Math.max(8, Math.round(size * 0.56)) }}
     >
       {letters}
+    </span>
+  );
+}
+
+/* ================================================================ ServiceStack */
+
+/**
+ * The services an automation or integration touches, as overlapping round marks with "+2" for
+ * the rest (v0.6, from North's automation cards). The list of names is spoken; marks are
+ * decorative. Max 3 shown.
+ */
+export function ServiceStack({ services, max = 3, size = 28, className }: { services: string[]; max?: number; size?: number; className?: string }) {
+  const shown = services.slice(0, max);
+  const more = services.length - shown.length;
+  return (
+    <span className={cn("inline-flex items-center", className)} data-slot="service-stack">
+      <span className="sr-only">Uses {services.join(", ")}</span>
+      {shown.map((sv, i) => (
+        <span
+          aria-hidden
+          className={cn("inline-flex shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-lowest", i > 0 && "-ml-1.5")}
+          key={sv}
+          style={{ width: size, height: size }}
+        >
+          <ServiceLogo service={sv} size={Math.round(size * 0.55)} />
+        </span>
+      ))}
+      {more > 0 && (
+        <span aria-hidden className="-ml-1.5 inline-flex shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-high text-label-md text-on-surface-variant" style={{ width: size, height: size }}>
+          +{more}
+        </span>
+      )}
     </span>
   );
 }

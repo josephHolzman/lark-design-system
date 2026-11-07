@@ -8,13 +8,22 @@ import { cn } from "@/lib/utils"
 function Table({
   className,
   density = "comfortable",
+  container,
   ...props
-}: React.ComponentProps<"table"> & { density?: "comfortable" | "compact" }) {
+}: React.ComponentProps<"table"> & {
+  density?: "comfortable" | "compact"
+  /**
+   * Props for the scrolling wrapper. A table that can scroll sideways with nothing focusable
+   * inside needs a name and tabIndex 0 here (role "region", aria-label), WCAG 2.1.1.
+   */
+  container?: React.ComponentProps<"div">
+}) {
   return (
     <div
       data-slot="table-container"
       data-density={density}
-      className="group/table relative w-full overflow-x-auto"
+      {...container}
+      className={cn("group/table relative w-full overflow-x-auto", container?.tabIndex === 0 && "focus-ring", container?.className)}
     >
       <table
         data-slot="table"

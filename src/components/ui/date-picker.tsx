@@ -13,7 +13,7 @@ const fmt = (d: Date, locale?: string) =>
   new Intl.DateTimeFormat(locale ?? "en-US", { month: "short", day: "numeric", year: "numeric" }).format(d)
 
 const triggerCls =
-  "focus-ring flex h-8 w-full min-w-0 items-center gap-2 rounded-md border border-outline bg-surface-container-lowest px-2.5 text-left text-sm pointer-coarse:text-base outline-none transition-colors hover:border-on-surface-variant disabled:cursor-not-allowed disabled:opacity-50 data-invalid:border-destructive data-[state=open]:border-primary"
+  "focus-ring flex h-8 w-full min-w-0 items-center gap-2 rounded-md border border-outline bg-surface-container-lowest px-2.5 text-left text-sm pointer-coarse:text-base outline-none transition-colors hover:border-on-surface-variant disabled:cursor-not-allowed disabled:bg-surface-container disabled:text-on-surface-variant disabled:border-outline-variant data-invalid:border-destructive data-[state=open]:border-primary"
 
 /**
  * Date field (Beams "Date picker"): a button showing the date ("Nov 14, 2026", never 11/14 in a

@@ -211,6 +211,7 @@ function FileDropzone({
       <input
         accept={accept}
         aria-describedby={hint ? `${id}-hint` : undefined}
+        aria-label={buttonLabel}
         className="sr-only"
         disabled={disabled}
         multiple={multiple}

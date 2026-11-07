@@ -47,7 +47,7 @@ function IconButton({
       </TooltipTrigger>
       <TooltipContent side={tooltipSide}>
         {label}
-        {shortcut && <span className="ml-2 font-mono text-[11px] opacity-70">{shortcut}</span>}
+        {shortcut && <span className="ml-2 font-mono text-xs opacity-70">{shortcut}</span>}
       </TooltipContent>
     </Tooltip>
   )

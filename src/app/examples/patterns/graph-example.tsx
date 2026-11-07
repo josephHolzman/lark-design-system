@@ -56,7 +56,7 @@ const edgeTypes = { labelled: LabelledEdge };
 
 const nodes: Node<RecordData>[] = [
   { id: "acct", type: "record", position: { x: 0, y: 80 }, data: { title: "Northwind Traders", meta: "Account · Renewal", tone: "sky", icon: <Building2Icon /> } },
-  { id: "opp", type: "record", position: { x: 300, y: 0 }, data: { title: "FY27 renewal", meta: "Opportunity · $412,800", tone: "sand", icon: <FileTextIcon /> }, selected: true },
+  { id: "opp", type: "record", position: { x: 300, y: 0 }, data: { title: "FY27 renewal", meta: "Opportunity · $412,800", tone: "coral", icon: <FileTextIcon /> }, selected: true },
   { id: "contact", type: "record", position: { x: 300, y: 160 }, data: { title: "Dana Whitfield", meta: "Contact · Procurement", tone: "evergreen", icon: <UserIcon /> } },
   { id: "team", type: "record", position: { x: 600, y: 80 }, data: { title: "Analytics team", meta: "Group · 1,200 seats", tone: "ember", icon: <UsersIcon />, dimmed: true } },
 ];

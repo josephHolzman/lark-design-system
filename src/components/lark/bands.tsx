@@ -6,11 +6,14 @@ import { cn } from "@/lib/utils";
 import { LarkLink as Link } from "./provider";
 
 /** Lark's illustration tones: a pale tint of the hue behind bands and media panels. */
-export type BandTone = "sky" | "sand" | "evergreen" | "ember" | "iris";
+/** v0.6: `coral` is the warm wash (Cohere's warmth without the sand/cream look). `sand` stays for
+ * compatibility; prefer coral, sky or evergreen. Iris means AI. */
+export type BandTone = "sky" | "coral" | "sand" | "evergreen" | "ember" | "iris";
 
 /** The band fill (the tone's 10 step) and the stronger 20 step for media panels and tiles. */
 export const BAND_TONE: Record<BandTone, { fill: string; strong: string }> = {
   sky: { fill: "bg-tint-sky", strong: "bg-tint-sky-strong" },
+  coral: { fill: "bg-tint-coral", strong: "bg-tint-coral-strong" },
   sand: { fill: "bg-tint-sand", strong: "bg-tint-sand-strong" },
   evergreen: { fill: "bg-tint-evergreen", strong: "bg-tint-evergreen-strong" },
   ember: { fill: "bg-tint-ember", strong: "bg-tint-ember-strong" },

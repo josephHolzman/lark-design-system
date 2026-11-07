@@ -1,5 +1,5 @@
 import { CheckIcon } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, CSSProperties, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -148,14 +148,33 @@ export type ApprovalStepData = {
   /** e.g. "After Finance approves" */
   dependency?: ReactNode;
   sku?: string;
+  /** When it moved or how long it has waited: "Approved 9:02", "Waiting 3 hr". */
+  when?: ReactNode;
+  /** This step's one next action (a Button), under its text: "Send a reminder". */
+  action?: ReactNode;
 };
 
-/** Numbered, ordered approvals with who, why and where each stands. */
-export function ApprovalChain({ steps, className }: { steps: ApprovalStepData[]; className?: string }) {
+/**
+ * Numbered, ordered approvals with who, why and where each stands.
+ *  - "stack" (default): one bordered row per step, for drawers and record pages.
+ *  - "lanes": steps side by side from md, split by hairlines and unboxed, to sit flush inside a
+ *    SectionCard (a card holds one surface; no cards in cards). Lanes share one height.
+ */
+export function ApprovalChain({ steps, layout = "stack", className }: { steps: ApprovalStepData[]; layout?: "stack" | "lanes"; className?: string }) {
+  const lanes = layout === "lanes";
   return (
-    <ol className={cn("flex min-w-0 flex-col gap-2", className)} data-slot="approval-chain">
+    <ol
+      className={cn(
+        "min-w-0",
+        lanes ? "grid divide-y divide-outline-variant md:grid-cols-[repeat(var(--lanes),minmax(0,1fr))] md:divide-x md:divide-y-0" : "flex flex-col gap-2",
+        className
+      )}
+      data-layout={layout}
+      data-slot="approval-chain"
+      style={lanes ? ({ "--lanes": steps.length } as CSSProperties) : undefined}
+    >
       {steps.map((s, i) => (
-        <li className="flex min-w-0 gap-3 rounded-lg border border-outline-variant bg-card p-3" key={s.title}>
+        <li className={cn("flex min-w-0 gap-3", lanes ? "p-4" : "rounded-lg border border-edge bg-card p-3")} key={s.title}>
           <span
             aria-hidden="true"
             className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-container tabular-nums leading-none font-medium text-xs text-on-surface-variant"
@@ -163,26 +182,30 @@ export function ApprovalChain({ steps, className }: { steps: ApprovalStepData[];
             {i + 1}
           </span>
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            {/* In a lane the column is narrow: the badge goes under the title, not pushed right. */}
+            <div className={cn("flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1", lanes && "flex-col items-start")}>
               <span className="text-title-sm">{s.title}</span>
               {s.sku && (
-                <span className="rounded-md bg-surface-container-high px-1.5 py-0.5 font-mono text-[11px] leading-4 text-on-surface-variant">
+                <span className="rounded-md bg-surface-container-high px-1.5 py-0.5 font-mono text-xs leading-4 text-on-surface-variant">
                   {s.sku}
                 </span>
               )}
-              <StatusBadge className="ml-auto" status={s.status} />
+              <StatusBadge className={lanes ? undefined : "ml-auto"} status={s.status} />
             </div>
-            <div className="flex items-center gap-2 text-body-sm text-on-surface-variant">
+            <div className="flex items-start gap-2 text-body-sm text-on-surface-variant">
               <PersonAvatar name={s.approver} size="xs" />
-              <span>
+              {/* 18px text beside a 20px avatar: nudge the first line to the avatar's centre. */}
+              <span className="pt-px">
                 <span className="text-on-surface">{s.approver}</span> · {s.role}
+                {s.when && <> · {s.when}</>}
               </span>
             </div>
             {s.condition && <p className="text-body-sm text-on-surface-variant">{s.condition}</p>}
             {s.note && (
-              <p className="rounded-md bg-surface-container-low px-2.5 py-1.5 text-body-sm text-on-surface">{s.note}</p>
+              <p className="rounded-md bg-surface-container px-2.5 py-1.5 text-body-sm text-on-surface">{s.note}</p>
             )}
             {s.dependency && <p className="text-body-sm text-on-surface-variant">{s.dependency}</p>}
+            {s.action && <div className="mt-auto flex flex-wrap items-center gap-2 pt-1.5">{s.action}</div>}
           </div>
         </li>
       ))}

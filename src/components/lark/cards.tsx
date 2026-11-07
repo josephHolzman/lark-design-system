@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, ChevronDownIcon, StarIcon, UsersIcon, XIcon } from "lucide-react";
 import { Collapsible as CollapsiblePrimitive, RadioGroup as RadioGroupPrimitive } from "radix-ui";
 import { type ComponentProps, type ReactNode, useId, useState } from "react";
 
@@ -15,8 +15,14 @@ import { LarkLink as Link } from "./provider";
 export type SectionCardProps = Omit<ComponentProps<"section">, "title"> & {
   title: ReactNode;
   description?: ReactNode;
-  /** Right side of the header: buttons, a menu, a filter. */
+  /**
+   * Right side of the header: controls only (an icon button or menu, a segmented control or
+   * filter that changes this card's content). v0.6: no text buttons or links here; put the
+   * card's action in `footer` and "see more" in `link`.
+   */
   action?: ReactNode;
+  /** v0.6: the card's way out ("View all deals"), rendered as a link at the end of the footer. */
+  link?: { label: string; href: string };
   /** Underline tabs or a segmented control on the header's bottom edge. */
   tabs?: ReactNode;
   footer?: ReactNode;
@@ -31,6 +37,19 @@ export type SectionCardProps = Omit<ComponentProps<"section">, "title"> & {
   onOpenChange?: (open: boolean) => void;
   /** Shown next to the title when collapsed, e.g. "3 open". */
   collapsedSummary?: ReactNode;
+  /**
+   * What the collapse toggle names: "Collapse <label>" / "Expand <label>". Defaults to the
+   * title when it's text, so several cards on a page don't share one name (WCAG 2.4.6).
+   */
+  collapseLabel?: string;
+  /** Keep the header `action` while the card is closed (default: hidden with the body). */
+  keepActionWhenClosed?: boolean;
+  /**
+   * "strip" (v0.6): the header sits in a 40px stone band with a hairline under it, so a page of
+   * stacked sections (a quote's lines, terms, approvals) reads as separate parts. Not tan:
+   * tan means selected.
+   */
+  variant?: "default" | "strip";
 };
 
 /**
@@ -51,11 +70,17 @@ export function SectionCard({
   open: openProp,
   onOpenChange,
   collapsedSummary,
+  collapseLabel,
+  keepActionWhenClosed,
+  link,
+  variant = "default",
   className,
   children,
   ...props
 }: SectionCardProps) {
+  const strip = variant === "strip";
   const id = useId();
+  const toggleName = collapseLabel ?? (typeof title === "string" ? title.charAt(0).toLowerCase() + title.slice(1) : "section");
   const [openState, setOpenState] = useState(defaultOpen);
   const open = openProp ?? openState;
   const setOpen = (o: boolean) => {
@@ -64,10 +89,16 @@ export function SectionCard({
   };
 
   const header = (
-    <header className="flex flex-wrap items-start gap-x-3 gap-y-2 px-4 pt-3 pb-3">
+    <header
+      className={cn(
+        "flex flex-wrap items-start gap-x-3 gap-y-2 px-4",
+        strip ? "min-h-10 items-center border-b border-outline-variant bg-surface-container-low py-2" : "pt-3 pb-3",
+        strip && collapsible && !open && "border-b-0"
+      )}
+    >
       <div className="flex min-w-[min(12rem,100%)] flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-2">
-          <H className="text-title-sm" id={id}>
+          <H className={strip ? "text-label-lg" : "text-title-sm"} id={id}>
             {title}
           </H>
           {collapsible && !open && collapsedSummary && (
@@ -78,10 +109,10 @@ export function SectionCard({
       </div>
       {(action || collapsible) && (
         <div className="-my-0.5 flex shrink-0 items-center gap-1">
-          {open && action}
+          {(open || keepActionWhenClosed) && action}
           {collapsible && (
             <CollapsiblePrimitive.Trigger asChild>
-              <Button aria-label={open ? "Collapse section" : "Expand section"} size="icon-sm" variant="ghost">
+              <Button aria-label={`${open ? "Collapse" : "Expand"} ${toggleName}`} size="icon-sm" variant="ghost">
                 <ChevronDownIcon className={cn("transition-transform", !open && "-rotate-90")} />
               </Button>
             </CollapsiblePrimitive.Trigger>
@@ -94,23 +125,24 @@ export function SectionCard({
   const body = (
     <>
       {tabs && <div className="border-b border-outline-variant px-4">{tabs}</div>}
-      <div className={cn("flex min-w-0 flex-1 flex-col", !flush && "px-4 pb-4", tabs && !flush && "pt-4")}>{children}</div>
-      {footer && (
-        <footer className="flex items-center gap-2 border-t border-outline-variant px-4 py-2.5 text-body-sm text-on-surface-variant">
+      <div className={cn("flex min-w-0 flex-1 flex-col", !flush && "px-4 pb-4", (tabs || strip) && !flush && "pt-4")}>{children}</div>
+      {(footer || link) && (
+        <footer className="flex min-h-11 flex-wrap items-center gap-2 border-t border-outline-variant px-4 py-2 text-body-sm text-on-surface-variant">
           {footer}
+          {link && <CardLink className={footer ? "ml-auto" : undefined} {...link} />}
         </footer>
       )}
     </>
   );
 
   const cls = cn(
-    "flex min-w-0 flex-col overflow-hidden rounded-lg border border-outline-variant bg-card text-card-foreground",
+    "flex min-w-0 flex-col overflow-hidden rounded-lg border border-edge bg-card text-card-foreground",
     className
   );
 
   if (!collapsible) {
     return (
-      <section aria-labelledby={id} className={cls} data-slot="section-card" {...props}>
+      <section aria-labelledby={id} className={cls} data-slot="section-card" data-variant={variant} {...props}>
         {header}
         {body}
       </section>
@@ -118,7 +150,7 @@ export function SectionCard({
   }
   return (
     <CollapsiblePrimitive.Root asChild onOpenChange={setOpen} open={open}>
-      <section aria-labelledby={id} className={cls} data-slot="section-card" data-state={open ? "open" : "closed"} {...props}>
+      <section aria-labelledby={id} className={cls} data-slot="section-card" data-state={open ? "open" : "closed"} data-variant={variant} {...props}>
         {header}
         <CollapsiblePrimitive.Content className="flex min-w-0 flex-col data-[state=closed]:hidden">{body}</CollapsiblePrimitive.Content>
       </section>
@@ -137,24 +169,50 @@ const CHIP = {
   warning: "bg-warning-container text-on-warning-container",
   error: "bg-error-container text-on-error-container",
   neutral: "bg-surface-container-high text-on-surface-variant",
+  coral: "bg-tint-coral-strong text-on-error-container",
+} as const;
+
+/** v0.6: solid tiles for an object's identity (an agent, an automation, a template). White glyph. */
+const CHIP_SOLID = {
+  primary: "bg-[var(--lark-sky-650)] text-white",
+  secondary: "bg-[var(--lark-sand-600)] text-white",
+  ai: "bg-[var(--lark-iris-60)] text-white",
+  tertiary: "bg-[var(--lark-iris-60)] text-white",
+  success: "bg-[var(--lark-evergreen-60)] text-white",
+  warning: "bg-[var(--lark-ember-60)] text-white",
+  error: "bg-[var(--lark-rust-60)] text-white",
+  coral: "bg-[var(--lark-coral-50)] text-white",
+  neutral: "bg-[var(--lark-paper-70)] text-white",
 } as const;
 
 export type ChipTone = keyof typeof CHIP;
-export type IconChipProps = ComponentProps<"span"> & { tone?: ChipTone; size?: "sm" | "md" | "lg" };
+export type IconChipProps = ComponentProps<"span"> & {
+  tone?: ChipTone;
+  size?: "sm" | "md" | "lg";
+  /**
+   * v0.6: "square" (default) for things (objects, categories, actions); "circle" only for
+   * people and presence, which use PersonAvatar anyway.
+   */
+  shape?: "square" | "circle";
+  /** "tint" (default): pale fill, dark glyph. "solid": the object's identity colour, white glyph. */
+  variant?: "tint" | "solid";
+};
 
-/** Beams' round tinted icon (24 / 32 / 40). Decorative. */
-export function IconChip({ tone = "primary", size = "md", className, ...props }: IconChipProps) {
+/** Icon tile (24 / 32 / 40). Square with 6 / 8 / 10 corners by default (v0.6). Decorative. */
+export function IconChip({ tone = "primary", size = "md", shape = "square", variant = "tint", className, ...props }: IconChipProps) {
+  const round = shape === "circle";
   return (
     <span
       aria-hidden="true"
       className={cn(
         "inline-flex shrink-0 items-center justify-center",
-        size === "sm" && "size-6 rounded-full [&_svg]:size-3.5",
-        size === "md" && "size-8 rounded-full [&_svg]:size-4",
-        size === "lg" && "size-10 rounded-full [&_svg]:size-5",
-        CHIP[tone],
+        size === "sm" && cn("size-6 [&_svg]:size-3.5", round ? "rounded-full" : "rounded-[6px]"),
+        size === "md" && cn("size-8 [&_svg]:size-4", round ? "rounded-full" : "rounded-md"),
+        size === "lg" && cn("size-10 [&_svg]:size-5", round ? "rounded-full" : "rounded-[10px]"),
+        variant === "solid" ? CHIP_SOLID[tone] : CHIP[tone],
         className
       )}
+      data-slot="icon-chip"
       {...props}
     />
   );
@@ -176,15 +234,16 @@ export type ActionCardProps = Omit<ComponentProps<"div">, "title"> & {
 };
 
 /**
- * Beams action card: white, hairline, 32px round tinted icon. For things to do next: ACE
- * task tiles, "Create dashboard", integrations. With href, the title is the link and its
- * ::after covers the card: one tab stop, still announced as a link.
+ * Action card: white, hairline, 32px square tinted tile. For things to do next: ACE task tiles,
+ * "Create dashboard", integrations. With href, the title is the link and its ::after covers the
+ * card: one tab stop, still announced as a link. v0.6: `action` sits in the footer under the text,
+ * never in the top-right corner (that corner holds icon-only controls).
  */
 export function ActionCard({ icon, tone = "primary", title, description, meta, action, href, media, className, ...props }: ActionCardProps) {
   return (
     <div
       className={cn(
-        "group/action relative flex min-w-0 flex-col gap-3 rounded-lg border border-outline-variant bg-card p-3 text-on-surface",
+        "group/action relative flex min-w-0 flex-col gap-3 rounded-lg border border-edge bg-card p-3 text-on-surface",
         href && "state-layer [--state-hover:0.03] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring",
         className
       )}
@@ -206,8 +265,8 @@ export function ActionCard({ icon, tone = "primary", title, description, meta, a
           </div>
           {description && <p className="text-body-sm text-on-surface-variant">{description}</p>}
           {meta && <div className="mt-1 flex flex-wrap items-center gap-2 text-body-sm text-on-surface-variant">{meta}</div>}
+          {action && <div className="relative z-10 mt-2 flex flex-wrap items-center gap-2">{action}</div>}
         </div>
-        {action && <div className="relative z-10 shrink-0">{action}</div>}
       </div>
     </div>
   );
@@ -242,7 +301,7 @@ export function TemplateCard({ tags, title, description, footer, href, onSelect,
   );
   const cls = cn(
     "state-layer [--state-hover:0.03] focus-ring relative flex h-full min-w-0 flex-col items-start gap-1.5 rounded-lg border p-3 text-left text-on-surface outline-none",
-    selected ? "border-selected-border bg-secondary-container" : "border-outline-variant bg-card"
+    selected ? "border-selected-border bg-secondary-container" : "border-edge bg-card"
   );
   return (
     <div className={cn("flex min-w-0 flex-col", className)} data-slot="template-card">
@@ -289,7 +348,7 @@ export function ChecklistCard({
   const id = useId();
   return (
     <CollapsiblePrimitive.Root asChild onOpenChange={setOpen} open={open}>
-      <section aria-labelledby={id} className={cn("rounded-lg border border-outline-variant bg-card shadow-raised", className)}>
+      <section aria-labelledby={id} className={cn("rounded-lg border border-edge bg-card", className)}>
         <header className="flex items-start gap-3 p-5">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -339,9 +398,38 @@ export function ChecklistCard({
   );
 }
 
+/* ================================================================ BestFor */
+
+/**
+ * "Best for" and a short checklist under an option (v0.6, from Cohere's mode cards). Says what
+ * an option suits so people choose by fit, not by reading every metric.
+ */
+export function BestFor({ items, label = "Best for", className }: { items: string[]; label?: string; className?: string }) {
+  return (
+    <div className={cn("mt-1.5 flex flex-col gap-1 border-t border-outline-faint pt-1.5", className)} data-slot="best-for">
+      <span className="text-label-md text-on-surface-variant">{label}</span>
+      <ul className="flex flex-col gap-0.5">
+        {items.map((it) => (
+          <li className="flex items-start gap-1.5 text-body-sm text-on-surface" key={it}>
+            <CheckIcon aria-hidden className="mt-0.5 size-3.5 shrink-0 text-on-surface-variant" />
+            {it}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /* ================================================================ ChoiceCard */
 
-export type Choice = { value: string; label: ReactNode; description?: ReactNode; recommended?: boolean };
+export type Choice = {
+  value: string;
+  label: ReactNode;
+  description?: ReactNode;
+  recommended?: boolean;
+  /** v0.6: what this choice suits, as a short checklist ("Best for: renewals under 50 seats"). */
+  bestFor?: string[];
+};
 
 /**
  * The assistant's "Select one of the following" card: a bordered radio list, an optional
@@ -365,7 +453,7 @@ export function ChoiceCard({
   const [submitted, setSubmitted] = useState(false);
   const id = useId();
   return (
-    <div className={cn("flex flex-col rounded-lg border border-outline-variant bg-card", className)} data-slot="choice-card">
+    <div className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="choice-card">
       <p className="px-4 pt-3 text-body-sm text-on-surface-variant" id={id}>
         {prompt}
       </p>
@@ -393,6 +481,7 @@ export function ChoiceCard({
                 {c.recommended && <Badge variant="success">Recommended</Badge>}
               </span>
               {c.description && <span className="text-body-sm text-on-surface-variant">{c.description}</span>}
+              {c.bestFor && c.bestFor.length > 0 && <BestFor items={c.bestFor} />}
             </span>
           </label>
         ))}
@@ -432,6 +521,8 @@ export function PromoCard({
   action,
   media,
   onDismiss,
+  dismissLabel,
+  titleAs: T = "span",
   tone = "default",
   className,
 }: {
@@ -440,6 +531,10 @@ export function PromoCard({
   action?: ReactNode;
   media?: ReactNode;
   onDismiss?: () => void;
+  /** The dismiss button's name. Default "Dismiss <title>" when the title is text. */
+  dismissLabel?: string;
+  /** Make the title a heading where the card is a section of the page. Default a span. */
+  titleAs?: "span" | "h2" | "h3" | "h4";
   tone?: "default" | "dark";
   className?: string;
 }) {
@@ -447,19 +542,19 @@ export function PromoCard({
     <aside
       className={cn(
         "relative flex min-w-0 items-center gap-4 rounded-lg border p-3 pr-10",
-        tone === "dark" ? "dark border-transparent bg-surface text-on-surface" : "border-outline-variant bg-card",
+        tone === "dark" ? "dark border-transparent bg-surface text-on-surface" : "border-edge bg-card",
         className
       )}
       data-slot="promo-card"
     >
       {media && <div className="hidden shrink-0 overflow-hidden rounded-md sm:block">{media}</div>}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-label-lg">{title}</span>
+        <T className="text-label-lg">{title}</T>
         {description && <span className="text-body-sm text-on-surface-variant">{description}</span>}
         {action && <div className="mt-1">{action}</div>}
       </div>
       {onDismiss && (
-        <Button aria-label="Dismiss" className="absolute top-2 right-2" onClick={onDismiss} size="icon-xs" variant="ghost">
+        <Button aria-label={dismissLabel ?? (typeof title === "string" ? `Dismiss ${title}` : "Dismiss")} className="absolute top-2 right-2" onClick={onDismiss} size="icon-xs" variant="ghost">
           <XIcon />
         </Button>
       )}
@@ -514,5 +609,125 @@ export function EntityCard({
       )}
       {actions && <div className="flex flex-wrap justify-end gap-2">{actions}</div>}
     </div>
+  );
+}
+
+/* ================================================================ CardLink */
+
+/** A card's "see more" link: label plus an arrow, at the end of the footer. */
+export function CardLink({ label, href, className }: { label: string; href: string; className?: string }) {
+  return (
+    <Link className={cn("focus-ring inline-flex min-h-6 items-center gap-1 rounded-sm text-label-lg text-on-surface outline-none hover:text-on-surface-variant", className)} href={href}>
+      {label}
+      <ArrowRightIcon aria-hidden className="size-3.5" />
+    </Link>
+  );
+}
+
+/* ================================================================ ObjectCard */
+
+export type ObjectCardProps = {
+  /** An IconChip (variant "solid" for identity), a CompanyLogo, a PersonAvatar or a ServiceStack. */
+  identity?: ReactNode;
+  title: ReactNode;
+  /** One line under the title: "By Priya Raman". */
+  byline?: ReactNode;
+  /** Lifecycle or status beside the title: Badge "Beta", StatusBadge. */
+  badge?: ReactNode;
+  description?: ReactNode;
+  /** Footer left: facts as small chips ("v2.0.2", "43 users"). Use ObjectFact. */
+  facts?: ReactNode;
+  /** Footer right: one action (a Button) or a state (StatusBadge). */
+  footerEnd?: ReactNode;
+  /** Opens the object. The title becomes the link and covers the card (one tab stop). */
+  href?: string;
+  /** Star toggle in the top-right corner. */
+  starred?: boolean;
+  onStarredChange?: (starred: boolean) => void;
+  /** Overflow menu in the top-right corner (an ActionMenu). Icon-only controls only. */
+  menu?: ReactNode;
+  as?: "h2" | "h3" | "h4";
+  className?: string;
+};
+
+/**
+ * One card for things people browse and open: agents, automations, templates, saved views,
+ * integrations (v0.6, from North's agent cards and Cohere's model cards). Anatomy, always in
+ * this order:
+ *   identity tile · title (+ badge) · byline ........ star · menu   (icon-only)
+ *   description (two lines, then clamped)
+ *   facts (version, counts) .................... one action or state
+ * The whole card is the link when it opens something; the star, menu and footer action sit
+ * above the link layer so they stay separate tab stops.
+ */
+export function ObjectCard({ identity, title, byline, badge, description, facts, footerEnd, href, starred, onStarredChange, menu, as: H = "h3", className }: ObjectCardProps) {
+  const titleId = useId();
+  return (
+    <article
+      aria-labelledby={titleId}
+      className={cn(
+        "group/object relative flex min-w-0 flex-col gap-3 rounded-lg border border-edge bg-card p-4 text-on-surface",
+        href && "state-layer [--state-hover:0.03] has-[a[data-object-link]:focus-visible]:outline-2 has-[a[data-object-link]:focus-visible]:outline-offset-2 has-[a[data-object-link]:focus-visible]:outline-ring",
+        className
+      )}
+      data-slot="object-card"
+    >
+      <div className="flex items-start gap-3">
+        {identity && <div className="shrink-0">{identity}</div>}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <H className="min-w-0 text-title-sm" id={titleId}>
+              {href ? (
+                <Link className="outline-none after:absolute after:inset-0 after:content-['']" data-object-link href={href}>
+                  {title}
+                </Link>
+              ) : (
+                title
+              )}
+            </H>
+            {badge}
+          </div>
+          {byline && <p className="text-body-sm text-on-surface-variant">{byline}</p>}
+        </div>
+        {(onStarredChange || menu) && (
+          <div className="relative z-10 -mt-1 -mr-1.5 flex shrink-0 items-center">
+            {onStarredChange && (
+              <Button aria-label="Star" aria-pressed={!!starred} onClick={() => onStarredChange(!starred)} size="icon-sm" variant="ghost">
+                <StarIcon className={cn(starred && "fill-current text-on-surface")} />
+              </Button>
+            )}
+            {menu}
+          </div>
+        )}
+      </div>
+      {description && <p className="line-clamp-2 text-sm text-on-surface-variant">{description}</p>}
+      {(facts || footerEnd) && (
+        <div className="mt-auto flex min-h-8 flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">{facts}</div>
+          {footerEnd && <div className="relative z-10 flex items-center gap-2">{footerEnd}</div>}
+        </div>
+      )}
+    </article>
+  );
+}
+
+/**
+ * A fact on an ObjectCard footer: a version in a mono chip, or a count with its icon.
+ * The label is spoken ("43 users"); the icon is decorative.
+ */
+export function ObjectFact({ kind = "count", icon, children, label }: { kind?: "version" | "count"; icon?: ReactNode; children: ReactNode; label?: string }) {
+  if (kind === "version")
+    return (
+      <span className="inline-flex h-6 items-center rounded-[6px] bg-surface-container-high px-1.5 font-mono text-label-md text-on-surface" data-slot="object-fact">
+        {label && <span className="sr-only">{label} </span>}
+        {children}
+      </span>
+    );
+  return (
+    <span className="inline-flex h-6 items-center gap-1 text-body-sm text-on-surface-variant tabular-nums" data-slot="object-fact">
+      <span aria-hidden className="[&_svg]:size-3.5">{icon ?? <UsersIcon />}</span>
+      {children}
+      {label && <span className="sr-only"> {label}</span>}
+    </span>
   );
 }

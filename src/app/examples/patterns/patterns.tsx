@@ -4,13 +4,16 @@ import { ArchiveIcon, CircleHelpIcon, CoinsIcon, CopyIcon, FileTextIcon, LayoutD
 import { type ReactNode, useState } from "react";
 
 import { AiRunCell, ConfidenceBadge, EvidencePopover, PlanReview, RunSteps } from "@/components/lark/ai";
-import { ActionCard, ChecklistCard, ChoiceCard, EntityCard, PromoCard, SectionCard, TemplateCard } from "@/components/lark/cards";
+import { ActionCard, ChecklistCard, ChoiceCard, EntityCard, IconChip, ObjectCard, ObjectFact, PromoCard, SectionCard, TemplateCard } from "@/components/lark/cards";
 import { HeroBand, IllustratedChoiceCard } from "@/components/lark/bands";
 import { ChangeReview, DiffValue, InlineEdit } from "@/components/lark/editing";
 import { Banner, DirtyMark, SaveStatus, SkeletonCard, SkeletonFigure, StatePanel, UnsavedChangesBar } from "@/components/lark/feedback";
 import { FigureCard } from "@/components/lark/figure";
+import { ApprovalMatrix } from "@/components/lark/cpq";
+import { CardStatusFooter, CompoundTag, Freshness, ProvisionalBadge, Tray, TrayCard } from "@/components/lark/surfaces";
+import { ContainedInput, ContainedTextarea } from "@/components/ui/contained-field";
 import { Segmented } from "@/components/lark/filters";
-import { CompanyLogo, ServiceLogo } from "@/components/lark/identity";
+import { CompanyLogo, ServiceLogo, ServiceStack } from "@/components/lark/identity";
 import { DashboardLayout } from "@/components/lark/layouts";
 import { ActionMenu, ColumnsPanel, CountSegments, FacetFilterMenu, FacetList, SavedViewMenu, SplitButton, VerticalNav } from "@/components/lark/menus";
 import { PageHeader } from "@/components/lark/page-header";
@@ -31,6 +34,12 @@ import { CopyButton, IconButton, ProgressRing, TextLink } from "@/components/ui/
 import { Label } from "@/components/ui/label";
 import { NumberInput } from "@/components/ui/number-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Example timestamps, fixed when the page loads.
+const LOADED = Date.now();
+const PRICED_AT = new Date(LOADED - 2 * 60_000);
+const ARR_AT = new Date(LOADED - 5 * 3_600_000);
+const JUST_NOW = new Date(LOADED - 30_000);
 
 const roles = [
   { value: "seller", label: "Seller", description: "Quote with ACE" },
@@ -62,14 +71,14 @@ function Spec({ name, when, children }: { name: string; when: string; children: 
         <h3 className="text-title-sm">{name}</h3>
         <p className="max-w-[60ch] text-body-sm text-on-surface-variant">{when}</p>
       </div>
-      <div className="flex min-w-0 flex-col gap-1.5">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 [&>*:only-child]:flex-1">{children}</div>
     </div>
   );
 }
 
 /** Placeholder art for the examples: a few soft shapes in the tone's hue. */
-function Illustration({ tone }: { tone: "sky" | "sand" | "evergreen" | "ember" | "iris" }) {
-  const hue = { sky: "var(--lark-sky-500)", sand: "var(--lark-sand-500)", evergreen: "var(--lark-evergreen-50)", ember: "var(--lark-ember-50)", iris: "var(--lark-iris-50)" }[tone];
+function Illustration({ tone }: { tone: "sky" | "coral" | "evergreen" | "ember" | "iris" }) {
+  const hue = { sky: "var(--lark-sky-500)", coral: "var(--lark-coral-50)", evergreen: "var(--lark-evergreen-50)", ember: "var(--lark-ember-50)", iris: "var(--lark-iris-50)" }[tone];
   return (
     <svg fill="none" height="120" viewBox="0 0 200 120" width="200">
       <rect fill={hue} height="72" opacity="0.18" rx="12" width="120" x="16" y="28" />
@@ -83,6 +92,10 @@ function Illustration({ tone }: { tone: "sky" | "sand" | "evergreen" | "ember" |
 
 export function Patterns() {
   const [promo, setPromo] = useState(true);
+  const [stars, setStars] = useState<string[]>(["pricing"]);
+  const star = (id: string) => (on: boolean) => setStars((s) => (on ? [...s, id] : s.filter((x) => x !== id)));
+  const [matrix, setMatrix] = useState<Record<string, string>>({ b0: "none", b1: "manager", b2: "desk", b3: "finance", b4: "cfo" });
+  const [matrixChanged, setMatrixChanged] = useState<string[]>([]);
   const [view, setView] = useState("all");
   const [facets, setFacets] = useState<string[]>(["renewal"]);
   const [facet, setFacet] = useState("all");
@@ -132,8 +145,54 @@ export function Patterns() {
         ))}
       </nav>
 
-      <Group id="cards" title="Cards" use="Cards hold one subject. White, 12px corners, ink 8% edge, no shadow, except result cards and the onboarding checklist. Lists, toolbars, page headers and empty states are not cards.">
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+      <Group id="system" title="One system (v0.6)" use="Every card, header and control follows the same anatomy. Identity on the left, title and byline, icon-only controls top right, description, then facts left and one action or state right. Text actions never sit in a card's top-right corner: they go in the footer. Colour carries meaning: sky acts, iris is AI, tan is selected, status hues are status, solid tiles name an object's kind.">
+        <Spec name="Object cards" when="Things people browse and open: agents, automations, templates, saved views, integrations. The whole card opens the object; the star and menu stay separate tab stops.">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <ObjectCard
+              badge={<Badge variant="outline">Beta</Badge>}
+              byline="By Rui Tanaka"
+              description="Checks every quote line against FY27 policy and proposes the smallest change that clears it."
+              facts={
+                <>
+                  <ObjectFact kind="version" label="Version">v2.0.2</ObjectFact>
+                  <ObjectFact label="people use it">43</ObjectFact>
+                </>
+              }
+              footerEnd={<StatusBadge status="Within pricing limits" />}
+              href="#system"
+              identity={<IconChip tone="ai" variant="solid"><ScaleIcon /></IconChip>}
+              menu={<ActionMenu label="More for Pricing agent" sections={[{ items: [{ label: "Duplicate" }, { label: "Share" }] }]} />}
+              onStarredChange={star("pricing")}
+              starred={stars.includes("pricing")}
+              title="Pricing agent"
+            />
+            <ObjectCard
+              byline="By Avery Chen"
+              description="Pulls usage, open cases and the last call notes into a one-page brief before each renewal call."
+              facts={<ObjectFact label="runs this week">12</ObjectFact>}
+              footerEnd={<Button size="sm" variant="secondary">Run now</Button>}
+              href="#system"
+              identity={<ServiceStack services={["Salesforce", "Slack", "Zoom", "Outlook", "Snowflake"]} />}
+              menu={<ActionMenu label="More for Renewal brief" sections={[{ items: [{ label: "Edit" }, { label: "Pause" }] }]} />}
+              onStarredChange={star("brief")}
+              starred={stars.includes("brief")}
+              title="Renewal brief"
+            />
+            <ObjectCard
+              byline="By Deal desk"
+              description="Routes discounts above 20% to Finance and terms over 36 months to Legal."
+              facts={<ObjectFact kind="version" label="Version">v1.3</ObjectFact>}
+              footerEnd={<StatusBadge status="Draft" />}
+              href="#system"
+              identity={<IconChip tone="coral" variant="solid"><FileTextIcon /></IconChip>}
+              title="EMEA approval route"
+            />
+          </div>
+        </Spec>
+      </Group>
+
+      <Group id="cards" title="Cards" use="Cards hold one subject. White on the stone canvas, 12px corners, a 4% edge (the fill does the work), no resting shadow (only overlays have one). The header holds the title, a description and icon-only controls; text actions and links go in the footer. Lists, toolbars, page headers and empty states are not cards.">
+        <div className="grid gap-4 lg:grid-cols-2">
           <Spec name="Section card" when="The default container on record, dashboard and settings pages.">
             <SectionCard action={<ActionMenu sections={[{ items: [{ label: "Edit" }, { label: "Copy link" }] }]} />} description="Title 16/24, actions right, body at a 16px inset." title="Deal summary">
               <p className="text-sm">Renew at the current price with a three-year term.</p>
@@ -181,7 +240,7 @@ export function Patterns() {
           </Spec>
           <Spec name="Action card" when="Something to do next. The whole card is one link, or it carries one button.">
             <div className="grid gap-2 sm:grid-cols-2">
-              <ActionCard href="#" icon={<LayoutDashboardIcon />} title="Create dashboard" />
+              <ActionCard description="A blank dashboard for this workspace." href="#" icon={<LayoutDashboardIcon />} title="Create dashboard" />
               <ActionCard action={<Button size="sm" variant="ai"><SparklesIcon /> Run</Button>} description="Compare against FY27 policy." icon={<SparklesIcon />} title="Review pricing" tone="ai" />
             </div>
           </Spec>
@@ -207,7 +266,7 @@ export function Patterns() {
             ))}
           </div>
         </Spec>
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <Spec name="Checklist card" when="First-run onboarding. One primary per card, on the first open item.">
             <ChecklistCard
               description="Connect your systems so ACE can prepare deals."
@@ -302,7 +361,7 @@ export function Patterns() {
       </Group>
 
       <Group id="editing" title="Editing and dirty state" use="Values edit in place. Edited fields carry a mark; the page shows its save state; a sticky bar offers Discard and Save while anything is unsaved, and leaving warns.">
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <SectionCard title="Inline edit">
             <dl className="grid grid-cols-[8rem_1fr] items-center gap-x-4 gap-y-1">
               <dt className="text-label-md text-on-surface-tertiary">PO number</dt>
@@ -384,7 +443,7 @@ export function Patterns() {
       </Group>
 
       <Group id="fields" title="Fields and inputs" use="Every field is 32 tall (28 small), radius 8, a 3:1 edge, and shows its value in words. Search beats scrolling past ~10 options. Text is 14px with a mouse and 16px on touch, so phones never zoom the page.">
-        <div className="grid items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           <Spec name="Combobox" when="One choice from many: accounts, owners, products. Disabled options stay visible and say why.">
             <Label htmlFor="pat-acct">Account</Label>
             <Combobox
@@ -489,7 +548,7 @@ export function Patterns() {
       </Group>
 
       <Group id="tabs" title="Tabs and switches" use="Pick by behaviour: links that change the URL are PageTabs; panels that swap in place are Tabs (underline or segmented); filters over the same content are Segmented or facet lists.">
-        <div className="grid items-start gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           <Spec name="Segmented tabs" when="Record page sections">
             <Tabs defaultValue="a">
               <TabsList aria-label="Example" variant="segmented">
@@ -497,6 +556,9 @@ export function Patterns() {
                 <TabsTrigger value="b">People</TabsTrigger>
                 <TabsTrigger value="c">Locations</TabsTrigger>
               </TabsList>
+              <TabsContent className="pt-3 text-body-sm text-on-surface-variant" value="a">Deal summary and key dates.</TabsContent>
+              <TabsContent className="pt-3 text-body-sm text-on-surface-variant" value="b">Buyers, approvers and the owner.</TabsContent>
+              <TabsContent className="pt-3 text-body-sm text-on-surface-variant" value="c">Billing and shipping sites.</TabsContent>
             </Tabs>
           </Spec>
           <Spec name="Segmented control" when="Switch a view: density, chart or table">
@@ -532,7 +594,7 @@ export function Patterns() {
           <AiRunCell error="Contract not found" onRun={() => {}} state="failed" />
           <AiRunCell state="skipped" />
         </div>
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <PlanReview steps={[{ id: "1", title: "Re-price the platform line" }, { id: "2", title: "Re-run the policy check" }, { id: "3", title: "Send to VP Finance", risky: true }]} />
           <div className="flex flex-col gap-4">
             <RunSteps steps={[{ id: "a", title: "Read quote R4", state: "done" }, { id: "b", title: "Check policy", state: "done" }, { id: "c", title: "Check MSA", state: "failed", detail: "Contract not found in Drive" }]} title="Pricing review" />
@@ -542,7 +604,7 @@ export function Patterns() {
       </Group>
 
       <Group id="shell" title="Shell, identity and figures" use="The frame around every page: theme, the person's menu, the sidebar, headline figures and the marks of the services Lark connects to.">
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <Spec name="Theme" when="ThemeScript in <head>, then useTheme or ThemeToggle. Apps with their own stored theme pass storageKey and attribute (class, data-theme or both) to all three.">
             <div className="flex items-center gap-3">
               <ThemeToggle />
@@ -646,7 +708,7 @@ export function Patterns() {
             {(
               [
                 ["seller", "Seller", "Draft and price quotes with ACE, then send them for approval.", "sky"],
-                ["deal-desk", "Deal desk", "Review quotes and approvals, with policy checks and the price waterfall.", "sand"],
+                ["deal-desk", "Deal desk", "Review quotes and approvals, with policy checks and the price waterfall.", "coral"],
                 ["revops", "RevOps", "Watch pipeline health and fix the data behind the forecast.", "evergreen"],
                 ["sales-ops", "Sales ops", "Set pricing rules, approval routes and the guardrails ACE follows.", "ember"],
               ] as const
@@ -699,6 +761,101 @@ export function Patterns() {
         <Spec name="Graph (React Flow)" when="Records and how they relate (the ontology graph). GraphNode from @deepgrids/lark/graph inside a custom node, GraphEdgeLabel on edges, and @deepgrids/lark/graph.css for the canvas, edges, handles, controls and minimap. The meta line names each category in words; dimmed nodes are off the selected path.">
           <GraphExample />
         </Spec>
+      </Group>
+
+      <Group id="shapes" title="Trays, contained fields and provisional marks (v0.6)" use="Shapes taken from Cohere's product UI and fitted to Lark: stone trays hold related cards with concentric corners, labelled fields keep the label inside the box, anything not committed has a dashed edge and says so, and computed numbers say when they were computed.">
+        <div className="grid gap-6 xl:grid-cols-2">
+          <Spec name="Tray" when="Several related cards that belong together: approval lanes, a quote's options, a run's steps. 24px corners, 12px padding, 12px cards, so corners stay concentric. Flat. Not for one card.">
+            <Tray footer={<Button size="sm" variant="secondary">Remind all</Button>} description="Signed in parallel; the quote moves when all three approve." title="Approvals for quote R4">
+              <TrayCard>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-label-lg">Deal desk</p>
+                  <span className="text-body-sm text-on-surface-tertiary">Waiting 4 hr</span>
+                </div>
+                <p className="text-body-sm text-on-surface-variant">Discount 22% is above the 15% EMEA floor.</p>
+                <CardStatusFooter action={<Button size="sm" variant="secondary">Open request</Button>} status={<StatusBadge status="Awaiting decision" />} />
+              </TrayCard>
+              <TrayCard>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-label-lg">Finance</p>
+                  <span className="text-body-sm text-on-surface-tertiary">Approved 9:12 AM</span>
+                </div>
+                <p className="text-body-sm text-on-surface-variant">Net 60 payment terms.</p>
+                <CardStatusFooter action={<Button size="sm" variant="ghost">View note</Button>} status={<StatusBadge status="Approved" />} />
+              </TrayCard>
+            </Tray>
+          </Spec>
+          <Spec name="Section card with a header strip" when="Stacked sections of one record (a quote's lines, terms, approvals) that need to read as separate parts. The title sits in a 40px stone band. Not tan: tan means selected.">
+            <SectionCard action={<Button aria-label="Edit terms" size="icon-sm" variant="ghost"><PencilIcon /></Button>} as="h3" title="Terms" variant="strip">
+              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
+                <dt className="text-on-surface-variant">Term</dt>
+                <dd>24 months</dd>
+                <dt className="text-on-surface-variant">Payment</dt>
+                <dd>Net 60, annual in advance</dd>
+              </dl>
+            </SectionCard>
+          </Spec>
+          <Spec name="Contained fields" when="Labelled form fields. The label is inside the box and the whole box is the target. Errors tint the box and say what to fix; disabled fields say why. Bare inputs stay for toolbars, filters and cells.">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ContainedInput defaultValue="24" inputMode="numeric" label="Term" required suffix="months" />
+              <ContainedInput defaultValue="22" error="Above the 15% EMEA floor. Deal desk approval will be requested." inputMode="decimal" label="Discount" suffix="%" />
+              <ContainedInput defaultValue="Net 60" disabledReason="Set by the master agreement. Change it in the contract." label="Payment terms" />
+              <ContainedInput label="Purchase order" placeholder="PO-" />
+              <ContainedTextarea className="sm:col-span-2" description="Shown to approvers, not the customer." label="Note for approvers" />
+            </div>
+          </Spec>
+          <Spec name="Provisional marks, compound tags and freshness" when="A dashed edge plus words for anything proposed, unsaved or suggested by ACE. A compound tag for a value and its qualifier. Every computed number says when it was computed, and when it may be out of date.">
+            <div className="flex flex-wrap items-center gap-2">
+              <ProvisionalBadge kind="proposed" />
+              <ProvisionalBadge kind="unsaved" />
+              <ProvisionalBadge kind="ai" />
+              <CompoundTag label="Discount" tone="ai" value="92%" />
+              <CompoundTag label="Term" value="88%" />
+              <CompoundTag label="Renewal date" tone="warning" value="41%" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FigureCard label="Quote total" unit="USD" updated={{ at: PRICED_AT }} value="$1,184,400.00" />
+              <FigureCard label="ARR change" updated={{ at: ARR_AT, staleAfter: 60 }} value="+$212,000.00" />
+            </div>
+            <p className="text-body-sm text-on-surface-variant">
+              Inline: <Freshness at={JUST_NOW} verb="Priced" />
+            </p>
+          </Spec>
+          <Spec name="Options with best for" when="Choices people pick by fit. A short Best for list under each option; previews that aren't saved yet carry Not saved.">
+            <ChoiceCard
+              choices={[
+                { value: "1y", label: "1 year", description: "$612,000.00, no approval", bestFor: ["Pilots and first-year customers", "Budgets set annually"] },
+                { value: "2y", label: "2 years, 8% off", description: "$1,126,080.00, deal desk approval", recommended: true, bestFor: ["Renewals that expanded last year", "Customers asking for price protection"] },
+              ]}
+              prompt="Which term should the quote use?"
+            />
+          </Spec>
+          <Spec name="Approval matrix" when="Who approves what: each row (a discount band) picks one approver. Native radios per row; the chosen cell is tan and names the approver, so it never rests on colour. Edited rows say Changed.">
+            <ApprovalMatrix
+              caption="Approver by discount band, EMEA"
+              changed={matrixChanged}
+              levels={[
+                { id: "none", label: "None" },
+                { id: "manager", label: "Manager" },
+                { id: "desk", label: "Deal desk" },
+                { id: "finance", label: "Finance" },
+                { id: "cfo", label: "CFO" },
+              ]}
+              onChange={(row, level) => {
+                setMatrix((m) => ({ ...m, [row]: level }));
+                setMatrixChanged((c) => (c.includes(row) ? c : [...c, row]));
+              }}
+              rows={[
+                { id: "b0", label: "Up to 10%" },
+                { id: "b1", label: "10–15%" },
+                { id: "b2", label: "15–25%" },
+                { id: "b3", label: "25–35%" },
+                { id: "b4", label: "Over 35%", description: "Also needs a written reason" },
+              ]}
+              value={matrix}
+            />
+          </Spec>
+        </div>
       </Group>
 
       <Group id="layouts" title="Layouts" use="Full bleed, always. The shell is the viewport; each archetype decides what scrolls.">

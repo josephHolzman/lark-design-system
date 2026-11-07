@@ -165,20 +165,12 @@ export function ChangeReview({
   const pending = changes.filter((c) => !decisions[c.id]).length;
   const set = (id: string, d: "accepted" | "rejected" | undefined) => setDecisions((s) => ({ ...s, [id]: d }));
   return (
-    <section className={cn("flex flex-col rounded-lg border border-outline-variant bg-card", className)} data-slot="change-review">
+    <section className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="change-review">
       <header className="flex flex-wrap items-center gap-2 px-4 py-3">
         <h3 className="text-title-sm">{title}</h3>
         <span className="text-body-sm text-on-surface-variant">
           {pending ? `${pending} to review` : "All reviewed"}
         </span>
-        <div className="ml-auto flex gap-1">
-          <Button onClick={() => setDecisions(Object.fromEntries(changes.map((c) => [c.id, "rejected"])))} size="sm" variant="ghost">
-            Reject all
-          </Button>
-          <Button onClick={() => setDecisions(Object.fromEntries(changes.map((c) => [c.id, "accepted"])))} size="sm" variant="secondary">
-            Accept all
-          </Button>
-        </div>
       </header>
       <ul className="divide-y divide-outline-variant border-t border-outline-variant" role="list">
         {changes.map((c) => {
@@ -229,11 +221,18 @@ export function ChangeReview({
           );
         })}
       </ul>
-      <footer className="flex items-center gap-2 border-t border-outline-variant px-4 py-2.5">
+      <footer className="flex flex-wrap items-center gap-2 border-t border-outline-variant px-4 py-2.5">
         <span className="text-body-sm text-on-surface-variant">
           {accepted.length} of {changes.length} accepted
         </span>
-        <Button className="ml-auto" disabled={pending > 0} onClick={() => onApply?.(accepted)} size="sm">
+        {/* v0.6: bulk decisions sit with the apply action in the footer, not in the header. */}
+        <Button className="ml-auto" onClick={() => setDecisions(Object.fromEntries(changes.map((c) => [c.id, "rejected"])))} size="sm" variant="ghost">
+          Reject all
+        </Button>
+        <Button onClick={() => setDecisions(Object.fromEntries(changes.map((c) => [c.id, "accepted"])))} size="sm" variant="secondary">
+          Accept all
+        </Button>
+        <Button disabled={pending > 0} onClick={() => onApply?.(accepted)} size="sm">
           Apply {accepted.length ? accepted.length : ""} {accepted.length === 1 ? "change" : "changes"}
         </Button>
       </footer>

@@ -123,7 +123,7 @@ function NumberInput({
         <span className="flex h-full items-center gap-0.5 border-l border-outline-variant px-1">
           <button
             aria-label="Decrease"
-            className="hit-area inline-flex size-6 items-center justify-center rounded-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:opacity-40"
+            className="hit-area inline-flex size-6 items-center justify-center rounded-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:text-on-surface-tertiary disabled:hover:bg-transparent"
             disabled={disabled || (min !== undefined && (value ?? min) <= min)}
             onClick={() => nudge(-1)}
             tabIndex={-1}
@@ -133,7 +133,7 @@ function NumberInput({
           </button>
           <button
             aria-label="Increase"
-            className="hit-area inline-flex size-6 items-center justify-center rounded-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:opacity-40"
+            className="hit-area inline-flex size-6 items-center justify-center rounded-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:text-on-surface-tertiary disabled:hover:bg-transparent"
             disabled={disabled || (max !== undefined && (value ?? max) >= max)}
             onClick={() => nudge(1)}
             tabIndex={-1}

@@ -41,7 +41,7 @@ the package to a Deepgrids org later changes nothing in app code.
 2. **Install under the alias:**
 
    ```bash
-   npm install @deepgrids/lark@npm:@josephholzman/lark@^0.5.0 react react-dom lucide-react tailwindcss@4 tw-animate-css
+   npm install @deepgrids/lark@npm:@josephholzman/lark@^0.6.0 react react-dom lucide-react tailwindcss@4 tw-animate-css
    ```
 
 3. **Using `/ai` as well?** Install its peers (optional, so apps that don't use AI Elements stay small):

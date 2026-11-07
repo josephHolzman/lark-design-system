@@ -46,7 +46,7 @@ export const Node = ({
 }: NodeProps) => (
   <div
     className={cn(
-      "node-container group/node relative flex w-64 flex-col rounded-lg border border-outline-variant bg-card text-card-foreground shadow-raised",
+      "node-container group/node relative flex w-64 flex-col rounded-lg border border-edge bg-card text-card-foreground shadow-raised",
       "transition-[box-shadow,border-color] duration-150",
       "in-[.selected]:border-primary in-[.selected]:shadow-raised-focus",
       "data-[status=running]:border-primary/50 data-[status=error]:border-error",

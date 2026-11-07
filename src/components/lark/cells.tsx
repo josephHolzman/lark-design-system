@@ -133,7 +133,7 @@ export function AvatarStack({ names, max = 3 }: { names: string[]; max?: number 
             <PersonAvatar className="-ml-1.5 ring-2 ring-card first:ml-0" key={n} name={n} size="sm" />
           ))}
           {rest > 0 && (
-            <span aria-hidden="true" className="-ml-1.5 inline-flex size-6 items-center justify-center rounded-full bg-surface-container-high text-[11px] leading-none font-medium tabular-nums text-on-surface-variant ring-2 ring-card">
+            <span aria-hidden="true" className="-ml-1.5 inline-flex size-6 items-center justify-center rounded-full bg-surface-container-high text-xs leading-none font-medium tabular-nums text-on-surface-variant ring-2 ring-card">
               +{rest}
             </span>
           )}
@@ -160,7 +160,7 @@ export function TagsCell({ tags, max = 2 }: { tags: Tag[]; max?: number }) {
       {rest.length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className="focus-ring inline-flex h-5 items-center rounded-full bg-surface-container px-1.5 text-[11px] leading-none font-medium tabular-nums text-on-surface-variant outline-none" type="button">
+            <button className="focus-ring inline-flex h-5 items-center rounded-full bg-surface-container px-1.5 text-xs leading-none font-medium tabular-nums text-on-surface-variant outline-none" type="button">
               +{rest.length}
               <span className="sr-only"> more: {rest.map((r) => r.label).join(", ")}</span>
             </button>

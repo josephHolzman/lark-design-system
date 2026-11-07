@@ -44,6 +44,16 @@ export const primitives: Record<string, string> = {
   "sand-800": "#5D3C29",
   "sand-900": "#422A1A",
   "sand-950": "#2A180D",
+  "coral-50": "#F16A4D",
+  "coral-d50": "#F3947E",
+  "viz-10": "#3E6AE1",
+  "viz-20": "#1F8A74",
+  "viz-30": "#A64CA6",
+  "viz-40": "#B9771C",
+  "viz-d10": "#8CAFFF",
+  "viz-d20": "#74C3AE",
+  "viz-d30": "#E090DE",
+  "viz-d40": "#DEA462",
   "stone-50": "#FAF6EE",
   "stone-75": "#F6F2EA",
   "stone-100": "#F3EFE6",
@@ -171,8 +181,8 @@ export const modes: Record<"light" | "dusk", Mode> = {
   "light": {
     "roles": {
       "canvas": {
-        "src": "sand-50",
-        "hex": "#FBF6EC"
+        "src": "paper-08",
+        "hex": "#F5F4F2"
       },
       "surface": {
         "src": "#FFFFFF",
@@ -395,55 +405,55 @@ export const modes: Record<"light" | "dusk", Mode> = {
       {
         "fg": "on-surface",
         "bg": "canvas",
-        "ratio": 15.91,
+        "ratio": 15.59,
         "min": 4.5
       },
       {
         "fg": "on-surface-variant",
         "bg": "canvas",
-        "ratio": 7.24,
+        "ratio": 7.1,
         "min": 4.5
       },
       {
         "fg": "on-surface-tertiary",
         "bg": "canvas",
-        "ratio": 5.26,
+        "ratio": 5.15,
         "min": 4.5
       },
       {
         "fg": "primary",
         "bg": "canvas",
-        "ratio": 5.12,
+        "ratio": 5.02,
         "min": 4.5
       },
       {
         "fg": "outline",
         "bg": "canvas",
-        "ratio": 3.58,
+        "ratio": 3.5,
         "min": 3.0
       },
       {
         "fg": "error",
         "bg": "canvas",
-        "ratio": 6.64,
+        "ratio": 6.51,
         "min": 4.5
       },
       {
         "fg": "success",
         "bg": "canvas",
-        "ratio": 6.71,
+        "ratio": 6.57,
         "min": 4.5
       },
       {
         "fg": "warning",
         "bg": "canvas",
-        "ratio": 6.77,
+        "ratio": 6.63,
         "min": 4.5
       },
       {
         "fg": "tertiary",
         "bg": "canvas",
-        "ratio": 6.97,
+        "ratio": 6.83,
         "min": 4.5
       },
       {

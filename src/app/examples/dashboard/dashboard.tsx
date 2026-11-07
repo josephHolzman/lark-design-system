@@ -20,12 +20,15 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 import { toast } from "sonner";
 
-import { ActionCard, SectionCard } from "@/components/lark/cards";
+import { IconChip, SectionCard } from "@/components/lark/cards";
+import { DashboardGrid, DashboardLayout } from "@/components/lark/layouts";
 import { Num, SortableHead, type SortDirection, SourceChip, SourceList, TablePager } from "@/components/lark/data";
 import { Figure, FigureStrip, Sparkline } from "@/components/lark/figure";
 import { FilterBar, FilterChip, FilterCount, FilterSearch, Segmented } from "@/components/lark/filters";
 import { CompanyLogo } from "@/components/lark/identity";
-import { CountPill, DescriptionItem, DescriptionList, List, ListItem } from "@/components/lark/lists";
+import { DescriptionItem, DescriptionList, List, ListItem } from "@/components/lark/lists";
+import { SplitButton } from "@/components/lark/menus";
+import { CompoundTag, Freshness, ProvisionalBadge } from "@/components/lark/surfaces";
 import { PageHeader, PageTabs } from "@/components/lark/page-header";
 import { ApprovalChain, StageProgress, Timeline, TimelineItem } from "@/components/lark/progress";
 import { StatusBadge } from "@/components/lark/status-badge";
@@ -43,28 +46,24 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Calendar } from "@/components/ui/calendar";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ContainedField, ContainedTextarea } from "@/components/ui/contained-field";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 
 /* ------------------------------------------------------------------ data (fictional) */
 
@@ -91,6 +90,20 @@ const DEALS: Deal[] = [
   { id: "OPP-20517", account: "Fernwood Energy", type: "New business", owner: "Marcus Bell", task: "Approve multi-year ramp", status: "Awaiting decision", value: 530000, discount: 18, close: "2026-12-03", closeLabel: "Dec 3", mine: false },
   { id: "OPP-20533", account: "Oakline Bank", type: "Renewal", owner: "Avery Chen", task: "Confirm security addendum", status: "Changes requested", value: 142900, discount: 10, close: "2026-12-09", closeLabel: "Dec 9", mine: true },
   { id: "OPP-20541", account: "Pellucid Labs", type: "Expansion", owner: "Dana Okafor", task: "Review seat true-up", status: "Within pricing limits", value: 38600, discount: 4, close: "2026-12-12", closeLabel: "Dec 12", mine: false },
+];
+
+// When the example's figures were computed (fixed at load, so the freshness lines have something to say).
+const LOADED = Date.now();
+const COMPUTED_AT = new Date(LOADED - 2 * 60_000);
+const SYNCED_AT = new Date(LOADED - 2 * 60_000);
+const BRIEF_AT = new Date(LOADED - 2 * 60_000);
+const PIPELINE_AT = new Date(LOADED - 3 * 3_600_000);
+
+/* The Northwind approvals, shown as lanes on the overview and as a chain in the drawer. */
+const LANES = [
+  { title: "Deal desk review", approver: "Avery Chen", role: "Deal desk", status: "Approved", note: "Term and ramp are standard.", when: "Approved 9:02" },
+  { title: "Discount exception", approver: "Rui Tanaka", role: "VP Finance", status: "Awaiting decision", note: "Required because the platform discount is above 20%.", when: "Waiting 3 hr" },
+  { title: "Legal sign-off", approver: "Sam Whitfield", role: "Legal", status: "Waiting", note: "Starts after Finance approves.", when: "" },
 ];
 
 const OWNERS = ["Everyone", ...Array.from(new Set(DEALS.map((d) => d.owner)))];
@@ -156,66 +169,58 @@ export function Dashboard() {
   };
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col bg-canvas">
-      {/* Beams: a white header band with the tabs on its edge, then the grey body. */}
-      <div className="bg-surface px-4 pt-3 md:px-6">
-      <PageHeader
-        actions={
-          <>
-            <Button size="sm" variant="outline">
-              <DownloadIcon />
-              Export
-            </Button>
-            <ButtonGroup>
-              <Button size="sm">
-                <PlusIcon />
-                New work
+    // The dashboard archetype: a white header band (title, actions, tabs on its edge), then the
+    // grey body with the cards. Every module on the page is a SectionCard: one radius, one edge.
+    <DashboardLayout
+      header={
+        <PageHeader
+          actions={
+            <>
+              <Button size="sm" variant="outline">
+                <DownloadIcon />
+                Export
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-label="More ways to create work" size="icon-sm">
-                    <ChevronDownIcon />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <FileTextIcon /> Quote revision
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <ScaleIcon /> Pricing exception
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <SparklesIcon /> Assign to ACE
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </ButtonGroup>
-          </>
-        }
-        description="Quote changes and approvals that need a decision from the desk."
-        eyebrow="Deal desk"
-        meta={
-          <>
-            <span>Q4 FY26</span>
-            <span>Example records · Nov 5, 2026</span>
-          </>
-        }
-        tabs={
-          <PageTabs
-            label="Deal desk sections"
-            tabs={[
-              { label: "Overview", href: "/examples/dashboard", current: true },
-              { label: "Queue", href: "#queue", count: 8 },
-              { label: "Approvals", href: "#approvals", count: 3 },
-              { label: "History", href: "#history" },
-            ]}
-          />
-        }
-        title="Deals & approvals"
-      />
-      </div>
-
-      <div className="flex w-full min-w-0 flex-col gap-4 p-4 pb-10 md:px-6">
+              <SplitButton
+                icon={<PlusIcon />}
+                menuLabel="More ways to create work"
+                sections={[
+                  {
+                    items: [
+                      { label: "Quote revision", icon: <FileTextIcon /> },
+                      { label: "Pricing exception", icon: <ScaleIcon /> },
+                      { label: "Assign to ACE", icon: <SparklesIcon /> },
+                    ],
+                  },
+                ]}
+                size="sm"
+              >
+                New work
+              </SplitButton>
+            </>
+          }
+          description="Quote changes and approvals that need a decision from the desk."
+          meta={
+            <>
+              <span>Q4 FY26</span>
+              <span>Example records · Nov 5, 2026</span>
+              <Freshness at={COMPUTED_AT} verb="Figures updated" />
+            </>
+          }
+          tabs={
+            <PageTabs
+              label="Deal desk sections"
+              tabs={[
+                { label: "Overview", href: "/examples/dashboard", current: true },
+                { label: "Queue", href: "#queue", count: 8 },
+                { label: "Approvals", href: "#approvals", count: 3 },
+                { label: "History", href: "#history" },
+              ]}
+            />
+          }
+          title="Deals & approvals"
+        />
+      }
+    >
       <FigureStrip aria-label="Desk summary" columns={4} role="group">
         <Figure
           delta={{ value: "+3", direction: "up", good: false, context: "vs last week" }}
@@ -243,7 +248,8 @@ export function Dashboard() {
         </Figure>
       </FigureStrip>
 
-      <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <DashboardGrid>
+        <div className="flex min-w-0 flex-col gap-4">
         {/* ------------------------------------------------ queue */}
         <SectionCard
           action={
@@ -427,46 +433,90 @@ export function Dashboard() {
           )}
         </SectionCard>
 
+        {/* ------------------------------------------------ approvals in flight */}
+        {/* flex-1: the last card in each column fills it, so both columns end on one line. */}
+        <SectionCard
+          className="flex-1"
+          description="Northwind Traders, quote R4. Lanes run in order; Legal starts after Finance approves."
+          flush
+          footer={
+            <Button onClick={() => setOpen(DEALS[0])} size="sm" variant="secondary">
+              Open Northwind
+            </Button>
+          }
+          id="approvals"
+          title="Approvals in flight"
+        >
+          <ApprovalChain
+            className="flex-1 border-t border-outline-variant"
+            layout="lanes"
+            steps={LANES.map((l) => ({
+              title: l.title,
+              approver: l.approver,
+              role: l.role,
+              status: l.status,
+              when: l.when || undefined,
+              note: l.status === "Waiting" ? undefined : l.note,
+              dependency: l.status === "Waiting" ? l.note : undefined,
+              action:
+                l.status === "Awaiting decision" ? (
+                  <Button onClick={() => toast(`Reminder sent to ${l.approver}`)} size="sm" variant="secondary">
+                    Send a reminder
+                  </Button>
+                ) : undefined,
+            }))}
+          />
+        </SectionCard>
+        </div>
+
         {/* ------------------------------------------------ side column */}
         <div className="flex min-w-0 flex-col gap-4">
           <SectionCard
-            action={
-              <Button asChild size="xs" variant="ghost">
-                <a href="/examples/chat">Open ACE</a>
-              </Button>
-            }
-            description="Work ACE has started on your deals."
+            description="Work ACE has started on your deals. Nothing is sent or saved until you review it."
+            flush
+            link={{ label: "Open ACE", href: "/examples/chat" }}
             title="ACE is preparing"
           >
-            <div className="flex flex-col gap-2">
-              <ActionCard
+            <List className="border-t border-outline-variant pb-1" density="comfortable" dividers>
+              <ListItem
                 action={
-                  <Button aria-label="Run pricing review" size="icon-sm" variant="secondary">
+                  <Button onClick={() => toast("Pricing review started")} size="sm" variant="ai">
                     <PlayIcon />
+                    Run pricing review
                   </Button>
                 }
-                description="Compare the Northwind quote against FY27 policy and two alternatives."
-                icon={<ScaleIcon />}
-                meta={
+                headline="Review pricing and alternatives"
+                leading={
+                  <IconChip size="sm" tone="ai">
+                    <ScaleIcon />
+                  </IconChip>
+                }
+                supporting="Compare the Northwind quote against FY27 policy and two alternatives. Pricing agent, 3 sources."
+                wrap
+              />
+              <ListItem
+                action={
                   <>
-                    <span>Pricing agent</span>
-                    <CountPill label="3 sources" value="3 sources" />
+                    <Button asChild size="sm" variant="secondary">
+                      <a href="/examples/chat">Open draft</a>
+                    </Button>
+                    <ProvisionalBadge kind="ai">Draft by ACE</ProvisionalBadge>
                   </>
                 }
-                title="Review pricing and alternatives"
+                headline="Draft renewal brief"
+                leading={
+                  <IconChip size="sm" tone="ai">
+                    <MessageSquareIcon />
+                  </IconChip>
+                }
+                meta={<Freshness at={BRIEF_AT} verb="Ready" />}
+                supporting="Summarise Halvorsen's usage and open issues for the renewal call."
+                wrap
               />
-              <ActionCard
-                description="Summarise Halvorsen's usage and open issues for the renewal call."
-                href="/examples/chat"
-                icon={<MessageSquareIcon />}
-                meta={<span>Ready · 2 min ago</span>}
-                tone="secondary"
-                title="Draft renewal brief"
-              />
-            </div>
+            </List>
           </SectionCard>
 
-          <SectionCard description="Open pipeline by deal stage, $M" title="Pipeline by stage">
+          <SectionCard description="Open pipeline by deal stage, $M" footer={<Freshness at={PIPELINE_AT} staleAfter={120} verb="Updated" />} title="Pipeline by stage">
             <ChartContainer className="aspect-auto h-44 w-full" config={chartConfig}>
               <BarChart accessibilityLayer data={PIPELINE} margin={{ left: 0, right: 0, top: 20 }}>
                 <CartesianGrid stroke="var(--outline-variant)" strokeDasharray="0" vertical={false} />
@@ -492,7 +542,7 @@ export function Dashboard() {
 
           <SectionCard flush title="Connections">
             <List className="pb-1" density="compact">
-              <ListItem headline="Salesforce" leading={<CompanyLogo name="Salesforce" size="sm" />} meta="Synced 2 min ago" />
+              <ListItem headline="Salesforce" leading={<CompanyLogo name="Salesforce" size="sm" />} meta={<Freshness at={SYNCED_AT} verb="Synced" />} />
               <ListItem headline="Slack" leading={<CompanyLogo name="Slack" size="sm" />} meta="#deal-desk" />
               <ListItem
                 headline="Contracts"
@@ -502,7 +552,7 @@ export function Dashboard() {
             </List>
           </SectionCard>
 
-          <SectionCard id="history" title="Recent activity">
+          <SectionCard className="flex-1" id="history" title="Recent activity">
             <Timeline>
               <TimelineItem
                 icon={<CheckIcon />}
@@ -528,11 +578,10 @@ export function Dashboard() {
             </Timeline>
           </SectionCard>
         </div>
-      </div>
-      </div>
+      </DashboardGrid>
 
       <DealSheet deal={open} onOpenChange={(o) => !o && setOpen(null)} />
-    </main>
+    </DashboardLayout>
   );
 }
 
@@ -602,7 +651,12 @@ function DealSheet({ deal, onOpenChange }: { deal: Deal | null; onOpenChange: (o
               <DescriptionList>
                 <DescriptionItem term="Net value">{usd(d.value)}</DescriptionItem>
                 <DescriptionItem term="List value">{usd(Math.round(d.value / (1 - d.discount / 100)))}</DescriptionItem>
-                <DescriptionItem term="Effective discount">{d.discount}%</DescriptionItem>
+                <DescriptionItem term="Effective discount">
+                  <span className="inline-flex flex-wrap items-center gap-2">
+                    {d.discount}%
+                    <CompoundTag label="Desk limit" tone={d.discount > 20 ? "warning" : "neutral"} value="20%" valueLabel="" />
+                  </span>
+                </DescriptionItem>
                 <DescriptionItem term="Term">36 months</DescriptionItem>
                 <DescriptionItem term="Payment terms">Net 45, annual in advance</DescriptionItem>
                 <DescriptionItem mono term="Quote revision">
@@ -632,51 +686,38 @@ function DealSheet({ deal, onOpenChange }: { deal: Deal | null; onOpenChange: (o
             <TabsContent className="flex flex-col gap-4 pt-4" value="approvals">
               <ApprovalChain
                 steps={[
-                  { title: "Deal desk review", approver: "Avery Chen", role: "Deal desk", status: "Approved", note: "Term and ramp are standard." },
-                  {
-                    title: "Discount exception",
-                    approver: "Rui Tanaka",
-                    role: "VP Finance",
-                    sku: "PLT-ENT-36",
-                    condition: "Required because the platform discount is above 20%.",
-                    status: "Awaiting decision",
-                  },
-                  { title: "Legal sign-off", approver: "Sam Whitfield", role: "Legal", status: "Waiting", dependency: "Starts after Finance approves." },
+                  { title: LANES[0].title, approver: LANES[0].approver, role: LANES[0].role, status: "Approved", note: LANES[0].note },
+                  { title: LANES[1].title, approver: LANES[1].approver, role: LANES[1].role, sku: "PLT-ENT-36", condition: LANES[1].note, status: "Awaiting decision" },
+                  { title: LANES[2].title, approver: LANES[2].approver, role: LANES[2].role, status: "Waiting", dependency: LANES[2].note },
                 ]}
               />
-              <section aria-labelledby="decision-h" className="flex flex-col gap-3 rounded-lg border border-outline-variant bg-card p-4">
-                <h3 className="text-title-sm" id="decision-h">
-                  Record a decision
-                </h3>
-                <Field>
-                  <FieldLabel htmlFor="channel">Channel</FieldLabel>
-                  <NativeSelect className="w-full" defaultValue="slack" id="channel">
-                    <NativeSelectOption value="slack">Slack · #deal-desk</NativeSelectOption>
-                    <NativeSelectOption value="email">Email</NativeSelectOption>
-                    <NativeSelectOption value="none">Record only</NativeSelectOption>
-                  </NativeSelect>
-                </Field>
-                <Field data-invalid={invalid || undefined}>
-                  <FieldLabel htmlFor="note">Decision note (required)</FieldLabel>
-                  <Textarea
-                    aria-describedby="note-help"
-                    aria-invalid={invalid || undefined}
-                    aria-required="true"
+              <SectionCard as="h3" title="Record a decision" variant="strip">
+                <div className="flex flex-col gap-3">
+                  <ContainedField label="Channel" suffix={<ChevronDownIcon aria-hidden className="size-4" />}>
+                    {(c) => (
+                      <select {...c} className={`${c.className} h-6 cursor-pointer appearance-none`} defaultValue="slack">
+                        <option value="slack">Slack · #deal-desk</option>
+                        <option value="email">Email</option>
+                        <option value="none">Record only</option>
+                      </select>
+                    )}
+                  </ContainedField>
+                  <ContainedTextarea
+                    description="Shown to the deal owner and kept in the audit trail."
+                    error={invalid ? "Add a note so the owner knows why." : undefined}
                     id="note"
+                    label="Decision note"
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Why you approved or what needs to change"
-                    rows={3}
+                    required
                     value={note}
                   />
-                  <FieldDescription id="note-help">
-                    {invalid ? "Add a note so the owner knows why." : "Shown to the deal owner and kept in the audit trail."}
-                  </FieldDescription>
-                </Field>
-                <label className="flex items-center gap-3 text-sm">
-                  <Switch checked={notify} onCheckedChange={setNotify} />
-                  Notify the owner
-                </label>
-              </section>
+                  <label className="flex items-center gap-3 text-sm">
+                    <Switch checked={notify} onCheckedChange={setNotify} />
+                    Notify the owner
+                  </label>
+                </div>
+              </SectionCard>
             </TabsContent>
 
             <TabsContent className="pt-4" value="activity">

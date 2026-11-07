@@ -12,6 +12,7 @@ export type GraphTone = BandTone | "neutral";
 
 const TILE: Record<GraphTone, string> = {
   sky: "bg-tint-sky-strong text-on-primary-container",
+  coral: "bg-tint-coral-strong text-on-error-container",
   sand: "bg-tint-sand-strong text-on-secondary-container",
   evergreen: "bg-tint-evergreen-strong text-on-success-container",
   ember: "bg-tint-ember-strong text-on-warning-container",

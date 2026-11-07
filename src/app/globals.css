@@ -56,6 +56,16 @@
   --lark-sand-800: #5d3c29;
   --lark-sand-900: #422a1a;
   --lark-sand-950: #2a180d;
+  --lark-coral-50: #f16a4d;
+  --lark-coral-d50: #f3947e;
+  --lark-viz-10: #3e6ae1;
+  --lark-viz-20: #1f8a74;
+  --lark-viz-30: #a64ca6;
+  --lark-viz-40: #b9771c;
+  --lark-viz-d10: #8cafff;
+  --lark-viz-d20: #74c3ae;
+  --lark-viz-d30: #e090de;
+  --lark-viz-d40: #dea462;
   --lark-stone-50: #faf6ee;
   --lark-stone-75: #f6f2ea;
   --lark-stone-100: #f3efe6;
@@ -182,7 +192,7 @@
 /* 2. Color roles (Beams structure, Lark palette). Every text and control pair is contrast-checked by the generator. */
 :root {
   color-scheme: light;
-  --canvas: var(--lark-sand-50);
+  --canvas: var(--lark-paper-08);
   --surface: #ffffff;
   --surface-container-lowest: #ffffff;
   --surface-container-low: var(--lark-paper-04);
@@ -237,11 +247,11 @@
   --scrim: var(--lark-paper-100);
   --terminal: var(--lark-dusk-200);
   --on-terminal: var(--lark-stone-100);
-  --chart-1: var(--lark-sky-500);
-  --chart-2: var(--lark-tropic-50);
-  --chart-3: var(--lark-sand-500);
-  --chart-4: var(--lark-iris-50);
-  --chart-5: var(--lark-ember-50);
+  --chart-1: var(--lark-viz-10);
+  --chart-2: var(--lark-coral-50);
+  --chart-3: var(--lark-viz-20);
+  --chart-4: var(--lark-viz-30);
+  --chart-5: var(--lark-viz-40);
 }
 .dark {
   color-scheme: dark;
@@ -300,11 +310,11 @@
   --scrim: #000000;
   --terminal: var(--lark-dusk-100);
   --on-terminal: var(--lark-stone-100);
-  --chart-1: var(--lark-sky-300);
-  --chart-2: var(--lark-tropic-d50);
-  --chart-3: var(--lark-sand-300);
-  --chart-4: var(--lark-iris-d50);
-  --chart-5: var(--lark-ember-d50);
+  --chart-1: var(--lark-viz-d10);
+  --chart-2: var(--lark-coral-d50);
+  --chart-3: var(--lark-viz-d20);
+  --chart-4: var(--lark-viz-d30);
+  --chart-5: var(--lark-viz-d40);
 }
 
 /* 3. shadcn variable names, aliased to the roles so every AI Element inherits them. */
@@ -373,6 +383,8 @@
   --tint-sky-strong: var(--lark-sky-100);
   --tint-sand: var(--lark-sand-50);
   --tint-sand-strong: var(--lark-sand-100);
+  --tint-coral: var(--lark-rust-10);
+  --tint-coral-strong: var(--lark-rust-20);
   --tint-evergreen: var(--lark-evergreen-10);
   --tint-evergreen-strong: var(--lark-evergreen-20);
   --tint-ember: var(--lark-ember-10);
@@ -385,6 +397,8 @@
   --tint-sky-strong: var(--lark-sky-900);
   --tint-sand: var(--lark-sand-950);
   --tint-sand-strong: var(--lark-sand-900);
+  --tint-coral: var(--lark-rust-80);
+  --tint-coral-strong: var(--lark-rust-d20);
   --tint-evergreen: var(--lark-evergreen-80);
   --tint-evergreen-strong: var(--lark-evergreen-d20);
   --tint-ember: var(--lark-ember-80);
@@ -409,14 +423,15 @@
 }
 
 @theme {
-  /* Shape (Beams): 2 · 4 · 8 · 12 · 16 · full. Nothing larger than 16. */
+  /* Shape: 2 · 4 · 8 · 12 · 16 · 24 · full. 24 (rounded-2xl) is for trays only (v0.6): a tray
+     with 12px padding holds 12px cards, so the corners stay concentric (inner = outer − padding). */
   --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 8px;   /* controls, menus, tooltips */
   --radius-lg: 12px;  /* cards, badges' pill is rounded-full */
   --radius-xl: 16px;  /* dialogs, composer, command palette */
-  --radius-2xl: 16px;
-  --radius-3xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 24px;
   --radius-4xl: 16px;
   --radius-5xl: 16px;
 
@@ -467,14 +482,26 @@
   --text-title-sm: 1rem;
   --text-title-sm--line-height: 1.5rem;
   --text-title-sm--font-weight: 450;
-  --text-title-md: 1.375rem;
-  --text-title-md--line-height: 1.75rem;
-  --text-title-md--font-weight: 450;
-  --text-title-md--letter-spacing: -0.01em;
-  --text-title-lg: 1.625rem;
-  --text-title-lg--line-height: 2rem;
-  --text-title-lg--font-weight: 450;
-  --text-title-lg--letter-spacing: -0.01em;
+  /* v0.6 (Cohere): page and large titles at regular weight with tighter tracking; hierarchy
+     comes from size, not weight. Section and card titles keep 450 so they scan in dense pages. */
+  --text-title-md: 1.5rem;
+  --text-title-md--line-height: 2rem;
+  --text-title-md--font-weight: 400;
+  --text-title-md--letter-spacing: -0.015em;
+  --text-title-lg: 1.875rem;
+  --text-title-lg--line-height: 2.25rem;
+  --text-title-lg--font-weight: 400;
+  --text-title-lg--letter-spacing: -0.02em;
+  /* v0.6.1 figures: a page's headline numbers are display-size (Cohere sets numbers large; the
+     words around them stay small). Tabular, regular weight, tight tracking. */
+  --text-display-sm: 2.5rem;
+  --text-display-sm--line-height: 3rem;
+  --text-display-sm--font-weight: 400;
+  --text-display-sm--letter-spacing: -0.025em;
+  --text-display-md: 3.5rem;
+  --text-display-md--line-height: 4rem;
+  --text-display-md--font-weight: 400;
+  --text-display-md--letter-spacing: -0.03em;
   --text-headline-sm: 1.625rem;
   --text-headline-sm--line-height: 2rem;
   --text-headline-sm--font-weight: 450;
@@ -554,6 +581,9 @@
   --color-outline-strong: var(--outline-strong);
   --color-outline-variant: var(--outline-variant);
   --color-outline-faint: var(--outline-faint);
+  /* v0.6.1: the edge of a card on the canvas. A whisper: the fill change does the work.
+     Dividers inside a surface stay outline-variant; controls keep outline (3:1). */
+  --color-edge: var(--outline-faint);
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
   --color-brand-pressed: var(--brand-pressed);
@@ -598,6 +628,8 @@
   --color-tint-sky-strong: var(--tint-sky-strong);
   --color-tint-sand: var(--tint-sand);
   --color-tint-sand-strong: var(--tint-sand-strong);
+  --color-tint-coral: var(--tint-coral);
+  --color-tint-coral-strong: var(--tint-coral-strong);
   --color-tint-evergreen: var(--tint-evergreen);
   --color-tint-evergreen-strong: var(--tint-evergreen-strong);
   --color-tint-ember: var(--tint-ember);

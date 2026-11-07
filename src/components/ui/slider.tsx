@@ -31,7 +31,7 @@ function Slider({
       min={min}
       max={max}
       className={cn(
-        "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
+        "relative flex w-full touch-none items-center select-none data-[disabled]:grayscale data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
         className
       )}
       {...props}
@@ -53,7 +53,7 @@ function Slider({
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
-          className="focus-ring hit-area border-on-surface block size-4 shrink-0 rounded-full border-2 bg-surface-container-lowest transition-[box-shadow] hover:shadow-[0_0_0_4px_var(--outline-variant)] disabled:pointer-events-none disabled:opacity-50"
+          className="focus-ring hit-area border-on-surface block size-4 shrink-0 rounded-full border-2 bg-surface-container-lowest transition-[box-shadow] hover:shadow-[0_0_0_4px_var(--outline-variant)] disabled:pointer-events-none disabled:border-outline-variant"
         />
       ))}
     </SliderPrimitive.Root>

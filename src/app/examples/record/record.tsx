@@ -135,15 +135,7 @@ export function DealRecord() {
                   />
                 </>
               }
-              eyebrow={
-                // The top bar carries the breadcrumb from md up; phones hide it, so the record restates it.
-                <nav aria-label="Breadcrumb" className="md:hidden">
-                  <a className="link-default" href="/examples/deals">
-                    Deals
-                  </a>{" "}
-                  › Northwind Traders
-                </nav>
-              }
+              back={{ label: "Back to deals", href: "/examples/deals" }}
               leading={<CompanyLogo name="Northwind Traders" size="lg" />}
               meta={
                 <>
@@ -179,12 +171,12 @@ export function DealRecord() {
 
           <TabsContent className="mt-4 flex flex-col gap-4" value="overview">
             <SectionCard
-              action={
+              collapsible
+              footer={
                 <Button size="sm" variant="secondary">
                   <FlagIcon /> Record issue
                 </Button>
               }
-              collapsible
               title="Questions before approval"
             >
               <Banner layout="strip" tone="caution">

@@ -13,6 +13,8 @@ function Progress({
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
+      // Radix only sets aria-valuenow when it gets the value; without it the bar reads as busy.
+      value={value}
       className={cn(
         "bg-outline-strong relative h-1 w-full overflow-hidden rounded-full",
         className

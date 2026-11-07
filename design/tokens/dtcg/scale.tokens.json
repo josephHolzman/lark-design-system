@@ -150,13 +150,13 @@
       "$value": {
         "fontFamily": "{font.sans}",
         "fontSize": {
-          "value": 22,
+          "value": 24,
           "unit": "px"
         },
-        "lineHeight": 1.273,
-        "fontWeight": 450,
+        "lineHeight": 1.333,
+        "fontWeight": 400,
         "letterSpacing": {
-          "value": -0.01,
+          "value": -0.015,
           "unit": "em"
         }
       }
@@ -166,13 +166,45 @@
       "$value": {
         "fontFamily": "{font.sans}",
         "fontSize": {
-          "value": 26,
+          "value": 30,
           "unit": "px"
         },
-        "lineHeight": 1.231,
-        "fontWeight": 450,
+        "lineHeight": 1.2,
+        "fontWeight": 400,
         "letterSpacing": {
-          "value": -0.01,
+          "value": -0.02,
+          "unit": "em"
+        }
+      }
+    },
+    "display-sm": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.sans}",
+        "fontSize": {
+          "value": 40,
+          "unit": "px"
+        },
+        "lineHeight": 1.2,
+        "fontWeight": 400,
+        "letterSpacing": {
+          "value": -0.025,
+          "unit": "em"
+        }
+      }
+    },
+    "display-md": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.sans}",
+        "fontSize": {
+          "value": 56,
+          "unit": "px"
+        },
+        "lineHeight": 1.143,
+        "fontWeight": 400,
+        "letterSpacing": {
+          "value": -0.03,
           "unit": "em"
         }
       }

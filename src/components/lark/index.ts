@@ -1,10 +1,12 @@
 // Lark product components: Apollo Beams structure, the lark's palette.
 // Built on the shadcn primitives in components/ui. Spec: design/LARK.md.
 export * from "./ai";
+export * from "./answer";
 export * from "./bands";
 export * from "./cards";
 export * from "./cells";
 export * from "./chat";
+export * from "./conversation";
 export * from "./cpq";
 export * from "./data";
 export * from "./data-grid";
@@ -22,5 +24,6 @@ export * from "./provider";
 export * from "./shell";
 export * from "./status-badge";
 export * from "./steps";
+export * from "./surfaces";
 export * from "./theme";
 export * from "./transcript";

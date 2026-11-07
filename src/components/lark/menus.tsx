@@ -92,7 +92,12 @@ export function ActionMenu({
 
 /* ================================================================ SplitButton */
 
-/** Primary action plus a menu of alternatives (Apollo: "Create ⌄", "Save company ⌄"). */
+/**
+ * Primary action plus a menu of related actions ("Create ⌄", "Submit for approval ⌄"): two real
+ * buttons in one labelled group with a straight 2px seam. v0.6: `disabled` disables both halves,
+ * `size`, and the group is named by the action. Use it only when the menu holds real alternatives;
+ * a decorative "+" or "→" belongs inside one Button.
+ */
 export function SplitButton({
   children,
   onClick,
@@ -100,6 +105,8 @@ export function SplitButton({
   variant = "default",
   menuLabel = "More options",
   icon,
+  size = "default",
+  disabled,
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -107,10 +114,12 @@ export function SplitButton({
   variant?: "default" | "secondary";
   menuLabel?: string;
   icon?: ReactNode;
+  size?: "sm" | "default" | "lg";
+  disabled?: boolean;
 }) {
   return (
-    <ButtonGroup>
-      <Button onClick={onClick} variant={variant}>
+    <ButtonGroup aria-label={typeof children === "string" ? children : undefined} data-slot="split-button">
+      <Button disabled={disabled} onClick={onClick} size={size} variant={variant}>
         {icon}
         {children}
       </Button>
@@ -118,7 +127,7 @@ export function SplitButton({
         label={menuLabel}
         sections={sections}
         trigger={
-          <Button aria-label={menuLabel} size="icon" variant={variant}>
+          <Button aria-label={menuLabel} disabled={disabled} size={size === "sm" ? "icon-sm" : size === "lg" ? "icon-lg" : "icon"} variant={variant}>
             <ChevronDownIcon />
           </Button>
         }

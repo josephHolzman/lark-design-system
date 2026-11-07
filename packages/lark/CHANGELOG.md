@@ -3,6 +3,103 @@
 All notable changes to Lark (`@josephholzman/lark`, imported as `@deepgrids/lark`). Versions follow semver; until 1.0, minor versions may
 change component APIs (each is listed here).
 
+## 0.6.0 (2026-11-07)
+
+Shapes from Cohere's product UI, fitted to Lark's rules, and cited answers for approvers.
+
+- **Surfaces pass (Nov 7), after Cohere's balance of faint lines and fills:**
+  - Canvas is `paper-08` (was `paper-04`), so white cards read by fill. New `border-edge`
+    colour (4% ink) for card edges; dividers stay `outline-variant`.
+  - Nested blocks have no edge: white cards inside an answer, notes, insets, `ClarifyQuestion`,
+    `ActionReview`, `ConflictCompare`, `StoppedNotice`. Callouts are tinted fills with no edge.
+  - `text-display-sm` (40/48) and `text-display-md` (56/64). `Figure` values are display-size
+    when they have room (`size="md"` keeps 24); a `FigureStrip` gives all its values one size and
+    lays out by its own width (container queries), so an odd last figure spans the row.
+  - `PageHeader` title is 30/36 (24 on phones).
+  - Chat: `UserTurn` is a sky bubble with the author and time inside; `AssistantTurn` is a stack
+    of stone blocks (`process` and `lead` props; new `TurnBlock`); `Claim` is a plain iris tint;
+    `AnswerSources` is a block of iris-tinted source cards; `Reasoning` and `WorkLog` share one
+    trigger shape. Conversation text is 16/24.
+  - `StatePanel` content is top-aligned and "first-run" has an icon like the other kinds.
+- **Fixes from the Deepgrids migration** (its `lark-gaps.md`; the app can drop its patches):
+  - Visible focus on `InputGroup`, `TabsContent` and `CommandInput` (WCAG 2.4.7).
+  - `Progress` announces its value (it read as busy).
+  - `Table` `container` props, for a named, focusable scroll region; `DataGrid`'s scroll region
+    becomes a named tab stop while it overflows (WCAG 2.1.1).
+  - `SectionCard` `collapseLabel` (the toggle says "Collapse deal details", not "Collapse
+    section" on every card) and `keepActionWhenClosed`.
+  - `StatePanel` `titleAs` and `PromoCard` `titleAs` / `dismissLabel` (default "Dismiss <title>").
+  - `Figure` labels wrap instead of being cut.
+  - `ApprovalRoute` puts steps side by side by its own width (36rem), not the window's.
+  - Links in a selected `ListItem` take the selected text colour (contrast on the tan fill).
+
+**Breaking changes: none in the API.** Visual changes listed under Changed; apps get them by
+upgrading. `rounded-2xl` / `rounded-3xl` are now 24px (unused before); trays only.
+
+### Added
+- **Answers:** `AnswerView` renders an ACE answer document (`AnswerDoc`) as an inline dashboard;
+  one widget per section type (26: stats, properties, list, options, table, chart, bars, timeline,
+  waterfall, steps, compare, flow, quote, note, question, form, draft, links, disclosure, tiles,
+  media, group, master, message, text) plus `ActionTray`, `ToneText`, `AnswerSurface`,
+  `AnswerBlock`. All 404 ACE states render through it.
+- Answer widgets are built from Lark components (Figure, FigureStrip, DescriptionList, List,
+  StepList, ActionCard, ClarifyQuestion, TextLink, Segmented, Callout). `ListItem` `wrap`.
+- Chart palette: cobalt, coral, teal, plum, amber (`viz-*` primitives); all marks 3:1 on white.
+- Rules: rows top-align; cards in a row share a height (`DashboardGrid` stretches).
+- **Audit pass (Nov 6):** no text under 12px anywhere (counts, kbd, citations, avatars now
+  `text-xs`); disabled controls are grey fills with muted text, never faded (25 primitives: fields,
+  menus, checkbox, radio, switch, slider, tabs, toggles, labels, calendar); no `!important`
+  overrides; user bubble radius 12; floating "Jump to latest" uses the button shape; service marks
+  sit level with the first line of wrapping text.
+- **Edge states:** empty answer sections keep their title and say so (`isEmptySection`);
+  `AnswerSkeleton` for answers in progress; short table rows padded; long IDs and links wrap;
+  `Freshness` ignores invalid dates. Shown in `/examples/widgets#f-edge`.
+- **Conversation:** `ChatComposer`, `Reasoning`, `SuggestionChips`, `TurnActions`, `ChatLayout`,
+  `ChatPanel` (no AI Elements dependency).
+- `AnswerSources` is a group, not a region (many per page); `/examples/chat` rebuilt on these;
+  new `/examples/chat-panel` and `/examples/widgets`.
+- `ObjectCard`, `ObjectFact`, `CardLink`, `ServiceStack`: the browse card and its parts.
+- `SectionCard` `link`, `Tray` `footer` and `link`.
+- `Tray`, `TrayCard`: stone trays holding cards with concentric corners.
+- `SectionCard` `variant="strip"`: header in a 40px stone band.
+- `CardStatusFooter`: one action and the card's state.
+- `ContainedField`, `ContainedInput`, `ContainedTextarea` (`/ui`): label inside the box, linked error and disabled reason.
+- `ProvisionalBadge`, `provisionalEdge`: dashed edge plus words for proposed, unsaved and AI-suggested content.
+- `CompoundTag`: value and qualifier in one pill.
+- `Freshness`, `relativeTime`, `useNow`; `Figure` `updated`.
+- `BestFor`; `Choice.bestFor`; `Scenario.bestFor` and `Scenario.provisional` in `ScenarioCompare`.
+- `ApprovalMatrix`: approver per condition, native radios per row.
+- `Claim`: highlighted claim that opens its source.
+- `AssistantTurn` `agent` (mark, name, "AI" badge, time) and `lead`.
+- `AnswerSources` `collapsible`, `defaultOpen`.
+- `SplitButton` `size`, `disabled`; the group is named by the action.
+
+### Changed (one system, see LARK.md "One system (v0.6)")
+- **Canvas is neutral** (`paper-04`, `#fbfaf8`) instead of sand. Sand stays only as tan
+  "selected" and as a legacy band tone.
+- **Coral** (`--lark-coral-50` / `-d50`): chart colour 2 (replacing sand) and a new `coral` band,
+  graph and icon-tile tone (`bg-tint-coral`).
+- **Titles at regular weight:** `title-md` 24/32 400 (page titles, Figure values), `title-lg`
+  30/36 400. Section and card titles unchanged.
+- **IconChip is square** by default (`shape="circle"` to keep round) and has `variant="solid"`.
+- **Segmented control and segmented tabs:** white selected segment on a grey track (was ink fill).
+- **No resting shadows:** `PlanReview` and `ChecklistCard` are flat.
+- **Actions out of card headers:** `ActionCard` renders `action` under its text; `ChangeReview`'s
+  Accept all / Reject all moved to its footer.
+- `PageHeader` description is 14/20 secondary text (was 12/18 tertiary); `back` link added;
+  `eyebrow` deprecated (still renders).
+- `FileDropzone`'s file input has an accessible name; AI Elements `TaskTrigger` is a real button.
+- `/examples/dashboard` rebuilt on 0.6: `DashboardLayout` with `PageHeader` (freshness in its
+  meta line), split button for New work, and every module a `SectionCard` at 12px: approvals in
+  flight as `ApprovalChain` lanes, ACE work as a list with provisional marks. Contained fields in
+  the decision form.
+- `ApprovalChain` `layout="lanes"`: steps side by side, split by hairlines, to sit flush in a
+  card; steps take `when` and `action`.
+- `ListItem` `action`: a static row's next step under its text.
+- `RecordLayout`, `DashboardLayout` and `SettingsLayout` bodies use the header's 24px gutter
+  from md, so cards line up with the page title.
+- The citation popover (`Cite`) also lists what the source was used for, and shows its meta line without a system.
+
 ## 0.5.0 (2026-11-05)
 
 What the Deepgrids workspace needs (gap list G1–G11):

@@ -75,12 +75,15 @@ export function TimeDivider({ children }: { children: ReactNode }) {
 export type UserTurnStatus = "sending" | "sent" | "failed" | "queued";
 
 /**
- * The person's message: right-aligned, paper bubble (radius 12). Delivery status only when it
- * isn't simply sent. Editing an earlier message starts a branch (see BranchSwitcher).
+ * The person's message: right-aligned, in a sky bubble (radius 24) with who and when inside it,
+ * Cohere's shape. Sky is the person's colour (sky acts); ACE speaks in stone blocks. 16/24 text,
+ * like ACE's words. Delivery status only when it isn't simply sent. Editing an earlier message
+ * starts a branch (see BranchSwitcher).
  */
 export function UserTurn({
   children,
   status = "sent",
+  author = "You",
   time,
   attachments,
   onRetry,
@@ -90,6 +93,8 @@ export function UserTurn({
 }: {
   children: ReactNode;
   status?: UserTurnStatus;
+  /** Who wrote it. "You" by default; a name in shared conversations. */
+  author?: string;
   time?: string;
   attachments?: ReactNode;
   onRetry?: () => void;
@@ -102,51 +107,106 @@ export function UserTurn({
       {attachments && <div className="flex max-w-[85%] flex-wrap justify-end gap-2">{attachments}</div>}
       <div
         className={cn(
-          "max-w-[85%] rounded-xl bg-surface-container px-3.5 py-2.5 text-body-md whitespace-pre-wrap text-on-surface",
-          status === "sending" && "opacity-70",
-          status === "failed" && "ring-1 ring-error",
-          status === "queued" && "border border-dashed border-outline bg-transparent"
+          "flex max-w-[85%] flex-col gap-0.5 rounded-2xl px-4 py-3",
+          status === "queued" ? "border border-dashed border-outline text-on-surface" : "bg-primary-container text-on-primary-container",
+          status === "failed" && "ring-1 ring-error"
         )}
+        data-slot="user-bubble"
       >
-        {children}
+        <p className="flex items-baseline gap-2 text-body-sm">
+          <span className="text-label-md">{author}</span>
+          {time && status === "sent" && <time className="text-on-surface-variant">{time}</time>}
+        </p>
+        <div className={cn("text-body-lg whitespace-pre-wrap", status === "sending" && "text-on-surface-variant")}>{children}</div>
       </div>
-      <div className="flex min-h-6 items-center gap-1.5 text-body-sm text-on-surface-variant">
-        {branch}
-        {status === "sending" && (
-          <span className="inline-flex items-center gap-1" role="status">
-            <LoaderCircleIcon aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" /> Sending
-          </span>
-        )}
-        {status === "queued" && (
-          <span className="inline-flex items-center gap-1">
-            <ClockIcon aria-hidden className="size-3.5" /> Queued, sends when ACE finishes
-          </span>
-        )}
-        {status === "failed" && (
-          <span className="inline-flex items-center gap-1.5 text-error" role="alert">
-            <XCircleIcon aria-hidden className="size-3.5" /> Not sent.
-            {onRetry && (
-              <button className="link-default focus-ring rounded-[2px] text-error outline-none" onClick={onRetry} type="button">
-                Try again
-              </button>
-            )}
-          </span>
-        )}
-        {time && status === "sent" && <time className="text-on-surface-tertiary">{time}</time>}
-        {onEdit && status === "sent" && (
-          <Button aria-label="Edit message" className="opacity-0 group-focus-within/user:opacity-100 group-hover/user:opacity-100 pointer-coarse:opacity-100" onClick={onEdit} size="icon-xs" variant="ghost">
-            <PencilIcon />
-          </Button>
-        )}
-      </div>
+      {(branch || status !== "sent" || onEdit) && (
+        <div className="flex min-h-6 items-center gap-1.5 text-body-sm text-on-surface-variant">
+          {branch}
+          {status === "sending" && (
+            <span className="inline-flex items-center gap-1" role="status">
+              <LoaderCircleIcon aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" /> Sending
+            </span>
+          )}
+          {status === "queued" && (
+            <span className="inline-flex items-center gap-1">
+              <ClockIcon aria-hidden className="size-3.5" /> Queued, sends when ACE finishes
+            </span>
+          )}
+          {status === "failed" && (
+            <span className="inline-flex items-center gap-1.5 text-error" role="alert">
+              <XCircleIcon aria-hidden className="size-3.5" /> Not sent.
+              {onRetry && (
+                <button className="link-default focus-ring rounded-[2px] text-error outline-none" onClick={onRetry} type="button">
+                  Try again
+                </button>
+              )}
+            </span>
+          )}
+          {onEdit && status === "sent" && (
+            <Button aria-label="Edit message" className="opacity-0 group-focus-within/user:opacity-100 group-hover/user:opacity-100 pointer-coarse:opacity-100" onClick={onEdit} size="icon-xs" variant="ghost">
+              <PencilIcon />
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-/** ACE's turn: no bubble, 14/20 text flush left. Actions (copy, feedback) follow the answer. */
-export function AssistantTurn({ children, actions, className }: { children: ReactNode; actions?: ReactNode; className?: string }) {
+/**
+ * One of ACE's blocks: stone fill, radius 24, no edge (Cohere: elevation by fill, not lines).
+ * ACE always speaks in these; the person speaks in a sky bubble. AnswerView is the same block
+ * holding white cards. Use it for anything ACE says outside an answer (a thinking state, a note).
+ */
+export function TurnBlock({ className, ...props }: ComponentProps<"div">) {
+  return <div className={cn("flex min-w-0 flex-col gap-2 rounded-2xl bg-surface-container px-4 py-3", className)} data-slot="turn-block" {...props} />;
+}
+
+/**
+ * ACE's turn, built like Cohere's agent replies but on the left: a stack of stone blocks.
+ *  1. The first block says who and how: the mark, "ACE", an "AI" badge so nobody mistakes it for
+ *     a colleague, the time; then `process` (Reasoning, WorkLog) closed; then `lead`, ACE's
+ *     words at 16/24 (one sentence before an answer, or the whole reply when there's no answer).
+ *  2. `children`: the answer (AnswerView, itself a block), drafts, sources.
+ *  3. `actions` (copy, feedback) under the blocks.
+ * Don't write "Here's what I found": say what ACE checked or concluded.
+ */
+export function AssistantTurn({
+  children,
+  actions,
+  agent,
+  process,
+  lead,
+  className,
+}: {
+  children?: ReactNode;
+  actions?: ReactNode;
+  agent?: { name?: string; time?: string; mark?: ReactNode };
+  /** How ACE worked it out: Reasoning and WorkLog, closed by default. */
+  process?: ReactNode;
+  lead?: ReactNode;
+  className?: string;
+}) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-3 text-body-md text-on-surface", className)} data-slot="assistant-turn">
+    <div className={cn("flex min-w-0 flex-col gap-2 text-body-md text-on-surface", className)} data-slot="assistant-turn">
+      {(agent || process || lead) && (
+        <TurnBlock>
+          {agent && (
+            <div className="flex min-h-6 items-center gap-2 text-body-sm" data-slot="assistant-turn-header">
+              {agent.mark ?? <AceMark size="sm" />}
+              <span className="text-label-lg text-on-surface">{agent.name ?? "ACE"}</span>
+              <Badge variant="ai">AI</Badge>
+              {agent.time && <time className="text-on-surface-variant">{agent.time}</time>}
+            </div>
+          )}
+          {process && <div className="flex flex-col gap-0.5" data-slot="assistant-turn-process">{process}</div>}
+          {lead && (
+            <div className="flex flex-col gap-2 text-body-lg text-on-surface" data-slot="assistant-turn-lead">
+              {lead}
+            </div>
+          )}
+        </TurnBlock>
+      )}
       {children}
       {actions && <div className="-ml-1.5 flex items-center gap-0.5">{actions}</div>}
     </div>
@@ -252,7 +312,7 @@ export function ToolCallRow({ call }: { call: ToolCall }) {
         {canOpen && <ChevronRightIcon aria-hidden className={cn("size-3.5 shrink-0 text-on-surface-tertiary transition-transform", open && "rotate-90")} />}
       </button>
       {canOpen && (
-        <dl className="ml-5.5 flex flex-col gap-2 rounded-lg bg-surface-container-low px-3 py-2.5 text-body-sm" hidden={!open} id={id}>
+        <dl className="ml-5.5 flex flex-col gap-2 rounded-lg bg-surface-container px-3 py-2.5 text-body-sm" hidden={!open} id={id}>
           {call.input && (
             <div className="flex flex-col gap-0.5">
               <dt className="text-label-md text-on-surface-tertiary">Asked</dt>
@@ -344,7 +404,7 @@ export function StreamingText({ children, streaming, className }: { children: Re
 /** After Stop: what was finished and kept, and how to pick it back up. */
 export function StoppedNotice({ kept, onContinue, onDiscard }: { kept?: ReactNode[]; onContinue?: () => void; onDiscard?: () => void }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container-low p-3 text-sm" data-slot="stopped-notice" role="status">
+    <div className="flex flex-col gap-2 rounded-2xl bg-surface-container px-4 py-3 text-sm" data-slot="stopped-notice" role="status">
       <p className="flex items-center gap-2 text-label-lg font-semibold">
         <SquareIcon aria-hidden className="size-3.5 fill-current" /> You stopped ACE
       </p>
@@ -450,80 +510,164 @@ const SOURCE_STATE: Record<NonNullable<ChatSource["state"]>, { word: string; ico
  * so it works by keyboard and touch. The accessible name says which source it is.
  */
 export function Cite({ n, source }: { n: number; source: ChatSource }) {
-  const st = SOURCE_STATE[source.state ?? "ok"];
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button
           aria-label={`Source ${n}: ${source.label}`}
-          className="focus-ring hit-area mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-[4px] bg-surface-container-high px-1 align-middle font-mono text-[10px] leading-none text-on-surface-variant outline-none hover:bg-surface-container-highest hover:text-on-surface"
+          className="focus-ring hit-area mx-0.5 inline-flex h-5 min-w-5 -translate-y-px items-center justify-center rounded-[4px] bg-surface-container-high px-1 align-middle font-mono text-xs leading-none text-on-surface-variant outline-none hover:bg-surface-container-highest hover:text-on-surface"
           type="button"
         >
           {n}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="flex w-80 flex-col gap-2 p-3">
-        <p className="flex items-center gap-2 text-label-lg">
-          {source.system && <SystemMark system={source.system} />}
-          {source.label}
-        </p>
-        {source.system && <p className="text-body-sm text-on-surface-variant">{[source.system, source.meta].filter(Boolean).join(", ")}</p>}
-        {st.word && <p className={cn("inline-flex items-center gap-1.5 text-body-sm", st.cls)}>{st.icon && <st.icon aria-hidden className="size-3.5" />}{st.word}</p>}
-        {source.excerpt && <blockquote className="border-l-2 border-outline pl-3 text-sm text-on-surface">{source.excerpt}</blockquote>}
-      </PopoverContent>
+      <SourceDetail source={source} />
+    </Popover>
+  );
+}
+
+function SourceDetail({ source }: { source: ChatSource }) {
+  const st = SOURCE_STATE[source.state ?? "ok"];
+  return (
+    <PopoverContent align="start" className="flex w-80 flex-col gap-2 p-3">
+      <p className="flex items-center gap-2 text-label-lg">
+        {source.system && <SystemMark system={source.system} />}
+        {source.label}
+      </p>
+      {(source.system || source.meta) && <p className="text-body-sm text-on-surface-variant">{[source.usedFor, source.system, source.meta].filter(Boolean).join(", ")}</p>}
+      {st.word && <p className={cn("inline-flex items-center gap-1.5 text-body-sm", st.cls)}>{st.icon && <st.icon aria-hidden className="size-3.5" />}{st.word}</p>}
+      {source.excerpt && <blockquote className="border-l-2 border-outline pl-3 text-sm text-on-surface">{source.excerpt}</blockquote>}
+    </PopoverContent>
+  );
+}
+
+/**
+ * A highlighted claim tied to its source (v0.6, from Cohere's cited answers). The claim's words
+ * get an iris tint (iris marks what ACE claims and where it came from) and end in the source
+ * number, which is the cue that doesn't rely on colour; the whole claim is one button
+ * that opens the source's excerpt, so it works by keyboard and touch. Use it for every figure
+ * and decision-relevant fact in an answer (discount, ARR change, policy limit): a number with no
+ * Claim around it has no source. The numbers come from the pricing engine, never from the model.
+ */
+export function Claim({ n, source, children }: { n: number; source: ChatSource; children: ReactNode }) {
+  const problem = source.state && source.state !== "ok" ? SOURCE_STATE[source.state].word : "";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={cn(
+            "focus-ring inline rounded-[4px] bg-tertiary-container/70 px-1 py-px text-left text-on-surface outline-none [box-decoration-break:clone] hover:bg-tertiary-container",
+            problem && "bg-warning-container/70 hover:bg-warning-container"
+          )}
+          data-slot="claim"
+          type="button"
+        >
+          {children}
+          <sup className="ml-0.5 font-mono text-xs text-on-surface-variant">{n}</sup>
+          <span className="sr-only">
+            {`, source ${n}: ${source.label}`}
+            {problem && `, ${problem}`}
+          </span>
+        </button>
+      </PopoverTrigger>
+      <SourceDetail source={source} />
     </Popover>
   );
 }
 
 /**
- * Sources, once, at the end of the answer. Each row names the record, what it contributed and
- * its service; it opens its excerpt in place. Problems with a source are stated on its row.
+ * Sources, once, at the end of the answer (Cohere's citations): a stone block labelled
+ * "Sources (3)", each source an iris-tinted card (iris marks what ACE claims and where it came
+ * from, the same tint as a Claim). A card names the record, what it contributed and its service,
+ * and opens its excerpt in place. Problems with a source are stated on its card in words.
+ * Inside an AnswerView pass `className="bg-card"`: one step of fill per level.
  */
-export function AnswerSources({ sources, label = "Sources" }: { sources: ChatSource[]; label?: string }) {
+export function AnswerSources({
+  sources,
+  label = "Sources",
+  collapsible,
+  defaultOpen = false,
+  className,
+}: {
+  sources: ChatSource[];
+  label?: string;
+  /** A disclosure ("Sources (3)" ▸), closed by default, so the answer reads first. */
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+  className?: string;
+}) {
   const [open, setOpen] = useState<string | null>(null);
+  const [shown, setShown] = useState(defaultOpen);
+  const listId = useId();
+  const visible = !collapsible || shown;
   return (
-    <section aria-label={`${label} (${sources.length})`} className="flex flex-col gap-1" data-slot="answer-sources">
-      {/* Not a heading: the section is labelled, and a fixed level would break the host page's outline. */}
-      <p aria-hidden className="text-label-md text-on-surface-tertiary">
-        {label} ({sources.length})
-      </p>
-      <ol className="flex flex-col">
+    // A group, not a region: an answer list can hold many of these, and landmarks must be unique.
+    <div
+      aria-label={`${label} (${sources.length})`}
+      className={cn("flex min-w-0 flex-col gap-2 rounded-2xl bg-surface-container p-3", className)}
+      data-slot="answer-sources"
+      role="group"
+    >
+      {/* Not a heading: the group is labelled, and a fixed level would break the host page's outline. */}
+      {collapsible ? (
+        <button
+          aria-controls={listId}
+          aria-expanded={shown}
+          className="focus-ring flex min-h-8 w-fit items-center gap-1.5 rounded-sm px-1 text-left text-label-lg text-on-surface outline-none hover:text-on-surface-variant"
+          onClick={() => setShown(!shown)}
+          type="button"
+        >
+          <ChevronRightIcon aria-hidden className={cn("size-4 text-on-surface-variant transition-transform", shown && "rotate-90")} />
+          {label} ({sources.length})
+        </button>
+      ) : (
+        <p aria-hidden className="flex min-h-8 items-center px-1 text-label-lg text-on-surface">
+          {label} ({sources.length})
+        </p>
+      )}
+      <ol className={cn("flex flex-col gap-2", !visible && "hidden")} id={listId}>
         {sources.map((s, i) => {
           const st = SOURCE_STATE[s.state ?? "ok"];
           const isOpen = open === s.id;
-          const canOpen = !!s.excerpt && s.state !== "inaccessible" && s.state !== "deleted";
+          const gone = s.state === "inaccessible" || s.state === "deleted";
+          const canOpen = !!s.excerpt && !gone;
           return (
-            <li className="border-b border-outline-faint last:border-0" key={s.id}>
+            <li
+              className={cn("flex flex-col rounded-lg", gone ? "bg-surface-container-high" : "bg-tertiary-container/60", canOpen && "has-[button:hover]:bg-tertiary-container")}
+              data-slot="source-card"
+              key={s.id}
+            >
               <button
                 aria-expanded={canOpen ? isOpen : undefined}
-                className={cn(
-                  "focus-ring flex min-h-10 w-full items-start gap-2.5 rounded-sm py-2 text-left outline-none [&>svg]:mt-0.5",
-                  canOpen && "hover:bg-surface-container-low"
-                )}
+                className="focus-ring flex min-h-14 w-full items-start gap-3 rounded-lg p-3 text-left outline-none disabled:cursor-default"
                 disabled={!canOpen}
                 onClick={() => setOpen(isOpen ? null : s.id)}
                 type="button"
               >
-                <span className="w-5 shrink-0 text-center font-mono text-[11px] text-on-surface-tertiary">{i + 1}</span>
-                {s.system && <SystemMark system={s.system} />}
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className={cn("text-sm", s.state === "deleted" ? "text-on-surface-variant line-through" : "text-on-surface")}>{s.label}</span>
-                  <span className="text-body-sm text-on-surface-variant">{[s.usedFor, s.system, s.meta].filter(Boolean).join(", ")}</span>
+                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-container-lowest" data-slot="source-tile">
+                  {s.system ? <SystemMark system={s.system} /> : <span className="font-mono text-xs text-on-surface-variant">{i + 1}</span>}
                 </span>
-                {st.word && (
-                  <span className={cn("inline-flex shrink-0 items-center gap-1 text-body-sm", st.cls)}>
-                    {st.icon && <st.icon aria-hidden className="size-3.5" />}
-                    {st.word}
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className={cn("text-label-lg", gone ? "text-on-surface-variant" : "text-on-tertiary-container", s.state === "deleted" && "line-through")}>
+                    <span className="mr-1.5 font-mono text-xs text-on-surface-variant">{i + 1}</span>
+                    {s.label}
                   </span>
-                )}
-                {canOpen && <ChevronRightIcon aria-hidden className={cn("size-4 shrink-0 text-on-surface-tertiary transition-transform", isOpen && "rotate-90")} />}
+                  <span className="text-body-sm text-on-surface-variant">{[s.usedFor, s.system, s.meta].filter(Boolean).join(", ")}</span>
+                  {st.word && (
+                    <span className={cn("mt-1 inline-flex items-center gap-1 text-body-sm", st.cls)}>
+                      {st.icon && <st.icon aria-hidden className="size-3.5" />}
+                      {st.word}
+                    </span>
+                  )}
+                </span>
+                {canOpen && <ChevronRightIcon aria-hidden className={cn("mt-2 size-4 shrink-0 text-on-surface-variant transition-transform", isOpen && "rotate-90")} />}
               </button>
-              {canOpen && isOpen && <blockquote className="mb-2 ml-7.5 border-l-2 border-outline pl-3 text-sm text-on-surface-variant">{s.excerpt}</blockquote>}
+              {canOpen && isOpen && <blockquote className="mx-3 mb-3 ml-14 border-l-2 border-ai-border pl-3 text-sm text-on-surface">{s.excerpt}</blockquote>}
             </li>
           );
         })}
       </ol>
-    </section>
+    </div>
   );
 }
 
@@ -543,7 +687,7 @@ export function ConflictCompare({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-warning bg-warning-container/30 p-3.5" data-slot="conflict">
+    <div className="flex flex-col gap-3 rounded-lg bg-warning-container/60 p-3.5" data-slot="conflict">
       <p className="flex items-center gap-2 text-label-lg font-semibold text-on-warning-container">
         <AlertTriangleIcon aria-hidden className="size-4" /> {label}: needs a decision
       </p>
@@ -618,7 +762,7 @@ export function ClarifyQuestion({
   const id = useId();
   if (state === "answered")
     return (
-      <div className="flex items-start gap-2.5 rounded-lg bg-surface-container-low p-3 text-sm" data-slot="clarify" data-state="answered">
+      <div className="flex items-start gap-2.5 rounded-lg bg-surface-container p-3 text-sm" data-slot="clarify" data-state="answered">
         <CheckCircle2Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-success" />
         <div className="flex flex-col gap-0.5">
           <p className="text-on-surface-variant">{prompt}</p>
@@ -630,7 +774,7 @@ export function ClarifyQuestion({
     );
   if (state === "deferred")
     return (
-      <div className="flex items-start gap-2.5 rounded-lg bg-surface-container-low p-3 text-sm" data-slot="clarify" data-state="deferred">
+      <div className="flex items-start gap-2.5 rounded-lg bg-surface-container p-3 text-sm" data-slot="clarify" data-state="deferred">
         <ClockIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-on-surface-variant" />
         <div className="flex flex-col gap-0.5">
           <p className="text-on-surface-variant">{prompt}</p>
@@ -639,7 +783,7 @@ export function ClarifyQuestion({
       </div>
     );
   return (
-    <fieldset className="flex flex-col gap-3 rounded-lg border border-primary/50 bg-primary-container/30 p-3.5" data-slot="clarify" data-state="open">
+    <fieldset className="flex flex-col gap-3 rounded-lg bg-primary-container/60 p-3.5" data-slot="clarify" data-state="open">
       <legend className="sr-only">{typeof prompt === "string" ? prompt : "Question from ACE"}</legend>
       <div className="flex items-start gap-2.5">
         <CircleHelpIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
@@ -719,7 +863,7 @@ export function ActionReview({
   }[state];
   return (
     <div
-      className={cn("flex flex-col gap-3 rounded-lg border p-3.5", state === "pending" ? "border-primary/50 bg-primary-container/30" : "border-outline-variant bg-surface-container-low")}
+      className={cn("flex flex-col gap-3 rounded-lg p-3.5", state === "pending" ? "bg-primary-container/60" : "bg-surface-container")}
       data-slot="action-review"
       data-state={state}
     >
@@ -869,7 +1013,7 @@ export function DraftCard({
   const w = word[state];
   const locked = state === "sending" || state === "sent";
   return (
-    <article aria-label={`Draft in ${app}${subject ? `: ${subject}` : ""}`} className="flex flex-col overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest" data-slot="draft-card" data-state={state}>
+    <article aria-label={`Draft in ${app}${subject ? `: ${subject}` : ""}`} className="flex flex-col overflow-hidden rounded-lg border border-edge bg-surface-container-lowest" data-slot="draft-card" data-state={state}>
       <header className="flex items-center gap-2 border-b border-outline-variant bg-surface-container-low px-3.5 py-2 text-body-sm text-on-surface-variant">
         <SystemMark system={app} /> Draft in {app}
         {w && (
@@ -945,7 +1089,7 @@ export function QueuedFollowUps({ items, onEdit, onRemove }: { items: { id: stri
       <ol className="flex flex-col">
         {items.map((it, i) => (
           <li className="flex min-h-8 items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-surface-container-low" key={it.id}>
-            <span className="w-4 font-mono text-[11px] text-on-surface-tertiary">{i + 1}</span>
+            <span className="w-4 font-mono text-xs text-on-surface-tertiary">{i + 1}</span>
             <span className="min-w-0 flex-1">{it.text}</span>
             {onEdit && (
               <Button aria-label={`Edit: ${it.text}`} onClick={() => onEdit(it.id)} size="icon-xs" variant="ghost">
@@ -1095,7 +1239,7 @@ export function ScreenSessionNotice({ site, state, onPause, onResume, onStop }: 
 /** New messages arrived below while the person was reading higher up. Never jump the scroll. */
 export function JumpToLatest({ count, onClick, className }: { count?: number; onClick?: () => void; className?: string }) {
   return (
-    <Button className={cn("rounded-full shadow-raised", className)} onClick={onClick} size="sm" variant="secondary">
+    <Button className={cn("shadow-raised", className)} onClick={onClick} size="sm" variant="secondary">
       <ArrowDownIcon /> {count ? `${count} new ${count === 1 ? "update" : "updates"}` : "Jump to latest"}
     </Button>
   );
@@ -1216,7 +1360,7 @@ export function ChatWelcome({
 /** A proactive task ACE prepared: what it is, why now, one action. */
 export function ProactiveTask({ title, reason, meta, action, onAction, tone = "default" }: { title: string; reason: ReactNode; meta?: string; action: string; onAction?: () => void; tone?: "default" | "urgent" }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5" data-slot="proactive-task">
+    <div className="flex flex-col gap-2 rounded-lg border border-edge bg-card p-3.5" data-slot="proactive-task">
       <div className="flex items-start gap-2">
         <p className="min-w-0 flex-1 text-label-lg">{title}</p>
         {tone === "urgent" && <Badge variant="warning">Due today</Badge>}

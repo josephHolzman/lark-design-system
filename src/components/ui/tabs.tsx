@@ -35,7 +35,7 @@ function TabsList({
       className={cn(
         "group/tabs-list text-on-surface-variant inline-flex w-fit items-center justify-start",
         variant === "underline" && "h-10 gap-5 border-b border-outline-variant",
-        variant === "segmented" && "h-[34px] max-w-full gap-0.5 overflow-x-auto rounded-md border border-outline-variant bg-surface-container-low p-0.5",
+        variant === "segmented" && "h-[34px] max-w-full gap-0.5 overflow-x-auto rounded-md bg-surface-container-high p-0.5",
         className
       )}
       {...props}
@@ -51,7 +51,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "focus-ring text-on-surface-variant hover:text-on-surface data-[state=active]:text-on-surface data-[state=active]:font-semibold relative -mb-px inline-flex h-full items-center justify-center gap-1.5 rounded-sm px-0 text-sm whitespace-nowrap transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-on-surface after:opacity-0 data-[state=active]:after:opacity-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 group-data-[variant=segmented]/tabs-list:h-full group-data-[variant=segmented]/tabs-list:mb-0 group-data-[variant=segmented]/tabs-list:rounded-[6px] group-data-[variant=segmented]/tabs-list:px-3 group-data-[variant=segmented]/tabs-list:after:hidden group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-inverse-surface group-data-[variant=segmented]/tabs-list:data-[state=active]:text-inverse-on-surface group-data-[variant=segmented]/tabs-list:data-[state=active]:font-medium group-data-[variant=segmented]/tabs-list:hover:bg-on-surface/5",
+        "focus-ring text-on-surface-variant hover:text-on-surface data-[state=active]:text-on-surface data-[state=active]:font-semibold relative -mb-px inline-flex h-full items-center justify-center gap-1.5 rounded-sm px-0 text-sm whitespace-nowrap transition-colors after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-on-surface after:opacity-0 data-[state=active]:after:opacity-100 disabled:pointer-events-none disabled:text-on-surface-tertiary [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 group-data-[variant=segmented]/tabs-list:h-full group-data-[variant=segmented]/tabs-list:mb-0 group-data-[variant=segmented]/tabs-list:rounded-[6px] group-data-[variant=segmented]/tabs-list:px-3 group-data-[variant=segmented]/tabs-list:after:hidden group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-surface-container-lowest group-data-[variant=segmented]/tabs-list:data-[state=active]:text-on-surface group-data-[variant=segmented]/tabs-list:data-[state=active]:font-medium group-data-[variant=segmented]/tabs-list:data-[state=active]:ring-1 group-data-[variant=segmented]/tabs-list:data-[state=active]:ring-outline-strong dark:group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-surface-container-highest group-data-[variant=segmented]/tabs-list:hover:bg-on-surface/5",
         className
       )}
       {...props}
@@ -66,7 +66,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("flex-1 outline-none", className)}
+      className={cn("focus-ring flex-1 outline-none", className)}
       {...props}
     />
   )

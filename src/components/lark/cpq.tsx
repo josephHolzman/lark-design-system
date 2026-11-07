@@ -29,15 +29,17 @@ import {
   SparklesIcon,
   XCircleIcon,
 } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NumberInput } from "@/components/ui/number-input";
 import { cn } from "@/lib/utils";
 
+import { BestFor } from "./cards";
 import { PersonAvatar, ServiceLogo } from "./identity";
 import { StageProgress } from "./progress";
+import { ProvisionalBadge, provisionalEdge } from "./surfaces";
 
 /* ================================================================ formatting */
 
@@ -349,7 +351,7 @@ export function QuoteLines({
           return (
             <article
               aria-label={l.product}
-              className={cn("flex flex-col gap-2 rounded-lg border border-outline-variant bg-card p-3 text-sm", p && "border-ai-border bg-[color-mix(in_oklch,var(--tertiary-container)_35%,var(--card))]")}
+              className={cn("flex flex-col gap-2 rounded-lg border border-edge bg-card p-3 text-sm", p && "border-ai-border bg-[color-mix(in_oklch,var(--tertiary-container)_35%,var(--card))]")}
               key={l.id}
             >
               <div className="flex items-start justify-between gap-3">
@@ -392,7 +394,7 @@ export function QuoteLines({
             </article>
           );
         })}
-        <div className="rounded-lg bg-surface-container-low px-3 py-2.5">{summary}</div>
+        <div className="rounded-lg bg-surface-container px-3 py-2.5">{summary}</div>
       </div>
 
       <div className={cn("flex flex-col max-md:hidden", className)} data-slot="quote-lines">
@@ -628,7 +630,7 @@ export function PolicyChecks({ checks, className }: { checks: PolicyCheck[]; cla
         {counts.blocked ? `, ${counts.blocked} not allowed` : ""}
         {counts.unknown ? `, ${counts.unknown} can't be checked yet` : ""}.
       </p>
-      <ul className="lark-stagger flex flex-col divide-y divide-outline-faint rounded-lg border border-outline-variant bg-card">
+      <ul className="lark-stagger flex flex-col divide-y divide-outline-faint rounded-lg border border-edge bg-card">
         {checks.map((c) => {
           const p = POLICY[c.status];
           return (
@@ -690,51 +692,55 @@ export type ApprovalStep = { id: string; label: string; mode?: "sequential" | "p
  */
 export function ApprovalRoute({ steps, className }: { steps: ApprovalStep[]; className?: string }) {
   return (
-    <ol aria-label="Approval route" className={cn("lark-stagger grid gap-3 md:auto-cols-fr md:grid-flow-col", className)} data-slot="approval-route">
-      {steps.map((s, i) => (
-        <li className="flex min-w-0 flex-col gap-2" key={s.id}>
-          <p className="flex items-center gap-2 text-label-md text-on-surface-variant">
-            <span className="inline-flex size-5 items-center justify-center rounded-full bg-surface-container-high text-[11px] leading-none font-medium tabular-nums text-on-surface">{i + 1}</span>
-            <span>
-              {s.label}
-              {s.mode === "parallel" && s.approvers.length > 1 && <span className="text-on-surface-tertiary">, at the same time</span>}
-            </span>
-          </p>
-          <ul className="flex flex-col gap-2">
-            {s.approvers.map((a) => {
-              const st = APPROVER[a.state];
-              return (
-                <li className={cn("flex flex-col gap-1.5 rounded-lg border bg-card p-3", st.ring)} key={a.name}>
-                  <div className="flex items-start gap-2.5">
-                    <PersonAvatar name={a.name} size="md" />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-sm text-on-surface">{a.name}</span>
-                      <span className="truncate text-body-sm text-on-surface-variant">{a.role}</span>
+    // Steps sit side by side once the route's own box has room (36rem), not the window's: in a
+    // 360px aside they stack, so approver names aren't cut.
+    <div className="@container/route min-w-0">
+      <ol aria-label="Approval route" className={cn("lark-stagger grid gap-3 @xl/route:auto-cols-fr @xl/route:grid-flow-col", className)} data-slot="approval-route">
+        {steps.map((s, i) => (
+          <li className="flex min-w-0 flex-col gap-2" key={s.id}>
+            <p className="flex items-center gap-2 text-label-md text-on-surface-variant">
+              <span className="inline-flex size-5 items-center justify-center rounded-full bg-surface-container-high text-xs leading-none font-medium tabular-nums text-on-surface">{i + 1}</span>
+              <span>
+                {s.label}
+                {s.mode === "parallel" && s.approvers.length > 1 && <span className="text-on-surface-tertiary">, at the same time</span>}
+              </span>
+            </p>
+            <ul className="flex flex-col gap-2">
+              {s.approvers.map((a) => {
+                const st = APPROVER[a.state];
+                return (
+                  <li className={cn("flex flex-col gap-1.5 rounded-lg border bg-card p-3", st.ring)} key={a.name}>
+                    <div className="flex items-start gap-2.5">
+                      <PersonAvatar name={a.name} size="md" />
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-sm text-on-surface">{a.name}</span>
+                        <span className="truncate text-body-sm text-on-surface-variant">{a.role}</span>
+                      </div>
+                      {a.channel && (
+                        <span className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant">
+                          <ServiceLogo service={a.channel} size={14} />
+                          <span className="sr-only">Decides in </span>
+                          {a.channel}
+                        </span>
+                      )}
                     </div>
-                    {a.channel && (
-                      <span className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant">
-                        <ServiceLogo service={a.channel} size={14} />
-                        <span className="sr-only">Decides in </span>
-                        {a.channel}
+                    <p className={cn("inline-flex items-center gap-1.5 text-body-sm", st.cls)}>
+                      <st.icon aria-hidden className="size-3.5" />
+                      <span>
+                        {st.word}
+                        {a.when && <span className="text-on-surface-variant">, {a.when}</span>}
                       </span>
-                    )}
-                  </div>
-                  <p className={cn("inline-flex items-center gap-1.5 text-body-sm", st.cls)}>
-                    <st.icon aria-hidden className="size-3.5" />
-                    <span>
-                      {st.word}
-                      {a.when && <span className="text-on-surface-variant">, {a.when}</span>}
-                    </span>
-                  </p>
-                  {a.reason && <p className="text-body-sm text-on-surface-variant">Needed because: {a.reason}</p>}
-                  {a.note && <p className="rounded-md bg-surface-container-low px-2 py-1.5 text-body-sm text-on-surface">{a.note}</p>}
-                </li>
-              );
-            })}
-          </ul>
-        </li>
-      ))}
-    </ol>
+                    </p>
+                    {a.reason && <p className="text-body-sm text-on-surface-variant">Needed because: {a.reason}</p>}
+                    {a.note && <p className="rounded-md bg-surface-container px-2 py-1.5 text-body-sm text-on-surface">{a.note}</p>}
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -750,6 +756,10 @@ export type Scenario = {
   approvals: string;
   /** Within policy, or why not. */
   policy: { ok: boolean; text: string };
+  /** v0.6: what this option suits ("Best for" checklist). */
+  bestFor?: string[];
+  /** v0.6: a preview that isn't saved as a quote yet: dashed edge and "Not saved". */
+  provisional?: boolean;
 };
 
 /**
@@ -781,7 +791,7 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
 
       {/* Wide containers (42rem+): one table, rows aligned across options. Decided by the
           container, not the viewport, so it also works in a side column or a peek. */}
-      <div className="overflow-x-auto rounded-lg border border-outline-variant @max-2xl:hidden">
+      <div className="overflow-x-auto rounded-lg border border-edge @max-2xl:hidden">
         <table className="w-full border-separate border-spacing-0 text-sm">
           <caption className="sr-only">Pricing options. {current}</caption>
           <colgroup>
@@ -798,6 +808,7 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="text-label-lg font-semibold text-on-surface">{s.title}</span>
                     {s.recommended && <Badge variant="info">Recommended</Badge>}
+                    {s.provisional && <ProvisionalBadge kind="unsaved" />}
                   </span>
                   {s.summary && <span className="mt-1 block text-body-sm text-on-surface-variant">{s.summary}</span>}
                 </th>
@@ -821,6 +832,18 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
                 })}
               </tr>
             ))}
+            {scenarios.some((s) => s.bestFor?.length) && (
+              <tr>
+                <th className="border-b border-outline-faint px-4 py-2.5 text-left align-top font-normal text-on-surface-variant" scope="row">
+                  Best for
+                </th>
+                {scenarios.map((s) => (
+                  <td className={cn("border-b border-l border-outline-faint px-4 py-2.5 align-top", colTone(s))} key={s.id}>
+                    {s.bestFor?.length ? <BestFor className="mt-0 border-t-0 pt-0 [&>span]:sr-only" items={s.bestFor} /> : "—"}
+                  </td>
+                ))}
+              </tr>
+            )}
             <tr>
               <th className="border-b border-outline-faint px-4 py-2.5 text-left align-top font-normal text-on-surface-variant" scope="row">
                 Approvals
@@ -860,13 +883,15 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
       {/* Narrow containers: a card per option */}
       <div aria-label="Pricing options" className="grid gap-3 @md:grid-cols-2 @2xl:hidden" role="group">
         {scenarios.map((s) => (
-          <article aria-label={s.title} className={cn("flex flex-col gap-3 rounded-lg border p-3.5", chosen === s.id ? "border-selected-border bg-secondary-container" : s.recommended ? "border-primary/60 bg-card" : "border-outline-variant bg-card")} key={s.id}>
+          <article aria-label={s.title} className={cn("flex flex-col gap-3 rounded-lg border p-3.5", chosen === s.id ? "border-selected-border bg-secondary-container" : s.recommended ? "border-primary/60 bg-card" : "border-outline-variant bg-card", s.provisional && chosen !== s.id && provisionalEdge)} key={s.id}>
             <header className="flex flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-label-lg font-semibold">{s.title}</p>
                 {s.recommended && <Badge variant="info">Recommended</Badge>}
+                {s.provisional && <ProvisionalBadge kind="unsaved" />}
               </div>
               {s.summary && <p className="text-body-sm text-on-surface-variant">{s.summary}</p>}
+              {s.bestFor && s.bestFor.length > 0 && <BestFor items={s.bestFor} />}
             </header>
             <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 text-sm">
               {s.metrics.map((mt) => (
@@ -906,7 +931,7 @@ export function InvoiceSchedule({ rows, contractTotal, money, className }: { row
   const diff = Math.round((total - contractTotal) * 100) / 100;
   return (
     <div className={cn("flex flex-col gap-2", className)} data-slot="invoice-schedule">
-      <div className="overflow-x-auto rounded-lg border border-outline-variant bg-card" role="region" aria-label="Invoice schedule" tabIndex={0}>
+      <div className="overflow-x-auto rounded-lg border border-edge bg-card" role="region" aria-label="Invoice schedule" tabIndex={0}>
         <table className="w-full min-w-[520px] border-separate border-spacing-0 text-sm">
           <caption className="sr-only">Invoice schedule</caption>
           <thead className="bg-surface-container-low">
@@ -982,7 +1007,7 @@ export function OrderMatch({
         {blocking ? <AlertTriangleIcon aria-hidden className="size-4" /> : <CheckCircle2Icon aria-hidden className="size-4" />}
         {blocking ? `${blocking} ${blocking === 1 ? "difference blocks" : "differences block"} the order` : "Everything matches. Ready for order creation."}
       </p>
-      <div className="overflow-x-auto rounded-lg border border-outline-variant bg-card" role="region" aria-label="Accepted quote compared with the purchase order" tabIndex={0}>
+      <div className="overflow-x-auto rounded-lg border border-edge bg-card" role="region" aria-label="Accepted quote compared with the purchase order" tabIndex={0}>
         <table className="w-full min-w-[640px] border-separate border-spacing-0 text-sm">
           <caption className="sr-only">Accepted quote compared with the purchase order</caption>
           <thead className="bg-surface-container-low">
@@ -1042,13 +1067,132 @@ export function OrderMatch({
 /** Why an action can't run right now, and the one thing that unblocks it (Apply blocked, Self-approval denied). */
 export function BlockedReason({ title, children, action, className }: { title: ReactNode; children?: ReactNode; action?: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex items-start gap-2.5 rounded-lg border border-outline-variant bg-surface-container-low p-3 text-sm", className)} data-slot="blocked-reason">
+    <div className={cn("flex items-start gap-2.5 rounded-lg bg-surface-container p-3 text-sm", className)} data-slot="blocked-reason">
       <BanIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-on-surface-variant" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="font-semibold text-on-surface">{title}</p>
         {children && <div className="text-on-surface-variant">{children}</div>}
         {action && <div className="mt-1">{action}</div>}
       </div>
+    </div>
+  );
+}
+
+/* ================================================================ approval matrix */
+
+export type ApprovalMatrixRow = { id: string; label: string; description?: string };
+export type ApprovalMatrixLevel = { id: string; label: string };
+
+/**
+ * Who approves what (v0.6, the shape of Cohere's classify table). Each row is a condition (a
+ * discount band, a term, a region) and picks one approver level. Every row is a native radio
+ * group, so arrows move within a row and Tab moves between rows. The chosen cell is tan and
+ * says the approver's name inside it, so the choice never rests on colour; each radio's name
+ * reads "10–20% discount: Deal desk". Read-only shows the same grid without inputs.
+ */
+export function ApprovalMatrix({
+  caption,
+  rows,
+  levels,
+  value,
+  onChange,
+  readOnly,
+  changed,
+  className,
+}: {
+  /** What the matrix decides, e.g. "Approver by discount band, EMEA". */
+  caption: string;
+  rows: ApprovalMatrixRow[];
+  levels: ApprovalMatrixLevel[];
+  /** Row id → level id. */
+  value: Record<string, string>;
+  onChange?: (rowId: string, levelId: string) => void;
+  readOnly?: boolean;
+  /** Row ids edited since the last publish: marked "Changed". */
+  changed?: string[];
+  className?: string;
+}) {
+  const name = useId();
+  return (
+    <div className={cn("overflow-x-auto rounded-lg border border-edge bg-card", className)} data-slot="approval-matrix">
+      <table className="w-full min-w-[30rem] border-separate border-spacing-0 text-sm">
+        <caption className="px-4 pt-3 pb-2 text-left text-body-sm text-on-surface-variant">{caption}</caption>
+        <thead>
+          <tr>
+            <th className="w-[1%] border-b border-outline-variant px-4 py-2 text-left text-label-md font-normal whitespace-nowrap text-on-surface-variant" scope="col">
+              Condition
+            </th>
+            {levels.map((l) => (
+              <th className="border-b border-outline-variant px-1 py-2 text-center text-label-md font-normal whitespace-nowrap text-on-surface-variant" key={l.id} scope="col">
+                {l.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const isChanged = changed?.includes(r.id);
+            return (
+              <tr key={r.id}>
+                <th className="border-b border-outline-faint px-4 py-2 text-left align-middle font-normal whitespace-nowrap" scope="row">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="text-on-surface">{r.label}</span>
+                    {isChanged && <Badge variant="warning">Changed</Badge>}
+                  </span>
+                  {r.description && <span className="block text-body-sm text-on-surface-variant">{r.description}</span>}
+                </th>
+                {levels.map((l) => {
+                  const on = value[r.id] === l.id;
+                  const cell = cn(
+                    "flex h-8 w-full items-center justify-center gap-1.5 rounded-md border px-1.5 text-label-md whitespace-nowrap transition-colors",
+                    on ? "border-selected-border bg-secondary-container text-on-secondary-container" : "border-transparent bg-surface-container text-on-surface-tertiary"
+                  );
+                  return (
+                    <td className="border-b border-outline-faint px-1 py-1.5 align-middle" key={l.id}>
+                      {readOnly ? (
+                        <span className={cell}>
+                          {on ? (
+                            <>
+                              <span aria-hidden className="size-1.5 rounded-full bg-current" />
+                              {l.label}
+                            </>
+                          ) : (
+                            <span className="sr-only">Not {l.label}</span>
+                          )}
+                        </span>
+                      ) : (
+                        <label className="block cursor-pointer">
+                          <input
+                            aria-label={`${r.label}: ${l.label}`}
+                            checked={on}
+                            className="peer sr-only"
+                            name={`${name}-${r.id}`}
+                            onChange={() => onChange?.(r.id, l.id)}
+                            type="radio"
+                            value={l.id}
+                          />
+                          <span className={cn(cell, "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring", !on && "hover:bg-surface-container-high hover:text-on-surface-variant")}>
+                            {on ? (
+                              <>
+                                <span aria-hidden className="size-1.5 rounded-full bg-current" />
+                                {l.label}
+                              </>
+                            ) : (
+                              <span aria-hidden className="opacity-0 transition-opacity [label:hover_&]:opacity-100">
+                                {l.label}
+                              </span>
+                            )}
+                          </span>
+                        </label>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

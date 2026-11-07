@@ -13,6 +13,7 @@ import {
   InboxIcon,
   LayoutGridIcon,
   LayersIcon,
+  PanelRightIcon,
   MessagesSquareIcon,
   ReceiptTextIcon,
   SettingsIcon,
@@ -38,7 +39,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-type Section = "home" | "inbox" | "deals" | "deals-list" | "quote" | "ace" | "settings" | "patterns" | "chat-states";
+type Section = "home" | "inbox" | "deals" | "deals-list" | "quote" | "ace" | "settings" | "patterns" | "chat-states" | "widgets" | "chat-panel";
 
 const nav = (current: Section): NavGroup[] => [
   {
@@ -77,6 +78,8 @@ const nav = (current: Section): NavGroup[] => [
       { label: "Settings", href: "/examples/settings", icon: <SettingsIcon />, current: current === "settings" },
       { label: "Lark patterns", href: "/examples/patterns", icon: <LayersIcon />, current: current === "patterns" },
       { label: "Chat states", href: "/examples/chat-states", icon: <MessagesSquareIcon />, current: current === "chat-states" },
+      { label: "Answer widgets", href: "/examples/widgets", icon: <LayoutGridIcon />, current: current === "widgets" },
+      { label: "Chat side panel", href: "/examples/chat-panel", icon: <PanelRightIcon />, current: current === "chat-panel" },
     ],
   },
 ];
@@ -121,10 +124,13 @@ export function DeepgridsShell({
   current,
   crumbs,
   children,
+  onAskAce,
 }: {
   current: Section;
   crumbs: Crumb[];
   children: ReactNode;
+  /** Makes the top bar's Ask ACE open something on this page (the side panel). */
+  onAskAce?: () => void;
 }) {
   return (
     <TooltipProvider delayDuration={300}>
@@ -146,7 +152,7 @@ export function DeepgridsShell({
             actions={
               <>
                 <span className="hidden md:inline-flex">
-                  <AskAceButton />
+                  <AskAceButton onClick={onAskAce} />
                 </span>
                 <TopbarIconButton badge={3} label="Deal signals">
                   <BellIcon />

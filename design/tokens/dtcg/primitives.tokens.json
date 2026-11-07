@@ -166,6 +166,50 @@
         "$value": "#2a180d"
       }
     },
+    "coral": {
+      "coral-50": {
+        "$type": "color",
+        "$value": "#f16a4d"
+      },
+      "coral-d50": {
+        "$type": "color",
+        "$value": "#f3947e"
+      }
+    },
+    "viz": {
+      "viz-10": {
+        "$type": "color",
+        "$value": "#3e6ae1"
+      },
+      "viz-20": {
+        "$type": "color",
+        "$value": "#1f8a74"
+      },
+      "viz-30": {
+        "$type": "color",
+        "$value": "#a64ca6"
+      },
+      "viz-40": {
+        "$type": "color",
+        "$value": "#b9771c"
+      },
+      "viz-d10": {
+        "$type": "color",
+        "$value": "#8cafff"
+      },
+      "viz-d20": {
+        "$type": "color",
+        "$value": "#74c3ae"
+      },
+      "viz-d30": {
+        "$type": "color",
+        "$value": "#e090de"
+      },
+      "viz-d40": {
+        "$type": "color",
+        "$value": "#dea462"
+      }
+    },
     "stone": {
       "stone-50": {
         "$type": "color",

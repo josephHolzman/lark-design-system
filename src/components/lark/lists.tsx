@@ -98,6 +98,17 @@ export type ListItemProps = Omit<ComponentProps<"li">, "onClick"> & {
   selected?: boolean;
   href?: string;
   onClick?: () => void;
+  /**
+   * v0.6: let the headline and supporting text wrap instead of truncating, and align the row to
+   * its first line (answers, anything whose full text matters). Default rows stay one line.
+   */
+  wrap?: boolean;
+  /**
+   * v0.6: the row's one next step (a Button, a badge beside it), under the supporting text.
+   * Static rows only: a row that is itself a link or button can't hold another control, so
+   * use `trailing` there.
+   */
+  action?: ReactNode;
 };
 
 /**
@@ -114,6 +125,8 @@ export function ListItem({
   selected,
   href,
   onClick,
+  wrap,
+  action,
   className,
   ...props
 }: ListItemProps) {
@@ -122,19 +135,25 @@ export function ListItem({
       {leading && <span className="flex shrink-0 items-center text-on-surface-variant [&_svg]:size-[18px]">{leading}</span>}
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex min-w-0 items-baseline gap-2">
-          <span className="truncate text-sm font-medium">{headline}</span>
+          <span className={cn("text-sm font-medium", !wrap && "truncate")}>{headline}</span>
           {meta && <span className="ml-auto shrink-0 text-body-sm text-on-surface-variant tabular-nums">{meta}</span>}
         </span>
         {supporting && (
-          <span className="truncate text-body-sm text-on-surface-variant group-data-[density=comfortable]/list:line-clamp-2 group-data-[density=comfortable]/list:whitespace-normal">
+          <span className={cn("text-body-sm text-on-surface-variant", !wrap && "truncate group-data-[density=comfortable]/list:line-clamp-2 group-data-[density=comfortable]/list:whitespace-normal")}>
             {supporting}
+          </span>
+        )}
+        {action && !href && !onClick && (
+          <span className="mt-2 flex flex-wrap items-center gap-2" data-slot="list-action">
+            {action}
           </span>
         )}
       </span>
     </>
   );
   const row = cn(
-    "flex w-full min-w-0 flex-1 items-center gap-3 px-3 text-left",
+    "flex w-full min-w-0 flex-1 gap-3 px-3 text-left",
+    wrap ? "items-start" : "items-center",
     "min-h-12 py-1.5 group-data-[density=compact]/list:min-h-10 group-data-[density=compact]/list:py-1 group-data-[density=comfortable]/list:min-h-16 group-data-[density=comfortable]/list:py-2.5",
     "group-data-[inset]/list:rounded-md"
   );
@@ -142,8 +161,10 @@ export function ListItem({
   return (
     <li
       className={cn(
-        "relative flex min-w-0 items-center group-data-[inset]/list:rounded-md",
-        selected && "bg-selected-strong text-on-secondary-container [&_.text-on-surface-variant]:text-on-secondary-container",
+        "relative flex min-w-0 group-data-[inset]/list:rounded-md",
+        wrap ? "items-start [&>[data-slot=list-trailing]]:pt-1.5" : "items-center",
+        // Links inside a selected row take its text colour too, or they fail contrast on the tan fill.
+        selected && "bg-selected-strong text-on-secondary-container [&_.text-on-surface-variant]:text-on-secondary-container [&_a]:text-on-secondary-container",
         className
       )}
       data-selected={selected || undefined}
@@ -160,7 +181,11 @@ export function ListItem({
       ) : (
         <div className={row}>{content}</div>
       )}
-      {trailing && <span className="flex shrink-0 items-center gap-1 pr-3">{trailing}</span>}
+      {trailing && (
+        <span className="flex shrink-0 items-center gap-1 pr-3" data-slot="list-trailing">
+          {trailing}
+        </span>
+      )}
     </li>
   );
 }

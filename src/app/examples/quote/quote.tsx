@@ -80,7 +80,9 @@ export function QuoteWorkbench() {
                   { id: "4", name: "Check the mobile start date", system: "ACE", state: "running" },
                 ]}
               />
-              <AssistantTurn>
+              <AssistantTurn
+                lead={
+                  <>
                 <p>
                   The platform line is discounted 24%
                   <Cite n={1} source={SOURCES[0]} />, above the 20% limit for 36-month renewals
@@ -90,7 +92,9 @@ export function QuoteWorkbench() {
                   Mobile should start Apr 1, not Jan 1
                   <Cite n={3} source={SOURCES[2]} />. I&apos;m checking whether that changes the invoice schedule.
                 </p>
-              </AssistantTurn>
+                  </>
+                }
+              />
               <AnswerSources sources={SOURCES} />
             </div>
           </SectionCard>

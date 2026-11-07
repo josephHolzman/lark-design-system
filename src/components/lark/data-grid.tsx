@@ -19,7 +19,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, ChevronsUpDownIcon, XIcon } from "lucide-react";
-import { type CSSProperties, Fragment, type MouseEvent, type ReactNode, Suspense, useMemo, useState } from "react";
+import { type CSSProperties, Fragment, type MouseEvent, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -155,6 +155,18 @@ function DataGridInner<T>({
 }: DataGridProps<T>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrolls, setScrolls] = useState(false);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const check = () => setScrolls(el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    check();
+    return () => ro.disconnect();
+  }, []);
   const [expanded, setExpanded] = useState<ExpandedState>(groupBy ? true : {});
   const [visibilityState, setVisibilityState] = useState<VisibilityState>({});
   const grouping: GroupingState = useMemo(() => (groupBy ? [groupBy] : []), [groupBy]);
@@ -243,7 +255,16 @@ function DataGridInner<T>({
 
   return (
     <div className={cn("relative flex min-h-0 min-w-0 flex-col", className)} data-density={density} data-slot="data-grid">
-      <div className="relative min-h-0 flex-1 overflow-auto" style={{ maxHeight: height }} tabIndex={-1}>
+      {/* When the grid scrolls and its rows hold nothing focusable, keyboard users still need to
+          scroll it: the region becomes a named tab stop only while it overflows (WCAG 2.1.1). */}
+      <div
+        aria-label={scrolls ? caption : undefined}
+        className={cn("relative min-h-0 flex-1 overflow-auto", scrolls && "focus-ring outline-none")}
+        ref={scrollRef}
+        role={scrolls ? "region" : undefined}
+        style={{ maxHeight: height }}
+        tabIndex={scrolls ? 0 : -1}
+      >
         <table aria-busy={loading || undefined} className="w-max min-w-full border-separate border-spacing-0 text-sm tabular-nums">
           <caption className="sr-only">{caption}</caption>
           <thead className="sticky top-0 z-[2] bg-card">

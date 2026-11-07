@@ -142,15 +142,16 @@ export type SegmentedProps = {
 };
 
 /**
- * Beams segmented control: a recessed track with 6px-cornered items; the selected item
- * is filled ink with white text (a luminance change, not a hue). Single choice, so Radix
+ * Segmented control (v0.6, one style everywhere): a grey track with 6px-cornered items; the
+ * selected item is a white segment with a hairline edge and ink text (Cohere/North), not a
+ * black fill, so it never outweighs the page's main action. Single choice, so Radix
  * renders radio semantics.
  */
 export function Segmented({ options, value, onValueChange, size = "sm", className, ...aria }: SegmentedProps) {
   return (
     <ToggleGroupPrimitive.Root
       aria-label={aria["aria-label"]}
-      className={cn("inline-flex shrink-0 items-stretch gap-0.5 rounded-md border border-outline-variant bg-surface-container-low p-0.5", size === "sm" ? "h-8" : "h-[34px]", className)}
+      className={cn("inline-flex shrink-0 items-stretch gap-0.5 rounded-md bg-surface-container-high p-0.5", size === "sm" ? "h-8" : "h-[34px]", className)}
       onValueChange={(v) => v && onValueChange(v)}
       type="single"
       value={value}
@@ -160,7 +161,7 @@ export function Segmented({ options, value, onValueChange, size = "sm", classNam
           aria-label={o.ariaLabel}
           className={cn(
             "state-layer [--state-hover:0.05] focus-ring relative inline-flex h-full items-center justify-center gap-1.5 rounded-[6px] px-3 text-label-lg text-on-surface-variant outline-none focus-visible:z-10",
-            "data-[state=on]:bg-inverse-surface data-[state=on]:text-inverse-on-surface data-[state=on]:[--state-hover:0]",
+            "data-[state=on]:bg-surface-container-lowest data-[state=on]:text-on-surface data-[state=on]:ring-1 data-[state=on]:ring-outline-strong data-[state=on]:[--state-hover:0] dark:data-[state=on]:bg-surface-container-highest",
             "[&_svg]:size-4"
           )}
           key={o.value}

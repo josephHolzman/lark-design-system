@@ -16,7 +16,7 @@ function NativeSelect({
     <div className={cn("relative inline-flex w-fit min-w-0", className)} data-slot="native-select-wrapper">
       <select
         className={cn(
-          "focus-ring w-full min-w-0 appearance-none rounded-md border border-outline bg-surface-container-lowest hover:border-on-surface-variant pr-8 pl-3 text-sm pointer-coarse:text-base text-on-surface outline-none focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive",
+          "focus-ring w-full min-w-0 appearance-none rounded-md border border-outline bg-surface-container-lowest hover:border-on-surface-variant pr-8 pl-3 text-sm pointer-coarse:text-base text-on-surface outline-none focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-surface-container disabled:text-on-surface-variant disabled:border-outline-variant aria-invalid:border-destructive",
           size === "default" ? "h-8 pl-2.5" : "h-7 pl-2",
           "[&>option]:bg-popover [&>option]:text-popover-foreground"
         )}

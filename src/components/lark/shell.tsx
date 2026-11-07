@@ -365,7 +365,7 @@ export function Topbar({ crumbs, search, actions }: { crumbs: Crumb[]; search?: 
   return (
     <header className="z-20 flex h-12 shrink-0 items-center gap-2 border-b border-outline-variant bg-surface px-2 md:px-3">
       <SidebarTrigger aria-label="Toggle sidebar" className="text-on-surface-variant" />
-      <Separator className="mx-1 hidden h-4! sm:block" orientation="vertical" />
+      <Separator className="mx-1 hidden data-[orientation=vertical]:h-4 sm:block" orientation="vertical" />
       <Breadcrumb className="hidden min-w-0 sm:block">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => (
@@ -422,7 +422,7 @@ export function TopbarIconButton({
           {badge ? (
             <span
               aria-hidden="true"
-              className="absolute top-1 right-1 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-error px-1 tabular-nums leading-none font-medium text-[10px] leading-none text-on-error"
+              className="absolute top-0.5 right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-xs leading-none font-medium tabular-nums text-on-error"
             >
               {badge}
             </span>

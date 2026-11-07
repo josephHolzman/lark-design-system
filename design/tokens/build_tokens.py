@@ -68,6 +68,20 @@ def fit_darker(base, bg, target):
 prim = json.loads((ROOT / "design/tokens/primitives.json").read_text())
 P = {f"{fam}-{step}": hx for fam, steps in prim.items() for step, hx in steps.items()}
 
+# v0.6: Cohere's warm coral, darkened until a chart mark or icon on white reaches 3:1 (WCAG
+# 1.4.11), and a light version for dusk. Coral is for charts and the coral wash, never status.
+P["coral-50"] = fit_darker("#FF7759", "#FFFFFF", 3.0)
+P["coral-d50"] = from_oklch(0.76, 0.12, to_oklch("#FF7759")[2])
+
+# v0.6 chart palette (Cohere-like, saturated but calm): cobalt (sky, deepened), coral, teal, plum,
+# amber. Each mark reaches 3:1 on white (WCAG 1.4.11); dusk versions are lighter at the same hue.
+# viz-10 cobalt · viz-20 teal · viz-30 plum · viz-40 amber (coral is coral-50).
+VIZ = {"10": "#3E6AE1", "20": "#1F8A74", "30": "#A64CA6", "40": "#B9771C"}
+for step, hx in VIZ.items():
+    P[f"viz-{step}"] = hx
+    L, C, H = to_oklch(hx)
+    P[f"viz-d{step}"] = from_oklch(0.76, C * 0.85, H)
+
 # In-between warm stone steps for M3's tonal surface containers.
 P["stone-75"] = from_oklch(0.963, 0.012, 86)
 P["stone-125"] = from_oklch(0.938, 0.013, 84)
@@ -123,7 +137,7 @@ def alpha(hx, a):
 
 LIGHT = {
     # surfaces
-    "canvas": "sand-50", "surface": "#FFFFFF", "surface-container-lowest": "#FFFFFF",
+    "canvas": "paper-08", "surface": "#FFFFFF", "surface-container-lowest": "#FFFFFF",
     "surface-container-low": "paper-04", "surface-container": "paper-08",
     "surface-container-high": "paper-10", "surface-container-highest": "paper-15",
     # text and lines
@@ -227,12 +241,12 @@ ALIASES = {
     "sidebar-border": "outline-variant", "sidebar-ring": "primary",
 }
 DUSK_ALIASES = {"card": "surface", "popover": "surface-container-high"}
-CHARTS = {"light": ["sky-500", "tropic-50", "sand-500", "iris-50", "ember-50"],
-          "dusk": ["sky-300", "tropic-d50", "sand-300", "iris-d50", "ember-d50"]}
+CHARTS = {"light": ["viz-10", "coral-50", "viz-20", "viz-30", "viz-40"],
+          "dusk": ["viz-d10", "coral-d50", "viz-d20", "viz-d30", "viz-d40"]}
 
 def order(name):
     fam, step = name.rsplit("-", 1)
-    fams = ["paper", "sky", "sand", "stone", "crown", "dusk", "ocean", "rust", "evergreen", "ember",
+    fams = ["paper", "sky", "sand", "coral", "viz", "stone", "crown", "dusk", "ocean", "rust", "evergreen", "ember",
             "iris", "tropic", "sakura", "olive"]
     num = int(step.lstrip("d")) + (1000 if step.startswith("d") else 0)
     return (fams.index(fam) if fam in fams else 99, num, step)

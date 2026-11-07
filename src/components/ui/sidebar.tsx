@@ -474,7 +474,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 py-1 text-left text-sm text-on-surface-variant outline-hidden transition-[width,height,padding] state-layer [--state-hover:0.05] focus-ring disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-outline-variant data-[active=true]:font-medium data-[active=true]:text-on-surface group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 py-1 text-left text-sm text-on-surface-variant outline-hidden transition-[width,height,padding] state-layer [--state-hover:0.05] focus-ring disabled:pointer-events-none disabled:text-on-surface-tertiary group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:text-on-surface-tertiary data-[active=true]:bg-outline-variant data-[active=true]:font-medium data-[active=true]:text-on-surface group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -485,7 +485,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-7 text-sm",
         sm: "h-6 text-xs",
-        lg: "h-10 rounded-md text-sm group-data-[collapsible=icon]:p-0!",
+        lg: "h-10 rounded-md text-sm group-data-[collapsible=icon]:p-0",
       },
     },
     defaultVariants: {
@@ -685,7 +685,7 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        "text-on-surface-variant state-layer focus-ring [&>svg]:text-on-surface-variant flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        "text-on-surface-variant state-layer focus-ring [&>svg]:text-on-surface-variant flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden disabled:pointer-events-none disabled:text-on-surface-tertiary aria-disabled:pointer-events-none aria-disabled:text-on-surface-tertiary [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
         "data-[active=true]:bg-outline-variant data-[active=true]:text-on-surface data-[active=true]:font-medium",
         size === "sm" && "text-xs",
         size === "md" && "text-sm",

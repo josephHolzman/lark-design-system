@@ -1,3 +1,5 @@
+import { ArrowLeftIcon } from "lucide-react";
+
 import { LarkLink as Link } from "./provider";
 import type { ComponentProps, ReactNode } from "react";
 
@@ -6,8 +8,13 @@ import { cn } from "@/lib/utils";
 import { CountPill } from "./lists";
 
 export type PageHeaderProps = Omit<ComponentProps<"header">, "title"> & {
-  /** Small line above the title: a parent section or a breadcrumb. */
+  /**
+   * Deprecated in 0.6: the shell's breadcrumb already says where the page sits. Use `back` on
+   * pages reached from a list or flow. Still renders, for 0.5 code.
+   */
   eyebrow?: ReactNode;
+  /** v0.6: "← Back to deals" above the title, for pages reached from a list or a flow. */
+  back?: { label: string; href: string };
   /** Leading mark (CompanyLogo for a deal or account). */
   leading?: ReactNode;
   title: ReactNode;
@@ -22,12 +29,14 @@ export type PageHeaderProps = Omit<ComponentProps<"header">, "title"> & {
 };
 
 /**
- * Beams page header: title 22/28 450 (Apollo's 20px Inter at Hanken's optical size), an
- * optional one-line description (12/18 tertiary; tool and settings pages only), meta, and
- * actions on the right that wrap below on narrow screens. The one h1 on the page.
+ * Page header (v0.6.1): title 30/36 at regular weight with tight tracking (size carries the
+ * hierarchy, Cohere; section titles are 24, card titles 16), a lifecycle or status badge beside it, one or two lines of description in
+ * 14/20 secondary text, a meta line, and the page's text actions on the right (the only header
+ * in Lark that holds text buttons). Tabs sit on its bottom edge. The one h1 on the page.
  */
 export function PageHeader({
   eyebrow,
+  back,
   leading,
   title,
   status,
@@ -46,12 +55,18 @@ export function PageHeader({
         <div className="flex min-w-0 flex-[1_1_min(100%,28rem)] items-start gap-3">
           {leading && <div className="shrink-0 pt-0.5">{leading}</div>}
           <div className="flex min-w-0 flex-col gap-1">
+            {back && (
+              <Link className="focus-ring mb-1 inline-flex w-fit items-center gap-1.5 rounded-sm text-sm text-on-surface-variant outline-none hover:text-on-surface" href={back.href}>
+                <ArrowLeftIcon aria-hidden className="size-4" />
+                {back.label}
+              </Link>
+            )}
             {eyebrow && <div className="text-label-md text-on-surface-variant">{eyebrow}</div>}
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-              <h1 className="text-title-md text-on-surface">{title}</h1>
+              <h1 className="text-title-md text-on-surface md:text-title-lg">{title}</h1>
               {status}
             </div>
-            {description && <p className="max-w-[68ch] text-body-sm font-medium text-on-surface-tertiary">{description}</p>}
+            {description && <p className="max-w-[68ch] text-sm text-on-surface-variant">{description}</p>}
             {meta && (
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-body-sm text-on-surface-variant [&>*:not(:last-child)]:after:ml-1.5 [&>*:not(:last-child)]:after:content-['·']">
                 {meta}

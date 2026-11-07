@@ -113,7 +113,7 @@ export type SourceChipProps = {
 export function SourceChip({ label, index, kind, href, icon, className }: SourceChipProps) {
   const inner = (
     <>
-      {index != null && <span className="font-mono text-[11px] text-on-surface-variant">{index}</span>}
+      {index != null && <span className="font-mono text-xs text-on-surface-variant">{index}</span>}
       <span aria-hidden="true" className="text-on-surface-variant [&_svg]:size-3.5">
         {icon ?? <FileTextIcon />}
       </span>
