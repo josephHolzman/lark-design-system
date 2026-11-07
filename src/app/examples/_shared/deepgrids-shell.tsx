@@ -39,7 +39,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-type Section = "home" | "inbox" | "deals" | "deals-list" | "quote" | "ace" | "settings" | "patterns" | "chat-states" | "widgets" | "chat-panel";
+type Section = "home" | "inbox" | "deals" | "deals-list" | "quote" | "ace" | "settings" | "patterns" | "chat-states" | "widgets" | "chat-panel" | "foundations" | "width-matrix" | "approvals" | "deal-activity";
 
 const nav = (current: Section): NavGroup[] => [
   {
@@ -76,6 +76,10 @@ const nav = (current: Section): NavGroup[] => [
       { label: "Agent studio", href: "#", icon: <BotIcon /> },
       { label: "Connections", href: "#", icon: <CableIcon /> },
       { label: "Settings", href: "/examples/settings", icon: <SettingsIcon />, current: current === "settings" },
+      { label: "Lark foundations", href: "/examples/foundations", icon: <LayersIcon />, current: current === "foundations" },
+      { label: "Width matrix", href: "/examples/width-matrix", icon: <LayoutGridIcon />, current: current === "width-matrix" },
+      { label: "Approvals", href: "/examples/approvals", icon: <LayersIcon />, current: current === "approvals" },
+      { label: "Deal activity", href: "/examples/deal-activity", icon: <MessagesSquareIcon />, current: current === "deal-activity" },
       { label: "Lark patterns", href: "/examples/patterns", icon: <LayersIcon />, current: current === "patterns" },
       { label: "Chat states", href: "/examples/chat-states", icon: <MessagesSquareIcon />, current: current === "chat-states" },
       { label: "Answer widgets", href: "/examples/widgets", icon: <LayoutGridIcon />, current: current === "widgets" },
@@ -111,9 +115,9 @@ const searchGroups = [
 function SidebarFooterCard() {
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container-low p-3 group-data-[collapsible=icon]:hidden">
-      <div className="flex items-baseline justify-between text-body-sm">
+      <div className="flex items-baseline justify-between text-body-md">
         <span className="text-on-surface">ACE credits</span>
-        <span className="font-mono text-xs text-on-surface-variant">6,240 / 10k</span>
+        <span className="font-mono text-meta text-on-surface-variant">6,240 / 10k</span>
       </div>
       <Meter label="ACE credits used" max={10000} value={6240} />
     </div>

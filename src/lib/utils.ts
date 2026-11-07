@@ -22,6 +22,12 @@ const twMerge = extendTailwindMerge({
             "title-lg",
             "headline-sm",
             "subtext",
+            // v0.7
+            "meta",
+            "meta-strong",
+            "title-module",
+            "display-sm",
+            "display-md",
           ],
         },
       ],

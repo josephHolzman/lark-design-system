@@ -398,7 +398,7 @@ export function Dashboard() {
                           <div className="flex min-w-0 flex-col">
                             <span className="truncate font-medium">{d.account}</span>
                             {density === "comfortable" && (
-                              <span className="truncate text-body-sm text-on-surface-variant">
+                              <span className="truncate text-body-md text-on-surface-variant">
                                 {d.type} · {d.owner}
                               </span>
                             )}
@@ -619,7 +619,7 @@ function DealSheet({ deal, onOpenChange }: { deal: Deal | null; onOpenChange: (o
             <div className="flex min-w-0 flex-col gap-1">
               <SheetTitle>{d.account}</SheetTitle>
               <SheetDescription>
-                {d.type} · {d.owner} · <span className="font-mono text-xs">{d.id}</span>
+                {d.type} · {d.owner} · <span className="font-mono text-meta">{d.id}</span>
               </SheetDescription>
             </div>
           </div>

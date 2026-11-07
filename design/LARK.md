@@ -4,6 +4,9 @@ Since 2026-11-05 Lark follows Apollo's **Beams** design system for structure, an
 the lark for identity. This replaces `RECONCILIATION.md` (the Material 3 version).
 Source measurements: Claude project doc `lark-beams-extraction.md`.
 
+> **v0.7:** "Rules (v0.7)" at the end of this file sits on top of v0.6: the type ladder, the
+> 12px rule, surfaces, spacing and narrow behaviour. Where they disagree, v0.7 wins.
+>
 > **v0.6:** "One system (v0.6)" at the end of this file is the current rule set. Where an
 > earlier section disagrees (canvas, title weights, segmented, icon tiles, card actions,
 > shadows), v0.6 wins; those rows below are updated.
@@ -412,3 +415,38 @@ violations (checked Nov 6, 2026).
 
 Each type is also its own component (`StatsWidget`, `CompareWidget`, `ChartWidget`, …) for use
 outside an answer, inside `AnswerSurface`.
+
+## Rules (v0.7)
+
+Seven rules, checked where a machine can check them.
+
+1. **One job per module.** Write the question before building it ("Who still has to approve,
+   and what's blocking?"). The title says it. Content that doesn't serve it moves or goes.
+2. **Type ladder.** Page 30 (`text-title-lg`) → module 20 (`text-title-module`, set by
+   `--module-title-size`; 18 is the alternative) → item 16 (`text-title-sm`) → body 14
+   (`text-body-md`) → meta 12 (`text-meta`, `text-meta-strong`). **12px is metadata only**:
+   timestamps, counts in chips, table meta and column heads, captions and legends, footnotes,
+   sources, eyebrows, menu group labels, initials. `npm run lint:lark` (`npx lark-lint src` in
+   an app) fails a raw 12px class and a 12px sentence; a `<p>` at 12px declares what it is with
+   `data-meta="caption|footnote|source|timestamp|…"`.
+3. **Surfaces.** Canvas (linen-98) → module (white, 11% ink edge, radius 16) → inset (linen-95)
+   → item. The steps are Cohere's (sampled from North): gentle, with the module's edge doing
+   part of the work, and a faint sand cast rather than pure grey. Dusk: dusk-100 → dusk-300 →
+   dusk-400. Tinted modules: `feature` (iris = AI, sky = a decision) and `status` (always with
+   its icon, the title says the status). Never more than three levels in a module.
+4. **Room.** Module padding and page gaps 24 (`p-module`, `gap-module-gap`), 16 under 640px or
+   inside a module under 30rem; 16 between items (`gap-item`); rows 12 (`p-row`). Compact
+   density is for data tables only.
+5. **Narrow behaviour, by the component's own width** (container queries, not the viewport):
+   truncate or clamp with the full text one hover or Tab away (`TruncateText`, `ClampText`);
+   stack (DescriptionList under 22rem, ApprovalPath under 48rem); switch to a list (ChatWelcome
+   under 28rem). Tabs and segmented controls never wrap or scroll: overflow goes to "More" and
+   the current item stays. Names and numbers never break mid-word (`NoBreak`). Every component
+   is checked at 280, 360, 480, 720 and 1080 (`/examples/width-matrix`, `npm run test:e2e`).
+6. **Provenance once** per module or page (an "Example data" badge, a `SourceLine`), never per
+   row.
+7. **Colour by job.** Sky = the primary action (Ask ACE included), iris = AI, tan = selected
+   data only, status hues = status, coral = chart taxonomy. Party colours in ActivityFeed are
+   tags (teal customer, pink seller, olive internal, neutral system; never sky, which means "act") and always come
+   with the word.
+

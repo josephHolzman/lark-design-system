@@ -57,7 +57,7 @@ function RailSection({ title, count, children, defaultOpen = true }: { title: st
     <CollapsiblePrimitive.Root className="border-b border-outline-variant" defaultOpen={defaultOpen}>
       <CollapsiblePrimitive.Trigger className="group state-layer [--state-hover:0.03] focus-ring flex h-[52px] w-full items-center gap-2 px-4 text-left text-label-lg outline-none">
         <span className="flex-1">{title}</span>
-        {count ? <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-secondary-container px-1 tabular-nums leading-none font-medium text-[11px] text-on-secondary-container">{count}</span> : null}
+        {count ? <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-secondary-container px-1 tabular-nums leading-none font-medium text-meta text-on-secondary-container">{count}</span> : null}
         <ChevronDownIcon aria-hidden="true" className="size-4 text-on-surface-variant transition-transform group-data-[state=closed]:-rotate-90" />
       </CollapsiblePrimitive.Trigger>
       <CollapsiblePrimitive.Content className="px-2 pb-3">{children}</CollapsiblePrimitive.Content>
@@ -292,7 +292,7 @@ export function DealsList() {
                   {Object.keys(TYPE_TAG).map((t) => (
                     <button
                       aria-pressed={types.includes(t)}
-                      className="state-layer focus-ring h-6 rounded-full border border-outline-strong px-2 text-label-md outline-none aria-pressed:border-selected-border aria-pressed:bg-secondary-container aria-pressed:text-on-secondary-container"
+                      className="state-layer focus-ring h-6 rounded-full border border-outline-strong px-2 text-label-lg outline-none aria-pressed:border-selected-border aria-pressed:bg-secondary-container aria-pressed:text-on-secondary-container"
                       key={t}
                       onClick={() => setTypes((x) => (x.includes(t) ? x.filter((y) => y !== t) : [...x, t]))}
                       type="button"
@@ -375,7 +375,7 @@ export function DealsList() {
           </>
         }
       >
-        <div className="flex items-center gap-2 border-b border-outline-variant px-4 py-1.5 text-body-sm text-on-surface-variant md:px-6">
+        <div className="flex items-center gap-2 border-b border-outline-variant px-4 py-1.5 text-body-md text-on-surface-variant md:px-6">
           <span>Preview state</span>
           <Segmented
             aria-label="Preview state"
@@ -473,7 +473,7 @@ export function DealsList() {
           renderSubRow={(d) => (
             <table className="w-full max-w-[720px] text-sm">
               <caption className="sr-only">Quote lines for {d.account}</caption>
-              <thead className="text-label-md text-on-surface-variant">
+              <thead className="text-meta-strong text-on-surface-variant">
                 <tr>
                   <th className="py-1 text-left font-normal" scope="col">SKU</th>
                   <th className="py-1 text-left font-normal" scope="col">Line</th>
@@ -485,7 +485,7 @@ export function DealsList() {
               <tbody>
                 {d.lines.map((l) => (
                   <tr className="border-t border-outline-variant" key={l.sku}>
-                    <td className="py-1.5 font-mono text-xs">{l.sku}</td>
+                    <td className="py-1.5 font-mono text-meta">{l.sku}</td>
                     <td className="py-1.5">{l.name}</td>
                     <td className="py-1.5 text-right tabular-nums">{usd(l.list)}</td>
                     <td className="py-1.5 text-right tabular-nums">{l.discount}%</td>

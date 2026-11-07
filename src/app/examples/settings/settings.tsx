@@ -132,7 +132,7 @@ export function Settings() {
 
         <div className="flex flex-col gap-1">
           <h2 className="text-label-lg font-semibold">Rules</h2>
-          <p className="text-body-sm font-medium text-on-surface-tertiary">Each rule sends a request to the named approver when it applies.</p>
+          <p className="text-body-md font-medium text-on-surface-tertiary">Each rule sends a request to the named approver when it applies.</p>
         </div>
         <div className="divide-y divide-outline-variant rounded-lg border border-outline-variant bg-card">
           {(Object.keys(POLICIES) as PolicyKey[]).map((k) => {
@@ -147,7 +147,7 @@ export function Settings() {
                       <Badge variant={p.on ? "success" : "default"}>{p.on ? "On" : "Off"}</Badge>
                       {isDirty(k) && <DirtyMark />}
                     </span>
-                    <span className="text-body-sm text-on-surface-variant">{t.description}</span>
+                    <span className="text-body-md text-on-surface-variant">{t.description}</span>
                   </div>
                   <Switch aria-label={`${t.title} ${p.on ? "on" : "off"}`} checked={p.on} onCheckedChange={(v) => set(k, { on: v })} />
                   {t.unit ? (

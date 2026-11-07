@@ -64,7 +64,7 @@ export function ChatColumn({ wide, className, ...props }: ComponentProps<"div"> 
 /** "Today 9:41 AM" between turns. */
 export function TimeDivider({ children }: { children: ReactNode }) {
   return (
-    <p className="flex items-center gap-3 text-label-md text-on-surface-tertiary before:h-px before:flex-1 before:bg-outline-faint after:h-px after:flex-1 after:bg-outline-faint" role="separator">
+    <p data-meta="divider" className="flex items-center gap-3 text-meta-strong text-on-surface-tertiary before:h-px before:flex-1 before:bg-outline-faint after:h-px after:flex-1 after:bg-outline-faint" role="separator">
       {children}
     </p>
   );
@@ -113,14 +113,14 @@ export function UserTurn({
         )}
         data-slot="user-bubble"
       >
-        <p className="flex items-baseline gap-2 text-body-sm">
-          <span className="text-label-md">{author}</span>
+        <p data-meta="timestamp" className="flex items-baseline gap-2 text-meta">
+          <span className="text-meta-strong">{author}</span>
           {time && status === "sent" && <time className="text-on-surface-variant">{time}</time>}
         </p>
         <div className={cn("text-body-lg whitespace-pre-wrap", status === "sending" && "text-on-surface-variant")}>{children}</div>
       </div>
       {(branch || status !== "sent" || onEdit) && (
-        <div className="flex min-h-6 items-center gap-1.5 text-body-sm text-on-surface-variant">
+        <div className="flex min-h-6 items-center gap-1.5 text-meta text-on-surface-variant">
           {branch}
           {status === "sending" && (
             <span className="inline-flex items-center gap-1" role="status">
@@ -159,7 +159,7 @@ export function UserTurn({
  * holding white cards. Use it for anything ACE says outside an answer (a thinking state, a note).
  */
 export function TurnBlock({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("flex min-w-0 flex-col gap-2 rounded-2xl bg-surface-container px-4 py-3", className)} data-slot="turn-block" {...props} />;
+  return <div className={cn("flex min-w-0 flex-col gap-2 rounded-2xl bg-inset px-4 py-3", className)} data-slot="turn-block" {...props} />;
 }
 
 /**
@@ -192,7 +192,7 @@ export function AssistantTurn({
       {(agent || process || lead) && (
         <TurnBlock>
           {agent && (
-            <div className="flex min-h-6 items-center gap-2 text-body-sm" data-slot="assistant-turn-header">
+            <div className="flex min-h-6 items-center gap-2 text-meta" data-slot="assistant-turn-header">
               {agent.mark ?? <AceMark size="sm" />}
               <span className="text-label-lg text-on-surface">{agent.name ?? "ACE"}</span>
               <Badge variant="ai">AI</Badge>
@@ -216,7 +216,7 @@ export function AssistantTurn({
 /** "2 of 3" for a message that was edited: each edit is a branch; older branches stay readable. */
 export function BranchSwitcher({ index, total, onPrevious, onNext }: { index: number; total: number; onPrevious?: () => void; onNext?: () => void }) {
   return (
-    <span className="inline-flex items-center gap-0.5 text-body-sm text-on-surface-variant" data-slot="branch-switcher">
+    <span className="inline-flex items-center gap-0.5 text-meta text-on-surface-variant" data-slot="branch-switcher">
       <GitBranchIcon aria-hidden className="mr-1 size-3.5" />
       <Button aria-label="Previous version" disabled={index <= 1} onClick={onPrevious} size="icon-xs" variant="ghost">
         <ChevronLeftIcon />
@@ -291,7 +291,7 @@ export function ToolCallRow({ call }: { call: ToolCall }) {
         aria-controls={canOpen ? id : undefined}
         aria-expanded={canOpen ? open : undefined}
         className={cn(
-          "focus-ring inline-flex min-h-6 w-fit max-w-full items-start gap-2 rounded-sm py-0.5 text-left text-body-sm outline-none [&>svg]:mt-0.5 [&>[data-slot=service-logo]]:mt-0.5",
+          "focus-ring inline-flex min-h-6 w-fit max-w-full items-start gap-2 rounded-sm py-0.5 text-left text-body-md outline-none [&>svg]:mt-0.5 [&>[data-slot=service-logo]]:mt-0.5",
           canOpen ? "cursor-pointer hover:text-on-surface" : "cursor-default"
         )}
         onClick={() => canOpen && setOpen((o) => !o)}
@@ -312,22 +312,22 @@ export function ToolCallRow({ call }: { call: ToolCall }) {
         {canOpen && <ChevronRightIcon aria-hidden className={cn("size-3.5 shrink-0 text-on-surface-tertiary transition-transform", open && "rotate-90")} />}
       </button>
       {canOpen && (
-        <dl className="ml-5.5 flex flex-col gap-2 rounded-lg bg-surface-container px-3 py-2.5 text-body-sm" hidden={!open} id={id}>
+        <dl className="ml-5.5 flex flex-col gap-2 rounded-lg bg-inset px-3 py-2.5 text-body-md" hidden={!open} id={id}>
           {call.input && (
             <div className="flex flex-col gap-0.5">
-              <dt className="text-label-md text-on-surface-tertiary">Asked</dt>
+              <dt className="text-label-lg text-on-surface-tertiary">Asked</dt>
               <dd className="text-on-surface-variant">{call.input}</dd>
             </div>
           )}
           {call.output && (
             <div className="flex flex-col gap-0.5">
-              <dt className="text-label-md text-on-surface-tertiary">Result</dt>
+              <dt className="text-label-lg text-on-surface-tertiary">Result</dt>
               <dd className="text-on-surface-variant">{call.output}</dd>
             </div>
           )}
           {call.note && (
             <div className="flex flex-col gap-0.5">
-              <dt className="text-label-md text-on-surface-tertiary">{call.state === "skipped" ? "Why" : "What happened"}</dt>
+              <dt className="text-label-lg text-on-surface-tertiary">{call.state === "skipped" ? "Why" : "What happened"}</dt>
               <dd className={call.state === "failed" ? "text-error" : "text-on-surface-variant"}>{call.note}</dd>
             </div>
           )}
@@ -362,7 +362,7 @@ export function WorkLog({ calls, title, defaultOpen, className }: { calls: ToolC
       <button
         aria-controls={id}
         aria-expanded={open}
-        className="focus-ring inline-flex min-h-6 w-fit items-center gap-1.5 rounded-sm text-body-sm text-on-surface-variant outline-none hover:text-on-surface"
+        className="focus-ring inline-flex min-h-6 w-fit items-center gap-1.5 rounded-sm text-body-md text-on-surface-variant outline-none hover:text-on-surface"
         onClick={() => setOpen((o) => !o)}
         type="button"
       >
@@ -404,7 +404,7 @@ export function StreamingText({ children, streaming, className }: { children: Re
 /** After Stop: what was finished and kept, and how to pick it back up. */
 export function StoppedNotice({ kept, onContinue, onDiscard }: { kept?: ReactNode[]; onContinue?: () => void; onDiscard?: () => void }) {
   return (
-    <div className="flex flex-col gap-2 rounded-2xl bg-surface-container px-4 py-3 text-sm" data-slot="stopped-notice" role="status">
+    <div className="flex flex-col gap-2 rounded-2xl bg-inset px-4 py-3 text-sm" data-slot="stopped-notice" role="status">
       <p className="flex items-center gap-2 text-label-lg font-semibold">
         <SquareIcon aria-hidden className="size-3.5 fill-current" /> You stopped ACE
       </p>
@@ -469,7 +469,7 @@ export function ReplyError({
               </Button>
             )}
             {actions}
-            {requestId && <span className="font-mono text-[12px] text-on-surface-variant">Request {requestId}</span>}
+            {requestId && <span className="font-mono text-meta text-on-surface-variant">Request {requestId}</span>}
           </>
         )
       }
@@ -515,7 +515,7 @@ export function Cite({ n, source }: { n: number; source: ChatSource }) {
       <PopoverTrigger asChild>
         <button
           aria-label={`Source ${n}: ${source.label}`}
-          className="focus-ring hit-area mx-0.5 inline-flex h-5 min-w-5 -translate-y-px items-center justify-center rounded-[4px] bg-surface-container-high px-1 align-middle font-mono text-xs leading-none text-on-surface-variant outline-none hover:bg-surface-container-highest hover:text-on-surface"
+          className="focus-ring hit-area mx-0.5 inline-flex h-5 min-w-5 -translate-y-px items-center justify-center rounded-[4px] bg-surface-container-high px-1 align-middle font-mono text-meta leading-none text-on-surface-variant outline-none hover:bg-surface-container-highest hover:text-on-surface"
           type="button"
         >
           {n}
@@ -534,8 +534,8 @@ function SourceDetail({ source }: { source: ChatSource }) {
         {source.system && <SystemMark system={source.system} />}
         {source.label}
       </p>
-      {(source.system || source.meta) && <p className="text-body-sm text-on-surface-variant">{[source.usedFor, source.system, source.meta].filter(Boolean).join(", ")}</p>}
-      {st.word && <p className={cn("inline-flex items-center gap-1.5 text-body-sm", st.cls)}>{st.icon && <st.icon aria-hidden className="size-3.5" />}{st.word}</p>}
+      {(source.system || source.meta) && <p data-meta="source" className="text-meta text-on-surface-variant">{[source.usedFor, source.system, source.meta].filter(Boolean).join(", ")}</p>}
+      {st.word && <p data-meta="source" className={cn("inline-flex items-center gap-1.5 text-meta", st.cls)}>{st.icon && <st.icon aria-hidden className="size-3.5" />}{st.word}</p>}
       {source.excerpt && <blockquote className="border-l-2 border-outline pl-3 text-sm text-on-surface">{source.excerpt}</blockquote>}
     </PopoverContent>
   );
@@ -563,7 +563,7 @@ export function Claim({ n, source, children }: { n: number; source: ChatSource; 
           type="button"
         >
           {children}
-          <sup className="ml-0.5 font-mono text-xs text-on-surface-variant">{n}</sup>
+          <sup className="ml-0.5 font-mono text-meta text-on-surface-variant">{n}</sup>
           <span className="sr-only">
             {`, source ${n}: ${source.label}`}
             {problem && `, ${problem}`}
@@ -604,7 +604,7 @@ export function AnswerSources({
     // A group, not a region: an answer list can hold many of these, and landmarks must be unique.
     <div
       aria-label={`${label} (${sources.length})`}
-      className={cn("flex min-w-0 flex-col gap-2 rounded-2xl bg-surface-container p-3", className)}
+      className={cn("flex min-w-0 flex-col gap-2 rounded-2xl bg-inset p-3", className)}
       data-slot="answer-sources"
       role="group"
     >
@@ -645,16 +645,16 @@ export function AnswerSources({
                 type="button"
               >
                 <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-container-lowest" data-slot="source-tile">
-                  {s.system ? <SystemMark system={s.system} /> : <span className="font-mono text-xs text-on-surface-variant">{i + 1}</span>}
+                  {s.system ? <SystemMark system={s.system} /> : <span className="font-mono text-meta text-on-surface-variant">{i + 1}</span>}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className={cn("text-label-lg", gone ? "text-on-surface-variant" : "text-on-tertiary-container", s.state === "deleted" && "line-through")}>
-                    <span className="mr-1.5 font-mono text-xs text-on-surface-variant">{i + 1}</span>
+                    <span className="mr-1.5 font-mono text-meta text-on-surface-variant">{i + 1}</span>
                     {s.label}
                   </span>
-                  <span className="text-body-sm text-on-surface-variant">{[s.usedFor, s.system, s.meta].filter(Boolean).join(", ")}</span>
+                  <span className="text-meta text-on-surface-variant">{[s.usedFor, s.system, s.meta].filter(Boolean).join(", ")}</span>
                   {st.word && (
-                    <span className={cn("mt-1 inline-flex items-center gap-1 text-body-sm", st.cls)}>
+                    <span className={cn("mt-1 inline-flex items-center gap-1 text-meta", st.cls)}>
                       {st.icon && <st.icon aria-hidden className="size-3.5" />}
                       {st.word}
                     </span>
@@ -701,11 +701,11 @@ export function ConflictCompare({
             )}
             <div className="flex flex-col gap-1 rounded-md bg-surface-container-lowest p-3 ring-1 ring-warning/60">
               <span className="text-title-sm text-on-surface">{it.value}</span>
-              <span className="flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+              <span className="flex items-center gap-1.5 text-meta text-on-surface-variant">
                 {it.system && <SystemMark system={it.system} />}
                 {it.source}
               </span>
-              {it.detail && <span className="text-body-sm text-on-surface-tertiary">{it.detail}</span>}
+              {it.detail && <span className="text-body-md text-on-surface-tertiary">{it.detail}</span>}
             </div>
           </div>
         ))}
@@ -762,7 +762,7 @@ export function ClarifyQuestion({
   const id = useId();
   if (state === "answered")
     return (
-      <div className="flex items-start gap-2.5 rounded-lg bg-surface-container p-3 text-sm" data-slot="clarify" data-state="answered">
+      <div className="flex items-start gap-2.5 rounded-lg bg-inset p-3 text-sm" data-slot="clarify" data-state="answered">
         <CheckCircle2Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-success" />
         <div className="flex flex-col gap-0.5">
           <p className="text-on-surface-variant">{prompt}</p>
@@ -774,7 +774,7 @@ export function ClarifyQuestion({
     );
   if (state === "deferred")
     return (
-      <div className="flex items-start gap-2.5 rounded-lg bg-surface-container p-3 text-sm" data-slot="clarify" data-state="deferred">
+      <div className="flex items-start gap-2.5 rounded-lg bg-inset p-3 text-sm" data-slot="clarify" data-state="deferred">
         <ClockIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-on-surface-variant" />
         <div className="flex flex-col gap-0.5">
           <p className="text-on-surface-variant">{prompt}</p>
@@ -789,7 +789,7 @@ export function ClarifyQuestion({
         <CircleHelpIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">
           {addressee && (
-            <p className="flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+            <p className="flex items-center gap-1.5 text-body-md text-on-surface-variant">
               <PersonAvatar name={addressee.name} size="xs" /> To {addressee.name}
               {addressee.role ? `, ${addressee.role}` : ""}
               {channel ? ` in ${channel}` : ""}
@@ -798,7 +798,7 @@ export function ClarifyQuestion({
           <p aria-hidden className="text-label-lg font-semibold" id={`${id}-q`}>
             {prompt}
           </p>
-          {why && <p className="text-body-sm text-on-surface-variant">{why}</p>}
+          {why && <p className="text-body-md text-on-surface-variant">{why}</p>}
         </div>
       </div>
       <RadioGroup aria-labelledby={`${id}-q`} className="gap-1 pl-6.5" onValueChange={setValue} value={value ?? ""}>
@@ -950,7 +950,7 @@ export function ActionReceipt({
           <r.icon aria-hidden className={cn("size-4", r.spin && "animate-spin motion-reduce:animate-none")} /> {r.word}
         </p>
       </div>
-      <ol aria-label="Progress" className="flex items-center gap-1.5 text-body-sm">
+      <ol aria-label="Progress" className="flex items-center gap-1.5 text-body-md">
         {steps.map((s, i) => {
           const reached = r.step > i || (state === "verified" && i === 2);
           const here = !reached && r.step === i && (state === "running" || state === "verifying");
@@ -1014,7 +1014,7 @@ export function DraftCard({
   const locked = state === "sending" || state === "sent";
   return (
     <article aria-label={`Draft in ${app}${subject ? `: ${subject}` : ""}`} className="flex flex-col overflow-hidden rounded-lg border border-edge bg-surface-container-lowest" data-slot="draft-card" data-state={state}>
-      <header className="flex items-center gap-2 border-b border-outline-variant bg-surface-container-low px-3.5 py-2 text-body-sm text-on-surface-variant">
+      <header className="flex items-center gap-2 border-b border-outline-variant bg-surface-container-low px-3.5 py-2 text-meta text-on-surface-variant">
         <SystemMark system={app} /> Draft in {app}
         {w && (
           <span aria-live="polite" className={cn("ml-auto inline-flex items-center gap-1", w.cls)}>
@@ -1028,7 +1028,7 @@ export function DraftCard({
           {to.map((p) => (
             <span className={cn("inline-flex items-center gap-1 rounded-sm px-1.5", p.external ? "bg-warning-container text-on-warning-container" : "bg-surface-container")} key={p.name}>
               {p.name}
-              {p.external && <span className="text-body-sm">(external)</span>}
+              {p.external && <span className="text-body-md">(external)</span>}
             </span>
           ))}
         </dd>
@@ -1061,7 +1061,7 @@ export function DraftCard({
       )}
       {!locked && (onSend || onSave || note) && (
         <footer className="flex flex-wrap items-center gap-2 border-t border-outline-variant bg-surface-container-low px-3.5 py-2.5">
-          {note && <span className="mr-auto text-body-sm text-on-surface-variant">{note}</span>}
+          {note && <span className="mr-auto text-body-md text-on-surface-variant">{note}</span>}
           {onSave && (
             <Button disabled={state === "saving"} onClick={onSave} size="sm" variant="secondary">
               Save draft
@@ -1085,11 +1085,11 @@ export function QueuedFollowUps({ items, onEdit, onRemove }: { items: { id: stri
   if (!items.length) return null;
   return (
     <section aria-label="Queued messages" className="flex flex-col gap-1 rounded-lg border border-dashed border-outline bg-surface-container-lowest p-2" data-slot="queued">
-      <p className="px-1.5 text-label-md text-on-surface-tertiary">Sends after ACE finishes ({items.length})</p>
+      <p className="px-1.5 text-label-lg text-on-surface-tertiary">Sends after ACE finishes ({items.length})</p>
       <ol className="flex flex-col">
         {items.map((it, i) => (
           <li className="flex min-h-8 items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-surface-container-low" key={it.id}>
-            <span className="w-4 font-mono text-xs text-on-surface-tertiary">{i + 1}</span>
+            <span className="w-4 font-mono text-meta text-on-surface-tertiary">{i + 1}</span>
             <span className="min-w-0 flex-1">{it.text}</span>
             {onEdit && (
               <Button aria-label={`Edit: ${it.text}`} onClick={() => onEdit(it.id)} size="icon-xs" variant="ghost">
@@ -1135,7 +1135,7 @@ export function ModeSwitch({
   const id = useId();
   return (
     <fieldset className="flex flex-col gap-1.5" data-slot="mode-switch">
-      <legend className="mb-1 text-label-md text-on-surface-variant">How ACE works here</legend>
+      <legend className="mb-1 text-label-lg text-on-surface-variant">How ACE works here</legend>
       <RadioGroup className="gap-1" onValueChange={(v) => onValueChange(v as AceMode)} value={value}>
         {MODES.map((m) => {
           const blocked = order.indexOf(m.value) > order.indexOf(ceiling);
@@ -1152,7 +1152,7 @@ export function ModeSwitch({
               <RadioGroupItem className="mt-0.5" disabled={blocked} id={`${id}-${m.value}`} value={m.value} />
               <span className="flex flex-col">
                 <span className="text-on-surface">{m.label}</span>
-                <span className="text-body-sm text-on-surface-variant">{blocked ? ceilingReason : m.detail}</span>
+                <span className="text-body-md text-on-surface-variant">{blocked ? ceilingReason : m.detail}</span>
               </span>
             </label>
           );
@@ -1189,7 +1189,7 @@ export function ComposerNotice({
   return (
     <div
       aria-live={live ? "polite" : undefined}
-      className={cn("flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-body-sm", NOTICE_TONE[tone])}
+      className={cn("flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-body-md", NOTICE_TONE[tone])}
       data-slot="composer-notice"
       role={live ? "status" : undefined}
     >
@@ -1299,9 +1299,9 @@ export function ConversationListItem({
           <span className={cn("min-w-0 flex-1 truncate text-sm", unread ? "font-semibold text-on-surface" : "text-on-surface")} title={title}>
             {title}
           </span>
-          {time && <span className="shrink-0 text-body-sm text-on-surface-tertiary">{time}</span>}
+          {time && <span className="shrink-0 text-meta text-on-surface-tertiary">{time}</span>}
         </span>
-        <span className="flex items-center gap-1.5 text-body-sm">
+        <span className="flex items-center gap-1.5 text-meta">
           {meta && <span className="truncate text-on-surface-variant">{meta}</span>}
           {c.word && (
             <span className={cn("inline-flex shrink-0 items-center gap-1", c.cls)}>
@@ -1352,7 +1352,15 @@ export function ChatWelcome({
           ))}
         </ul>
       )}
-      {tasks && <div className="grid w-full gap-2 text-left sm:grid-cols-2">{tasks}</div>}
+      {/* v0.7: sized by the space it has, not the viewport. Under 28rem (a side panel) the tasks
+          are rows of one list; from 28rem they are cards, two up. */}
+      {tasks && (
+        <div className="@container/welcome w-full">
+          <div className="grid w-full gap-2 text-left @max-[28rem]/welcome:gap-0 @max-[28rem]/welcome:divide-y @max-[28rem]/welcome:divide-outline-variant @max-[28rem]/welcome:border-y @max-[28rem]/welcome:border-outline-variant @[28rem]/welcome:grid-cols-2" data-slot="chat-welcome-tasks">
+            {tasks}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1360,14 +1368,17 @@ export function ChatWelcome({
 /** A proactive task ACE prepared: what it is, why now, one action. */
 export function ProactiveTask({ title, reason, meta, action, onAction, tone = "default" }: { title: string; reason: ReactNode; meta?: string; action: string; onAction?: () => void; tone?: "default" | "urgent" }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-edge bg-card p-3.5" data-slot="proactive-task">
+    <div
+      className="flex flex-col gap-2 rounded-lg border border-edge bg-card p-4 @max-[28rem]/welcome:rounded-none @max-[28rem]/welcome:border-0 @max-[28rem]/welcome:bg-transparent @max-[28rem]/welcome:px-1 @max-[28rem]/welcome:py-3"
+      data-slot="proactive-task"
+    >
       <div className="flex items-start gap-2">
-        <p className="min-w-0 flex-1 text-label-lg">{title}</p>
+        <p className="line-clamp-2 min-w-0 flex-1 text-title-sm [overflow-wrap:break-word]">{title}</p>
         {tone === "urgent" && <Badge variant="warning">Due today</Badge>}
       </div>
-      <p className="text-body-sm text-on-surface-variant">{reason}</p>
+      <p className="text-body-md text-on-surface-variant @max-[28rem]/welcome:line-clamp-2">{reason}</p>
       <div className="mt-auto flex items-center gap-2 pt-1">
-        {meta && <span className="mr-auto text-body-sm text-on-surface-tertiary">{meta}</span>}
+        {meta && <span className="mr-auto text-meta text-on-surface-tertiary">{meta}</span>}
         <Button className="ml-auto" onClick={onAction} size="sm" variant="secondary">
           {action}
         </Button>

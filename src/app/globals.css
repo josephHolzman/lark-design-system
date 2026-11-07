@@ -407,6 +407,88 @@
   --tint-iris-strong: var(--lark-iris-d20);
 }
 
+/*
+  Surfaces (v0.7, revised Nov 7 after Cohere). Lightness steps sampled from Cohere's North UI
+  (product screenshots): working area #fafafa, rail and inset blocks #f2f2f2, cards white with
+  a ~10% hairline. The steps are gentle on purpose; the module's edge does part of the work.
+  canvas → module (SectionCard, Card) → inset (groups, trays inside a module) → item.
+  light  canvas linen-98 #fbfaf7 (L .985) · module white (1.000) · inset linen-95 #f3f2ef (.961)
+  dusk   canvas dusk-100 (L .134) · module dusk-300 (.189) · inset dusk-400 (.212)
+  The light surface-container ramp moves to the same linen steps (was paper, and stone for insets).
+  Checked by tests/v07-foundations.test.tsx: the inset is ≥ 0.02 OKLCH lightness from the module
+  and from the canvas, the module ≥ 0.01 from the canvas (plus its edge), and on-surface,
+  -variant and -tertiary keep 4.5:1 on every step.
+  Feature modules are tinted (iris = AI, sky = decision); status modules use the status
+  containers. Text on a tint is on-surface.
+*/
+:root {
+  /* linen: Cohere's lightness steps with a faint sand cast (OKLCH chroma .0045, hue 85;
+     stone-150 was .0144, paper .0029), so the greys stay Lark-warm without reading as sand. */
+  --lark-linen-98: #fbfaf7;
+  --lark-linen-96: #f6f5f2;
+  --lark-linen-95: #f3f2ef;
+  --lark-linen-92: #ecebe8;
+  --module: #ffffff;
+  --inset: var(--lark-linen-95);
+  --edge: #1e1b181c;
+  --module-feature-iris: var(--tint-iris);
+  --module-feature-sky: var(--tint-sky);
+  /* Spacing (v0.7): module padding and gaps 24, 16 when the viewport is under 640 or the
+     module itself is under 30rem (see .lark-module below); items 16 apart; rows 12. */
+  --module-padding: 1.5rem;
+  --module-gap: 1.5rem;
+  --item-gap: 1rem;
+  --row-padding: 0.75rem;
+  /* Open decisions (0.7): module title 18 or 20, module radius 12 or 16. The defaults are the
+     current proposal; [data-lark-module-title] and [data-lark-module-radius] preview the other. */
+  --module-title-size: 1.25rem;
+  --module-title-line: 1.75rem;
+  --module-radius: 16px;
+}
+/* Light only: :root alone would also win over the generated .dark block, which comes earlier. */
+:root:not(.dark) {
+  --canvas: var(--lark-linen-98);
+  --surface-container-low: var(--lark-linen-98);
+  --surface-container: var(--lark-linen-96);
+  --surface-container-high: var(--lark-linen-95);
+  --surface-container-highest: var(--lark-linen-92);
+}
+.dark {
+  --module: var(--lark-dusk-300);
+  --inset: var(--lark-dusk-400);
+  --edge: var(--outline-faint);
+  --card: var(--module);
+}
+@media (max-width: 639.98px) {
+  :root {
+    --module-padding: 1rem;
+    --module-gap: 1rem;
+  }
+}
+[data-lark-module-title="18"] {
+  --module-title-size: 1.125rem;
+  --module-title-line: 1.625rem;
+}
+[data-lark-module-title="20"] {
+  --module-title-size: 1.25rem;
+  --module-title-line: 1.75rem;
+}
+[data-lark-module-radius="12"] {
+  --module-radius: 12px;
+}
+[data-lark-module-radius="16"] {
+  --module-radius: 16px;
+}
+/* A module is a size container; under 30rem its padding drops to 16. */
+.lark-module {
+  container: lark-module / inline-size;
+}
+@container lark-module (max-width: 29.99rem) {
+  .lark-module > * {
+    --module-padding: 1rem;
+  }
+}
+
 /* Motion (Beams): 120ms ease-in-out for colour and border changes; longer for movement. */
 :root {
   --radius: 8px; /* Beams sm; shadcn classes that compute from it */
@@ -583,7 +665,34 @@
   --color-outline-faint: var(--outline-faint);
   /* v0.6.1: the edge of a card on the canvas. A whisper: the fill change does the work.
      Dividers inside a surface stay outline-variant; controls keep outline (3:1). */
-  --color-edge: var(--outline-faint);
+  --color-edge: var(--edge);
+  /* v0.7 surfaces, spacing and the module title (see the Surfaces block). */
+  --color-module: var(--module);
+  --color-inset: var(--inset);
+  --color-module-feature-iris: var(--module-feature-iris);
+  --color-module-feature-sky: var(--module-feature-sky);
+  --spacing-module: var(--module-padding);
+  --spacing-module-gap: var(--module-gap);
+  --spacing-item: var(--item-gap);
+  --spacing-row: var(--row-padding);
+  --radius-module: var(--module-radius);
+  --text-title-module: var(--module-title-size);
+  --text-title-module--line-height: var(--module-title-line);
+  --text-title-module--font-weight: 450;
+  --text-title-module--letter-spacing: -0.01em;
+  /*
+    Meta (v0.7): the only 12px roles. For metadata, never sentences: timestamps, counts in
+    chips, table meta and column heads, figure captions and legends, footnotes, sources,
+    eyebrows, menu group labels, avatar initials. scripts/lark-lint.mjs fails a raw 12px
+    class (text-xs, text-body-sm, text-label-md, text-subtext) anywhere in Lark, and a
+    text-meta on a sentence (a <p>/<li>/<label>/<legend> without data-meta, or a
+    description, help, detail, note, reason or message).
+  */
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.125rem;
+  --text-meta-strong: 0.75rem;
+  --text-meta-strong--line-height: 1.125rem;
+  --text-meta-strong--font-weight: 450;
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
   --color-brand-pressed: var(--brand-pressed);

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, CheckIcon, ChevronDownIcon, StarIcon, UsersIcon, XIcon } from "lucide-react";
+import { AlertTriangleIcon, ArrowRightIcon, CheckIcon, CircleAlertIcon, CircleCheckIcon, ChevronDownIcon, InfoIcon, StarIcon, UsersIcon, XIcon } from "lucide-react";
 import { Collapsible as CollapsiblePrimitive, RadioGroup as RadioGroupPrimitive } from "radix-ui";
 import { type ComponentProps, type ReactNode, useId, useState } from "react";
 
@@ -49,12 +49,31 @@ export type SectionCardProps = Omit<ComponentProps<"section">, "title"> & {
    * stacked sections (a quote's lines, terms, approvals) reads as separate parts. Not tan:
    * tan means selected.
    */
-  variant?: "default" | "strip";
+  variant?: "default" | "strip" | "feature" | "status";
+  /**
+   * v0.7. `feature`: iris (AI: an ACE answer, a recommendation) or sky (a decision the reader
+   * makes). `status`: warning, error, success or info. A status module always shows its icon
+   * tile and its title says the status, so the tint is never the only signal (WCAG 1.4.1).
+   */
+  tone?: "iris" | "sky" | "warning" | "error" | "success" | "info";
+  /** v0.7: an icon in a 32px tile before the title. Status modules default to their status icon. */
+  icon?: ReactNode;
 };
 
+const MODULE_TONE = {
+  iris: { shell: "border-ai-border/40 bg-module-feature-iris", tile: "bg-tertiary-container text-on-tertiary-container" },
+  sky: { shell: "border-primary/30 bg-module-feature-sky", tile: "bg-primary-container text-on-primary-container" },
+  warning: { shell: "border-warning/50 bg-tint-ember", tile: "bg-warning-container text-on-warning-container" },
+  error: { shell: "border-error/50 bg-tint-coral", tile: "bg-error-container text-on-error-container" },
+  success: { shell: "border-success/50 bg-tint-evergreen", tile: "bg-success-container text-on-success-container" },
+  info: { shell: "border-primary/30 bg-tint-sky", tile: "bg-primary-container text-on-primary-container" },
+} as const;
+const STATUS_ICON = { warning: AlertTriangleIcon, error: CircleAlertIcon, success: CircleCheckIcon, info: InfoIcon } as const;
+
 /**
- * Beams section card: white, radius 12, ink 8% edge, no shadow. Title 16/24 at a 16px
- * inset; actions right; optional tabs on the header edge; collapsible like Apollo's
+ * The module (v0.7): white (dusk-300 in dusk), radius --module-radius, 24px padding (16 when
+ * the module is under 30rem or the viewport under 640), title at the module step (18 or 20,
+ * see --module-title-size). The title says the module's job. Title 2 lines at most; actions right; optional tabs on the header edge; collapsible like Apollo's
  * record cards (the toggle is a real button with aria-expanded and aria-controls).
  */
 export function SectionCard({
@@ -74,6 +93,8 @@ export function SectionCard({
   keepActionWhenClosed,
   link,
   variant = "default",
+  tone,
+  icon,
   className,
   children,
   ...props
@@ -88,24 +109,38 @@ export function SectionCard({
     onOpenChange?.(o);
   };
 
+  const toneKey = tone ?? (variant === "feature" ? "iris" : variant === "status" ? "info" : undefined);
+  const toned = toneKey && (variant === "feature" || variant === "status") ? MODULE_TONE[toneKey] : undefined;
+  const StatusIcon = variant === "status" && toneKey && toneKey in STATUS_ICON ? STATUS_ICON[toneKey as keyof typeof STATUS_ICON] : undefined;
+  const tileIcon = icon ?? (StatusIcon ? <StatusIcon /> : null);
+
   const header = (
     <header
       className={cn(
-        "flex flex-wrap items-start gap-x-3 gap-y-2 px-4",
-        strip ? "min-h-10 items-center border-b border-outline-variant bg-surface-container-low py-2" : "pt-3 pb-3",
+        "flex flex-wrap items-start gap-x-3 gap-y-2 px-module",
+        strip ? "min-h-12 items-center border-b border-outline-variant bg-inset/60 py-3" : "pt-module pb-4",
         strip && collapsible && !open && "border-b-0"
       )}
     >
-      <div className="flex min-w-[min(12rem,100%)] flex-1 flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <H className={strip ? "text-label-lg" : "text-title-sm"} id={id}>
+      {tileIcon && (
+        <span
+          aria-hidden="true"
+          className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md [&>svg]:size-4", toned?.tile ?? "bg-inset text-on-surface-variant")}
+          data-slot="module-icon"
+        >
+          {tileIcon}
+        </span>
+      )}
+      <div className="flex min-w-[min(12rem,100%)] flex-1 flex-col gap-1">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <H className="line-clamp-2 min-w-0 text-title-module text-on-surface [overflow-wrap:break-word]" id={id}>
             {title}
           </H>
           {collapsible && !open && collapsedSummary && (
-            <span className="text-body-sm text-on-surface-variant">{collapsedSummary}</span>
+            <span className="shrink-0 text-meta text-on-surface-variant">{collapsedSummary}</span>
           )}
         </div>
-        {description && open && <p className="text-body-sm text-on-surface-variant">{description}</p>}
+        {description && open && <p className="text-body-md text-on-surface-variant">{description}</p>}
       </div>
       {(action || collapsible) && (
         <div className="-my-0.5 flex shrink-0 items-center gap-1">
@@ -124,10 +159,10 @@ export function SectionCard({
 
   const body = (
     <>
-      {tabs && <div className="border-b border-outline-variant px-4">{tabs}</div>}
-      <div className={cn("flex min-w-0 flex-1 flex-col", !flush && "px-4 pb-4", (tabs || strip) && !flush && "pt-4")}>{children}</div>
+      {tabs && <div className="border-b border-outline-variant px-module">{tabs}</div>}
+      <div className={cn("flex min-w-0 flex-1 flex-col", !flush && "px-module pb-module", (tabs || strip) && !flush && "pt-module")}>{children}</div>
       {(footer || link) && (
-        <footer className="flex min-h-11 flex-wrap items-center gap-2 border-t border-outline-variant px-4 py-2 text-body-sm text-on-surface-variant">
+        <footer className="flex min-h-12 flex-wrap items-center gap-2 border-t border-outline-variant px-module py-3 text-body-md text-on-surface-variant">
           {footer}
           {link && <CardLink className={footer ? "ml-auto" : undefined} {...link} />}
         </footer>
@@ -136,13 +171,14 @@ export function SectionCard({
   );
 
   const cls = cn(
-    "flex min-w-0 flex-col overflow-hidden rounded-lg border border-edge bg-card text-card-foreground",
+    "lark-module flex min-w-0 flex-col overflow-hidden rounded-module border text-card-foreground",
+    toned ? toned.shell : "border-edge bg-module",
     className
   );
 
   if (!collapsible) {
     return (
-      <section aria-labelledby={id} className={cls} data-slot="section-card" data-variant={variant} {...props}>
+      <section aria-labelledby={id} className={cls} data-slot="section-card" data-tone={toned ? toneKey : undefined} data-variant={variant} {...props}>
         {header}
         {body}
       </section>
@@ -150,7 +186,7 @@ export function SectionCard({
   }
   return (
     <CollapsiblePrimitive.Root asChild onOpenChange={setOpen} open={open}>
-      <section aria-labelledby={id} className={cls} data-slot="section-card" data-state={open ? "open" : "closed"} data-variant={variant} {...props}>
+      <section aria-labelledby={id} className={cls} data-slot="section-card" data-state={open ? "open" : "closed"} data-tone={toned ? toneKey : undefined} data-variant={variant} {...props}>
         {header}
         <CollapsiblePrimitive.Content className="flex min-w-0 flex-col data-[state=closed]:hidden">{body}</CollapsiblePrimitive.Content>
       </section>
@@ -254,7 +290,7 @@ export function ActionCard({ icon, tone = "primary", title, description, meta, a
       <div className="flex items-start gap-3">
         {icon && <IconChip tone={tone}>{icon}</IconChip>}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className="text-label-lg">
+          <div className="text-title-sm">
             {href ? (
               <Link className="outline-none after:absolute after:inset-0 after:content-['']" href={href}>
                 {title}
@@ -263,8 +299,8 @@ export function ActionCard({ icon, tone = "primary", title, description, meta, a
               title
             )}
           </div>
-          {description && <p className="text-body-sm text-on-surface-variant">{description}</p>}
-          {meta && <div className="mt-1 flex flex-wrap items-center gap-2 text-body-sm text-on-surface-variant">{meta}</div>}
+          {description && <p className="text-body-md text-on-surface-variant">{description}</p>}
+          {meta && <div className="mt-1 flex flex-wrap items-center gap-2 text-meta text-on-surface-variant">{meta}</div>}
           {action && <div className="relative z-10 mt-2 flex flex-wrap items-center gap-2">{action}</div>}
         </div>
       </div>
@@ -296,7 +332,7 @@ export function TemplateCard({ tags, title, description, footer, href, onSelect,
     <>
       {tags && <span className="flex flex-wrap gap-1">{tags}</span>}
       <span className="text-title-sm">{title}</span>
-      {description && <span className="line-clamp-2 text-body-sm text-on-surface-variant">{description}</span>}
+      {description && <span className="line-clamp-2 text-body-md text-on-surface-variant">{description}</span>}
     </>
   );
   const cls = cn(
@@ -359,7 +395,7 @@ export function ChecklistCard({
             </div>
             {description && <p className="text-sm text-on-surface-variant">{description}</p>}
           </div>
-          <span className="pt-1 text-body-sm whitespace-nowrap text-on-surface-variant tabular-nums">
+          <span className="pt-1 text-meta whitespace-nowrap text-on-surface-variant tabular-nums">
             {done} of {items.length} completed
           </span>
           <CollapsiblePrimitive.Trigger asChild>
@@ -386,7 +422,7 @@ export function ChecklistCard({
                     {it.title}
                     <span className="sr-only">{it.done ? ", done" : ", not done"}</span>
                   </span>
-                  {it.description && <span className="text-body-sm text-on-surface-variant">{it.description}</span>}
+                  {it.description && <span className="text-body-md text-on-surface-variant">{it.description}</span>}
                 </div>
                 {!it.done && it.action}
               </li>
@@ -407,10 +443,10 @@ export function ChecklistCard({
 export function BestFor({ items, label = "Best for", className }: { items: string[]; label?: string; className?: string }) {
   return (
     <div className={cn("mt-1.5 flex flex-col gap-1 border-t border-outline-faint pt-1.5", className)} data-slot="best-for">
-      <span className="text-label-md text-on-surface-variant">{label}</span>
+      <span className="text-label-lg text-on-surface-variant">{label}</span>
       <ul className="flex flex-col gap-0.5">
         {items.map((it) => (
-          <li className="flex items-start gap-1.5 text-body-sm text-on-surface" key={it}>
+          <li className="flex items-start gap-1.5 text-body-md text-on-surface" key={it}>
             <CheckIcon aria-hidden className="mt-0.5 size-3.5 shrink-0 text-on-surface-variant" />
             {it}
           </li>
@@ -454,7 +490,7 @@ export function ChoiceCard({
   const id = useId();
   return (
     <div className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="choice-card">
-      <p className="px-4 pt-3 text-body-sm text-on-surface-variant" id={id}>
+      <p className="px-4 pt-3 text-body-md text-on-surface-variant" id={id}>
         {prompt}
       </p>
       <RadioGroupPrimitive.Root
@@ -480,7 +516,7 @@ export function ChoiceCard({
                 {c.label}
                 {c.recommended && <Badge variant="success">Recommended</Badge>}
               </span>
-              {c.description && <span className="text-body-sm text-on-surface-variant">{c.description}</span>}
+              {c.description && <span className="text-body-md text-on-surface-variant">{c.description}</span>}
               {c.bestFor && c.bestFor.length > 0 && <BestFor items={c.bestFor} />}
             </span>
           </label>
@@ -488,7 +524,7 @@ export function ChoiceCard({
       </RadioGroupPrimitive.Root>
       <div className="flex justify-end border-t border-outline-variant p-2">
         {submitted ? (
-          <span className="flex items-center gap-1.5 px-2 py-1.5 text-body-sm text-on-surface-variant" role="status">
+          <span className="flex items-center gap-1.5 px-2 py-1.5 text-body-md text-on-surface-variant" role="status">
             <CheckIcon className="size-4" /> Sent
           </span>
         ) : (
@@ -549,8 +585,8 @@ export function PromoCard({
     >
       {media && <div className="hidden shrink-0 overflow-hidden rounded-md sm:block">{media}</div>}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <T className="text-label-lg">{title}</T>
-        {description && <span className="text-body-sm text-on-surface-variant">{description}</span>}
+        <T className="text-title-sm">{title}</T>
+        {description && <span className="text-body-md text-on-surface-variant">{description}</span>}
         {action && <div className="mt-1">{action}</div>}
       </div>
       {onDismiss && (
@@ -594,14 +630,14 @@ export function EntityCard({
             <span className="truncate text-title-sm">{name}</span>
             {status}
           </div>
-          {meta && <span className="text-body-sm text-on-surface-variant">{meta}</span>}
+          {meta && <span className="text-meta text-on-surface-variant">{meta}</span>}
         </div>
       </div>
       {facts && (
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
           {facts.map((f, i) => (
             <div className="contents" key={i}>
-              <dt className="text-label-md text-on-surface-tertiary">{f.label}</dt>
+              <dt className="text-body-md text-on-surface-variant">{f.label}</dt>
               <dd className="min-w-0 truncate text-sm">{f.value}</dd>
             </div>
           ))}
@@ -687,7 +723,7 @@ export function ObjectCard({ identity, title, byline, badge, description, facts,
             </H>
             {badge}
           </div>
-          {byline && <p className="text-body-sm text-on-surface-variant">{byline}</p>}
+          {byline && <p data-meta="byline" className="text-meta text-on-surface-variant">{byline}</p>}
         </div>
         {(onStarredChange || menu) && (
           <div className="relative z-10 -mt-1 -mr-1.5 flex shrink-0 items-center">
@@ -718,13 +754,13 @@ export function ObjectCard({ identity, title, byline, badge, description, facts,
 export function ObjectFact({ kind = "count", icon, children, label }: { kind?: "version" | "count"; icon?: ReactNode; children: ReactNode; label?: string }) {
   if (kind === "version")
     return (
-      <span className="inline-flex h-6 items-center rounded-[6px] bg-surface-container-high px-1.5 font-mono text-label-md text-on-surface" data-slot="object-fact">
+      <span className="inline-flex h-6 items-center rounded-[6px] bg-surface-container-high px-1.5 font-mono text-meta-strong text-on-surface" data-slot="object-fact">
         {label && <span className="sr-only">{label} </span>}
         {children}
       </span>
     );
   return (
-    <span className="inline-flex h-6 items-center gap-1 text-body-sm text-on-surface-variant tabular-nums" data-slot="object-fact">
+    <span className="inline-flex h-6 items-center gap-1 text-meta text-on-surface-variant tabular-nums" data-slot="object-fact">
       <span aria-hidden className="[&_svg]:size-3.5">{icon ?? <UsersIcon />}</span>
       {children}
       {label && <span className="sr-only"> {label}</span>}

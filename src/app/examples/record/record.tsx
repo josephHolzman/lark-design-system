@@ -141,7 +141,7 @@ export function DealRecord() {
                 <>
                   <span>Renewal</span>
                   <span>Priya Raman</span>
-                  <span className="font-mono text-xs">OPP-20431 · R4</span>
+                  <span className="font-mono text-meta">OPP-20431 · R4</span>
                   <span>Synced from Salesforce 2 min ago</span>
                 </>
               }

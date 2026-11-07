@@ -5,6 +5,9 @@ import { type ComponentProps, type ReactNode } from "react";
 import { ToggleGroup as ToggleGroupPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+import { MoreLabel, OverflowMeasure, splitOverflow, useOverflow } from "./overflow";
 
 /* ---------------------------------------------------------------- FilterBar */
 
@@ -122,7 +125,7 @@ export function FilterChip({
 /** "24 deals" pushed to the end of the bar and announced politely when it changes. */
 export function FilterCount({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span aria-live="polite" className={cn("ml-auto text-body-sm whitespace-nowrap text-on-surface-variant tabular-nums", className)}>
+    <span aria-live="polite" className={cn("ml-auto text-meta whitespace-nowrap text-on-surface-variant tabular-nums", className)}>
       {children}
     </span>
   );
@@ -130,7 +133,7 @@ export function FilterCount({ children, className }: { children: ReactNode; clas
 
 /* ---------------------------------------------------------------- Segmented */
 
-export type SegmentedOption = { value: string; label: ReactNode; icon?: ReactNode; ariaLabel?: string };
+export type SegmentedOption = { value: string; label: ReactNode; icon?: ReactNode; ariaLabel?: string; /** v0.7: a count after the label (filters). */ count?: number };
 
 export type SegmentedProps = {
   options: SegmentedOption[];
@@ -147,30 +150,71 @@ export type SegmentedProps = {
  * black fill, so it never outweighs the page's main action. Single choice, so Radix
  * renders radio semantics.
  */
-export function Segmented({ options, value, onValueChange, size = "sm", className, ...aria }: SegmentedProps) {
+const SEG_ITEM =
+  "state-layer [--state-hover:0.05] focus-ring relative inline-flex h-full shrink-0 items-center justify-center gap-1.5 rounded-[6px] px-3 text-label-lg whitespace-nowrap text-on-surface-variant outline-none focus-visible:z-10 [&_svg]:size-4";
+const SEG_ON =
+  "bg-surface-container-lowest text-on-surface ring-1 ring-outline-strong [--state-hover:0] dark:bg-surface-container-highest";
+
+function SegLabel({ o }: { o: SegmentedOption }) {
   return (
-    <ToggleGroupPrimitive.Root
-      aria-label={aria["aria-label"]}
-      className={cn("inline-flex shrink-0 items-stretch gap-0.5 rounded-md bg-surface-container-high p-0.5", size === "sm" ? "h-8" : "h-[34px]", className)}
-      onValueChange={(v) => v && onValueChange(v)}
-      type="single"
-      value={value}
-    >
-      {options.map((o) => (
-        <ToggleGroupPrimitive.Item
-          aria-label={o.ariaLabel}
-          className={cn(
-            "state-layer [--state-hover:0.05] focus-ring relative inline-flex h-full items-center justify-center gap-1.5 rounded-[6px] px-3 text-label-lg text-on-surface-variant outline-none focus-visible:z-10",
-            "data-[state=on]:bg-surface-container-lowest data-[state=on]:text-on-surface data-[state=on]:ring-1 data-[state=on]:ring-outline-strong data-[state=on]:[--state-hover:0] dark:data-[state=on]:bg-surface-container-highest",
-            "[&_svg]:size-4"
-          )}
-          key={o.value}
-          value={o.value}
-        >
-          {o.icon && <span aria-hidden="true">{o.icon}</span>}
-          {o.label}
-        </ToggleGroupPrimitive.Item>
-      ))}
-    </ToggleGroupPrimitive.Root>
+    <>
+      {o.icon && <span aria-hidden="true">{o.icon}</span>}
+      {o.label}
+      {o.count != null && <span className="font-mono text-meta tabular-nums text-on-surface-variant">{o.count}</span>}
+    </>
+  );
+}
+
+export function Segmented({ options, value, onValueChange, size = "sm", className, ...aria }: SegmentedProps) {
+  // v0.7: never wraps. Options that don't fit go into "More"; the selected one stays in the track.
+  const pinned = options.findIndex((o) => o.value === value);
+  const { containerRef, measureRef, visible } = useOverflow(options.length, pinned, 4);
+  const { shown, hidden } = splitOverflow(options, visible, pinned);
+  return (
+    // The outer box takes the width it's given (the track inside is only as wide as its items),
+    // so what fits is measured against the space, not against what is already shown.
+    <div className={cn("relative flex w-full min-w-0", className)} data-slot="segmented" ref={containerRef as React.RefObject<HTMLDivElement>}>
+    <div className={cn("inline-flex max-w-full min-w-0 items-stretch gap-0.5 rounded-md bg-surface-container-high p-0.5", size === "sm" ? "h-8" : "h-[34px]")}>
+      <ToggleGroupPrimitive.Root
+        aria-label={aria["aria-label"]}
+        className="flex min-w-0 items-stretch gap-0.5"
+        onValueChange={(v) => v && onValueChange(v)}
+        type="single"
+        value={value}
+      >
+        {shown.map((o) => (
+          <ToggleGroupPrimitive.Item aria-label={o.ariaLabel} className={cn(SEG_ITEM, "data-[state=on]:bg-surface-container-lowest data-[state=on]:text-on-surface data-[state=on]:ring-1 data-[state=on]:ring-outline-strong data-[state=on]:[--state-hover:0] dark:data-[state=on]:bg-surface-container-highest")} key={o.value} value={o.value}>
+            <SegLabel o={o} />
+          </ToggleGroupPrimitive.Item>
+        ))}
+      </ToggleGroupPrimitive.Root>
+      {hidden.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger aria-label={`More options for ${aria["aria-label"]}`} className={SEG_ITEM} data-slot="segmented-more">
+            <MoreLabel count={hidden.length} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuRadioGroup onValueChange={onValueChange} value={value}>
+              {hidden.map((o) => (
+                <DropdownMenuRadioItem key={o.value} value={o.value}>
+                  <SegLabel o={o} />
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </div>
+      <OverflowMeasure className="gap-0.5" measureRef={measureRef}>
+        {options.map((o) => (
+          <span className={cn(SEG_ITEM, SEG_ON)} key={o.value}>
+            <SegLabel o={o} />
+          </span>
+        ))}
+        <span className={SEG_ITEM}>
+          More <ChevronDownIcon className="size-4" />
+        </span>
+      </OverflowMeasure>
+    </div>
   );
 }

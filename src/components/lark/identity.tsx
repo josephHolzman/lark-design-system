@@ -26,9 +26,9 @@ export function initials(name: string) {
 }
 
 const SIZE = {
-  xs: "size-5 text-xs",
-  sm: "size-6 text-xs",
-  md: "size-8 text-xs",
+  xs: "size-5 text-meta",
+  sm: "size-6 text-meta",
+  md: "size-8 text-sm",
   lg: "size-10 text-sm",
   xl: "size-12 text-base",
 } as const;
@@ -253,7 +253,7 @@ export function ServiceStack({ services, max = 3, size = 28, className }: { serv
         </span>
       ))}
       {more > 0 && (
-        <span aria-hidden className="-ml-1.5 inline-flex shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-high text-label-md text-on-surface-variant" style={{ width: size, height: size }}>
+        <span aria-hidden className="-ml-1.5 inline-flex shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface-container-high text-meta-strong text-on-surface-variant" style={{ width: size, height: size }}>
           +{more}
         </span>
       )}

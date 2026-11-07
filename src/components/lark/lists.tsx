@@ -21,7 +21,7 @@ export function DescriptionList({ layout = "inline", columns = 1, className, sty
   const gap = "1.5rem";
   return (
     <dl
-      className={cn("group/dl grid min-w-0", layout === "stacked" ? "gap-x-6 gap-y-4" : "gap-x-6", className)}
+      className={cn("group/dl @container/dl grid min-w-0", layout === "stacked" ? "gap-x-6 gap-y-4" : "gap-x-6", className)}
       data-layout={layout}
       data-slot="description-list"
       style={{
@@ -49,13 +49,15 @@ export function DescriptionItem({ term, mono, className, children, ...props }: D
       className={cn(
         "min-w-0",
         "group-data-[layout=stacked]/dl:flex group-data-[layout=stacked]/dl:flex-col group-data-[layout=stacked]/dl:gap-0.5",
-        "group-data-[layout=inline]/dl:grid group-data-[layout=inline]/dl:grid-cols-[minmax(7rem,min(40%,14rem))_1fr] group-data-[layout=inline]/dl:items-baseline group-data-[layout=inline]/dl:gap-3 group-data-[layout=inline]/dl:border-b group-data-[layout=inline]/dl:border-outline-variant group-data-[layout=inline]/dl:py-2 group-data-[layout=inline]/dl:last:border-0",
+        // v0.7: inline pairs stack (term over value) when the list is under 22rem; rows 12px.
+        "group-data-[layout=inline]/dl:flex group-data-[layout=inline]/dl:flex-col group-data-[layout=inline]/dl:gap-0.5 group-data-[layout=inline]/dl:border-b group-data-[layout=inline]/dl:border-outline-variant group-data-[layout=inline]/dl:py-3 group-data-[layout=inline]/dl:last:border-0",
+        "@[22rem]/dl:group-data-[layout=inline]/dl:grid @[22rem]/dl:grid-cols-[minmax(7rem,min(40%,14rem))_1fr] @[22rem]/dl:items-baseline @[22rem]/dl:gap-3",
         className
       )}
       {...props}
     >
-      <dt className="text-label-md text-on-surface-tertiary">{term}</dt>
-      <dd className={cn("min-w-0 text-sm break-words text-on-surface", mono && "font-mono text-[13px]")}>{children}</dd>
+      <dt className="text-body-md text-on-surface-variant">{term}</dt>
+      <dd className={cn("min-w-0 text-body-md break-words text-on-surface", mono && "font-mono")}>{children}</dd>
     </div>
   );
 }
@@ -135,11 +137,11 @@ export function ListItem({
       {leading && <span className="flex shrink-0 items-center text-on-surface-variant [&_svg]:size-[18px]">{leading}</span>}
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex min-w-0 items-baseline gap-2">
-          <span className={cn("text-sm font-medium", !wrap && "truncate")}>{headline}</span>
-          {meta && <span className="ml-auto shrink-0 text-body-sm text-on-surface-variant tabular-nums">{meta}</span>}
+          <span className={cn("text-title-sm group-data-[density=compact]/list:text-label-lg", !wrap && "truncate")}>{headline}</span>
+          {meta && <span className="ml-auto shrink-0 text-meta text-on-surface-variant tabular-nums">{meta}</span>}
         </span>
         {supporting && (
-          <span className={cn("text-body-sm text-on-surface-variant", !wrap && "truncate group-data-[density=comfortable]/list:line-clamp-2 group-data-[density=comfortable]/list:whitespace-normal")}>
+          <span className={cn("text-body-md text-on-surface-variant", !wrap && "truncate group-data-[density=comfortable]/list:line-clamp-2 group-data-[density=comfortable]/list:whitespace-normal")}>
             {supporting}
           </span>
         )}
@@ -152,16 +154,18 @@ export function ListItem({
     </>
   );
   const row = cn(
-    "flex w-full min-w-0 flex-1 gap-3 px-3 text-left",
+    // v0.7: the row keeps at least 12rem; under that, trailing content wraps below it instead of
+    // squeezing the headline to a few letters. Rows have 12px vertical padding (compact: tables).
+    "flex w-full min-w-0 flex-1 basis-48 gap-3 px-3 text-left",
     wrap ? "items-start" : "items-center",
-    "min-h-12 py-1.5 group-data-[density=compact]/list:min-h-10 group-data-[density=compact]/list:py-1 group-data-[density=comfortable]/list:min-h-16 group-data-[density=comfortable]/list:py-2.5",
+    "min-h-12 py-3 group-data-[density=compact]/list:min-h-10 group-data-[density=compact]/list:py-1 group-data-[density=comfortable]/list:min-h-16 group-data-[density=comfortable]/list:py-4",
     "group-data-[inset]/list:rounded-md"
   );
   const interactive = "state-layer [--state-hover:0.04] focus-ring relative outline-none";
   return (
     <li
       className={cn(
-        "relative flex min-w-0 group-data-[inset]/list:rounded-md",
+        "relative flex min-w-0 flex-wrap group-data-[inset]/list:rounded-md",
         wrap ? "items-start [&>[data-slot=list-trailing]]:pt-1.5" : "items-center",
         // Links inside a selected row take its text colour too, or they fail contrast on the tan fill.
         selected && "bg-selected-strong text-on-secondary-container [&_.text-on-surface-variant]:text-on-secondary-container [&_a]:text-on-secondary-container",
@@ -182,7 +186,7 @@ export function ListItem({
         <div className={row}>{content}</div>
       )}
       {trailing && (
-        <span className="flex shrink-0 items-center gap-1 pr-3" data-slot="list-trailing">
+        <span className="flex shrink-0 items-center gap-1 px-3" data-slot="list-trailing">
           {trailing}
         </span>
       )}
@@ -209,7 +213,7 @@ export function CountPill({
     <span
       aria-label={label}
       className={cn(
-        "inline-flex items-center font-mono text-xs tabular-nums",
+        "inline-flex items-center font-mono text-meta tabular-nums",
         variant === "plain" && "text-on-surface-variant",
         variant === "pill" && "h-4 min-w-4 justify-center rounded-full bg-surface-container px-1 leading-4 tracking-[-0.4px] text-on-surface-variant",
         className

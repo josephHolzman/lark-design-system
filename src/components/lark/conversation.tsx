@@ -178,7 +178,7 @@ export function ChatComposer({
                       <DropdownMenuRadioItem className="items-start" disabled={above} key={m} value={m}>
                         <span className="flex flex-col">
                           <span>{MODE_LABEL[m].short}</span>
-                          <span className="text-body-sm text-on-surface-variant">{above ? "Not allowed by your organization" : MODE_LABEL[m].detail}</span>
+                          <span className="text-body-md text-on-surface-variant">{above ? "Not allowed by your organization" : MODE_LABEL[m].detail}</span>
                         </span>
                       </DropdownMenuRadioItem>
                     );
@@ -199,7 +199,7 @@ export function ChatComposer({
           )}
         </div>
       </form>
-      {note && <p className="px-2 text-center text-body-sm text-on-surface-variant">{note}</p>}
+      {note && <p className="px-2 text-center text-body-md text-on-surface-variant">{note}</p>}
     </div>
   );
 }
@@ -227,7 +227,7 @@ export function Reasoning({ duration, text, steps = [], streaming, defaultOpen }
       <button
         aria-controls={id}
         aria-expanded={open}
-        className="focus-ring inline-flex min-h-6 w-fit items-center gap-1.5 rounded-sm text-body-sm text-on-surface-variant outline-none hover:text-on-surface"
+        className="focus-ring inline-flex min-h-6 w-fit items-center gap-1.5 rounded-sm text-body-md text-on-surface-variant outline-none hover:text-on-surface"
         onClick={() => setOpen(!open)}
         type="button"
       >
@@ -237,7 +237,7 @@ export function Reasoning({ duration, text, steps = [], streaming, defaultOpen }
         <ChevronRightIcon aria-hidden className={cn("size-3.5 transition-transform", open && "rotate-90")} />
       </button>
       <div className="border-l-2 border-outline-variant pl-3.5" hidden={!open} id={id}>
-        {text && <p className="mb-2 text-body-sm text-on-surface-variant">{text}</p>}
+        {text && <p className="mb-2 text-body-md text-on-surface-variant">{text}</p>}
         {steps.length > 0 && (
           <ol className="flex flex-col gap-2.5">
             {steps.map((s, i) => (
@@ -246,15 +246,15 @@ export function Reasoning({ duration, text, steps = [], streaming, defaultOpen }
                   {s.state === "active" ? <LoaderCircleIcon className="size-3.5 animate-spin motion-reduce:animate-none" /> : s.state === "pending" ? <CircleIcon className="size-3.5" /> : <CheckIcon className="size-3.5 text-success" />}
                 </span>
                 <div className="flex min-w-0 flex-col gap-1">
-                  <span className="text-body-sm text-on-surface">
+                  <span className="text-body-md text-on-surface">
                     {s.label}
                     <span className="sr-only">, {s.state === "active" ? "in progress" : s.state === "pending" ? "not started" : "done"}</span>
                   </span>
-                  {s.detail && <span className="text-body-sm text-on-surface-variant">{s.detail}</span>}
+                  {s.detail && <span className="text-body-md text-on-surface-variant">{s.detail}</span>}
                   {s.results?.length ? (
                     <ul aria-label="Records read" className="flex flex-wrap gap-1.5">
                       {s.results.map((r) => (
-                        <li className="inline-flex h-6 items-center gap-1.5 rounded-full border border-outline-variant bg-surface-container-lowest px-2 text-body-sm text-on-surface" key={r.label}>
+                        <li className="inline-flex h-6 items-center gap-1.5 rounded-full border border-outline-variant bg-surface-container-lowest px-2 text-body-md text-on-surface" key={r.label}>
                           {r.system && <ServiceLogo service={r.system} size={12} />}
                           {r.label}
                         </li>
@@ -365,7 +365,7 @@ export function ChatPanel({
           )}
         </span>
       </header>
-      {context && <div className="flex shrink-0 items-center gap-2 border-b border-outline-faint px-3 py-2 text-body-sm text-on-surface-variant">{context}</div>}
+      {context && <div className="flex shrink-0 items-center gap-2 border-b border-outline-faint px-3 py-2 text-body-md text-on-surface-variant">{context}</div>}
       <div aria-label="Conversation" className="min-h-0 flex-1 overflow-y-auto px-3 py-4" role="region" tabIndex={0}>
         <div className="flex flex-col gap-6">{children}</div>
       </div>
@@ -410,7 +410,7 @@ export function TurnActions({ onCopy, onRegenerate, onVote }: { onCopy?: () => v
       <Button aria-label="Bad answer" aria-pressed={vote === "down"} onClick={() => set("down")} size="icon-sm" variant="ghost">
         <ThumbsDownIcon className={cn(vote === "down" && "fill-current")} />
       </Button>
-      <span aria-live="polite" className="ml-1 text-body-sm text-on-surface-variant" role="status">
+      <span aria-live="polite" className="ml-1 text-body-md text-on-surface-variant" role="status">
         {msg}
       </span>
     </div>

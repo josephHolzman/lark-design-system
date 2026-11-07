@@ -69,7 +69,7 @@ function Spec({ name, when, children }: { name: string; when: string; children: 
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h3 className="text-title-sm">{name}</h3>
-        <p className="max-w-[60ch] text-body-sm text-on-surface-variant">{when}</p>
+        <p className="max-w-[60ch] text-body-md text-on-surface-variant">{when}</p>
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 [&>*:only-child]:flex-1">{children}</div>
     </div>
@@ -233,7 +233,7 @@ export function Patterns() {
                 ))}
                 <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
                   <span className="text-label-lg">No data yet</span>
-                  <span className="text-body-sm text-on-surface-variant">Connect a mailbox to start tracking.</span>
+                  <span className="text-body-md text-on-surface-variant">Connect a mailbox to start tracking.</span>
                 </span>
               </div>
             </SectionCard>
@@ -364,15 +364,15 @@ export function Patterns() {
         <div className="grid gap-4 lg:grid-cols-2">
           <SectionCard title="Inline edit">
             <dl className="grid grid-cols-[8rem_1fr] items-center gap-x-4 gap-y-1">
-              <dt className="text-label-md text-on-surface-tertiary">PO number</dt>
+              <dt className="text-label-lg text-on-surface-tertiary">PO number</dt>
               <dd>
                 <InlineEdit dirty={po !== "PO-88412"} label="PO number" mono onCommit={setPo} validate={(v) => (/^PO-\d{4,}$/.test(v) ? undefined : "Use the format PO-12345.")} value={po} />
               </dd>
-              <dt className="text-label-md text-on-surface-tertiary">Owner</dt>
+              <dt className="text-label-lg text-on-surface-tertiary">Owner</dt>
               <dd>
                 <InlineEdit dirty={owner !== "Priya Raman"} label="Owner" onCommit={setOwner} value={owner} />
               </dd>
-              <dt className="text-label-md text-on-surface-tertiary">Billing contact</dt>
+              <dt className="text-label-lg text-on-surface-tertiary">Billing contact</dt>
               <dd>
                 <InlineEdit label="Billing contact" onCommit={() => {}} placeholder="Add a billing contact" value="" />
               </dd>
@@ -417,7 +417,7 @@ export function Patterns() {
           </Spec>
           <Spec name="Context menu" when="Right-click on rows or canvas items; mirrors the ⋯ menu">
             <ContextMenu>
-              <ContextMenuTrigger className="flex h-16 w-56 items-center justify-center rounded-lg border border-dashed border-outline-strong text-body-sm text-on-surface-variant">
+              <ContextMenuTrigger className="flex h-16 w-56 items-center justify-center rounded-lg border border-dashed border-outline-strong text-body-md text-on-surface-variant">
                 Right-click here
               </ContextMenuTrigger>
               <ContextMenuContent className="w-48">
@@ -556,9 +556,9 @@ export function Patterns() {
                 <TabsTrigger value="b">People</TabsTrigger>
                 <TabsTrigger value="c">Locations</TabsTrigger>
               </TabsList>
-              <TabsContent className="pt-3 text-body-sm text-on-surface-variant" value="a">Deal summary and key dates.</TabsContent>
-              <TabsContent className="pt-3 text-body-sm text-on-surface-variant" value="b">Buyers, approvers and the owner.</TabsContent>
-              <TabsContent className="pt-3 text-body-sm text-on-surface-variant" value="c">Billing and shipping sites.</TabsContent>
+              <TabsContent className="pt-3 text-body-md text-on-surface-variant" value="a">Deal summary and key dates.</TabsContent>
+              <TabsContent className="pt-3 text-body-md text-on-surface-variant" value="b">Buyers, approvers and the owner.</TabsContent>
+              <TabsContent className="pt-3 text-body-md text-on-surface-variant" value="c">Billing and shipping sites.</TabsContent>
             </Tabs>
           </Spec>
           <Spec name="Segmented control" when="Switch a view: density, chart or table">
@@ -608,7 +608,7 @@ export function Patterns() {
           <Spec name="Theme" when="ThemeScript in <head>, then useTheme or ThemeToggle. Apps with their own stored theme pass storageKey and attribute (class, data-theme or both) to all three.">
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <code className="font-mono text-body-sm text-on-surface-variant">{`<ThemeScript storageKey="app-theme" attribute="both" />`}</code>
+              <code className="font-mono text-body-md text-on-surface-variant">{`<ThemeScript storageKey="app-theme" attribute="both" />`}</code>
             </div>
           </Spec>
           <Spec name="User menu" when="The person, their role and everything about their session: profile, workspaces, working role, theme, help. Sections are ruled; one-of-many choices are radio items that say which is on.">
@@ -653,7 +653,7 @@ export function Patterns() {
                   </UserMenuItem>
                 </UserMenuSection>
               </UserMenu>
-              <span className="text-body-sm text-on-surface-variant">Open the avatar</span>
+              <span className="text-body-md text-on-surface-variant">Open the avatar</span>
             </div>
           </Spec>
           <Spec name="Sidebar: scope, badges, collapsible groups, footer" when="AppSidebar takes scope (a ScopePill under the logo), groups that collapse (collapsible, defaultOpen, or open + onOpenChange to remember), item badges for things waiting (CountPill, a dot on the rail, the count always in the name) and footerItems. The sidebar on this page uses all four.">
@@ -770,17 +770,17 @@ export function Patterns() {
               <TrayCard>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-label-lg">Deal desk</p>
-                  <span className="text-body-sm text-on-surface-tertiary">Waiting 4 hr</span>
+                  <span className="text-meta text-on-surface-tertiary">Waiting 4 hr</span>
                 </div>
-                <p className="text-body-sm text-on-surface-variant">Discount 22% is above the 15% EMEA floor.</p>
+                <p className="text-body-md text-on-surface-variant">Discount 22% is above the 15% EMEA floor.</p>
                 <CardStatusFooter action={<Button size="sm" variant="secondary">Open request</Button>} status={<StatusBadge status="Awaiting decision" />} />
               </TrayCard>
               <TrayCard>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-label-lg">Finance</p>
-                  <span className="text-body-sm text-on-surface-tertiary">Approved 9:12 AM</span>
+                  <span className="text-meta text-on-surface-tertiary">Approved 9:12 AM</span>
                 </div>
-                <p className="text-body-sm text-on-surface-variant">Net 60 payment terms.</p>
+                <p className="text-body-md text-on-surface-variant">Net 60 payment terms.</p>
                 <CardStatusFooter action={<Button size="sm" variant="ghost">View note</Button>} status={<StatusBadge status="Approved" />} />
               </TrayCard>
             </Tray>
@@ -817,7 +817,7 @@ export function Patterns() {
               <FigureCard label="Quote total" unit="USD" updated={{ at: PRICED_AT }} value="$1,184,400.00" />
               <FigureCard label="ARR change" updated={{ at: ARR_AT, staleAfter: 60 }} value="+$212,000.00" />
             </div>
-            <p className="text-body-sm text-on-surface-variant">
+            <p className="text-body-md text-on-surface-variant">
               Inline: <Freshness at={JUST_NOW} verb="Priced" />
             </p>
           </Spec>

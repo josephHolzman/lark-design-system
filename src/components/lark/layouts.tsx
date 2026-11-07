@@ -94,9 +94,9 @@ export function RecordLayout({
       <div className="bg-canvas max-md:flex-none md:min-h-0 md:flex-1 md:overflow-auto">
         {/* The aside sits beside the main column from 1280 (where the sidebar is expanded and the
             main column still gets ~800px); below that it stacks, so tables keep their width. */}
-        <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-4 p-4 md:px-6", aside && "xl:grid-cols-[360px_minmax(0,1fr)]")}>
-          {aside && <div className={cn("flex min-w-0 flex-col gap-4", asideOnSmall === "after" && "max-xl:order-2")}>{aside}</div>}
-          <div className="flex min-w-0 flex-col gap-4">{children}</div>
+        <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-module-gap p-4 md:p-6", aside && "xl:grid-cols-[360px_minmax(0,1fr)]")}>
+          {aside && <div className={cn("flex min-w-0 flex-col gap-module-gap", asideOnSmall === "after" && "max-xl:order-2")}>{aside}</div>}
+          <div className="flex min-w-0 flex-col gap-module-gap">{children}</div>
         </div>
       </div>
     </div>
@@ -109,7 +109,7 @@ export function DashboardLayout({ header, children, className }: { header: React
     <div className={cn("flex min-h-0 flex-col max-md:flex-none md:flex-1", className)} data-slot="dashboard-layout">
       <HeaderBand bordered={false}>{header}</HeaderBand>
       <div className="bg-canvas max-md:flex-none md:min-h-0 md:flex-1 md:overflow-auto">
-        <div className="flex flex-col gap-4 p-4 md:px-6">{children}</div>
+        <div className="flex flex-col gap-module-gap p-4 md:p-6">{children}</div>
       </div>
     </div>
   );
@@ -123,7 +123,7 @@ export function DashboardGrid({ variant = "main-side", children, className }: { 
   return (
     <div
       className={cn(
-        "grid min-w-0 gap-4",
+        "grid min-w-0 gap-module-gap",
         variant === "main-side" && "xl:grid-cols-[minmax(0,1fr)_360px]",
         variant === "halves" && "lg:grid-cols-2",
         variant === "thirds" && "md:grid-cols-2 xl:grid-cols-3",
@@ -163,7 +163,7 @@ export function SettingsLayout({
         </details>
         <HeaderBand>{header}</HeaderBand>
         <div className="min-h-0 flex-1 overflow-auto bg-canvas">
-          <div className="flex flex-col gap-4 p-4 md:px-6">{children}</div>
+          <div className="flex flex-col gap-module-gap p-4 md:p-6">{children}</div>
         </div>
       </div>
     </div>
@@ -227,9 +227,9 @@ export function RecordPeek({
           )}
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-auto bg-canvas">
-          <div className={cn("grid gap-4 p-4", aside && "lg:grid-cols-[minmax(0,1fr)_360px]")}>
-            <div className="flex min-w-0 flex-col gap-4">{children}</div>
-            {aside && <div className="flex min-w-0 flex-col gap-4">{aside}</div>}
+          <div className={cn("grid gap-module-gap p-4 sm:p-6", aside && "lg:grid-cols-[minmax(0,1fr)_360px]")}>
+            <div className="flex min-w-0 flex-col gap-module-gap">{children}</div>
+            {aside && <div className="flex min-w-0 flex-col gap-module-gap">{aside}</div>}
           </div>
         </div>
         {footer && <SheetFooter>{footer}</SheetFooter>}
@@ -277,7 +277,7 @@ export function CreateDrawer({
             onSubmit();
           }}
         >
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4">{children}</div>
+          <div className="flex min-h-0 flex-1 flex-col gap-module-gap overflow-auto p-4 sm:p-6">{children}</div>
           <SheetFooter>
             <Button onClick={() => onOpenChange(false)} size="lg" type="button" variant="secondary">
               Cancel

@@ -224,6 +224,22 @@
           "unit": "px"
         }
       }
+    },
+    "meta-strong": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.sans}",
+        "fontSize": {
+          "value": 12,
+          "unit": "px"
+        },
+        "lineHeight": 1.5,
+        "fontWeight": 450,
+        "letterSpacing": {
+          "value": 0,
+          "unit": "px"
+        }
+      }
     }
   },
   "radius": {

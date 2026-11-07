@@ -66,7 +66,7 @@ export type TablePagerProps = {
 /** "1–8 of 132 deals" with previous / next icon buttons. Sits in a SectionCard footer. */
 export function TablePager({ from, to, total, noun = "rows", onPrevious, onNext, className, children }: TablePagerProps) {
   return (
-    <div className={cn("flex w-full items-center gap-2 text-body-sm text-on-surface-variant", className)}>
+    <div className={cn("flex w-full items-center gap-2 text-meta text-on-surface-variant", className)}>
       {children}
       <span className="ml-auto tabular-nums">
         {total === 0 ? `0 ${noun}` : `${from}–${to} of ${total} ${noun}`}
@@ -113,7 +113,7 @@ export type SourceChipProps = {
 export function SourceChip({ label, index, kind, href, icon, className }: SourceChipProps) {
   const inner = (
     <>
-      {index != null && <span className="font-mono text-xs text-on-surface-variant">{index}</span>}
+      {index != null && <span className="font-mono text-meta text-on-surface-variant">{index}</span>}
       <span aria-hidden="true" className="text-on-surface-variant [&_svg]:size-3.5">
         {icon ?? <FileTextIcon />}
       </span>
@@ -123,7 +123,7 @@ export function SourceChip({ label, index, kind, href, icon, className }: Source
     </>
   );
   const cls = cn(
-    "inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-md bg-surface-container-high px-2 text-xs text-on-surface",
+    "inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-md bg-surface-container-high px-2 text-meta text-on-surface",
     className
   );
   return href ? (

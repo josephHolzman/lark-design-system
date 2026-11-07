@@ -46,7 +46,7 @@ function Marker({ state, n, numbered }: { state: StepState; n: number; numbered:
   return (
     <span
       aria-hidden="true"
-      className={cn("relative z-[1] inline-flex size-6 shrink-0 items-center justify-center rounded-full font-mono text-[12px] leading-4 tabular-nums", MARKER[state])}
+      className={cn("relative z-[1] inline-flex size-6 shrink-0 items-center justify-center rounded-full font-mono text-meta leading-4 tabular-nums", MARKER[state])}
       data-slot="step-marker"
     >
       {glyph ?? <span className={cn("size-2 rounded-full", state === "current" ? "bg-inverse-on-surface" : "bg-outline")} />}
@@ -91,12 +91,12 @@ export function StepList({ steps, orientation = "vertical", numbered = true, cla
             )}
             <Marker n={i + 1} numbered={numbered} state={step.state} />
             <div className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5 sm:pt-0">
-              <span className={cn("text-label-lg", step.state === "current" ? "text-on-surface" : step.state === "skipped" ? "text-on-surface-tertiary" : muted ? "text-on-surface-variant" : "text-on-surface")}>
+              <span className={cn("text-title-sm", step.state === "current" ? "text-on-surface" : step.state === "skipped" ? "text-on-surface-tertiary" : muted ? "text-on-surface-variant" : "text-on-surface")}>
                 {step.title}
                 <span className="sr-only">, {STEP_STATE_LABEL[step.state]}</span>
               </span>
               {step.description && (
-                <span className={cn("text-body-sm", step.state === "blocked" ? "text-on-error-container" : "text-on-surface-variant")}>{step.description}</span>
+                <span className={cn("text-body-md", step.state === "blocked" ? "text-on-error-container" : "text-on-surface-variant")}>{step.description}</span>
               )}
               {step.action && <div className="mt-2 flex flex-wrap items-center gap-2">{step.action}</div>}
             </div>

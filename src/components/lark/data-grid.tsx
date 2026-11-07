@@ -293,7 +293,7 @@ function DataGridInner<T>({
                     <th
                       aria-sort={canSort ? (sort === "asc" ? "ascending" : sort === "desc" ? "descending" : "none") : undefined}
                       className={cn(
-                        "h-10 border-b border-outline-variant bg-card px-3 py-1.5 text-left align-bottom text-label-md whitespace-nowrap text-on-surface-variant",
+                        "h-10 border-b border-outline-variant bg-card px-3 py-1.5 text-left align-bottom text-meta-strong whitespace-nowrap text-on-surface-variant",
                         meta?.align === "right" && "text-right",
                         meta?.align === "center" && "text-center",
                         stickyCls(h.column.id, true)
@@ -328,7 +328,7 @@ function DataGridInner<T>({
                         )}
                         {meta?.headerExtra}
                       </span>
-                      {meta?.description && <span className="text-body-sm font-normal text-on-surface-tertiary">{meta.description}</span>}
+                      {meta?.description && <span className="text-body-md font-normal text-on-surface-tertiary">{meta.description}</span>}
                       </span>
                     </th>
                   );
@@ -383,11 +383,11 @@ function DataGridInner<T>({
                             <ChevronRightIcon className={cn("transition-transform", open && "rotate-90")} />
                           </Button>
                           <span className="text-label-lg">{String(row.groupingValue)}</span>
-                          <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-surface-container px-1 tabular-nums leading-none font-medium text-xs text-on-surface-variant">{row.subRows.length}</span>
+                          <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-surface-container px-1 tabular-nums leading-none font-medium text-meta text-on-surface-variant">{row.subRows.length}</span>
                           {leafCols
                             .filter((c) => c.columnDef.meta?.aggregate)
                             .map((c) => (
-                              <span className="text-body-sm text-on-surface-variant" key={c.id}>
+                              <span className="text-meta text-on-surface-variant" key={c.id}>
                                 {typeof c.columnDef.header === "string" ? `${c.columnDef.header}: ` : ""}
                                 <span className="text-on-surface">{c.columnDef.meta!.aggregate!(row.subRows)}</span>
                               </span>

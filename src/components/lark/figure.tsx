@@ -58,8 +58,8 @@ function Delta({ value, direction, good, context }: FigureDelta) {
         ? "bg-success-container text-on-success-container"
         : "bg-error-container text-on-error-container";
   return (
-    <span className="inline-flex items-center gap-1.5 text-body-sm">
-      <span className={cn("inline-flex h-5 items-center gap-0.5 rounded-full px-1.5 text-label-md tabular-nums", tone)}>
+    <span className="inline-flex items-center gap-1.5 text-meta">
+      <span className={cn("inline-flex h-5 items-center gap-0.5 rounded-full px-1.5 text-meta-strong tabular-nums", tone)}>
         <Icon aria-hidden="true" className="size-3.5" />
         {value}
       </span>
@@ -86,14 +86,15 @@ export function Figure({ label, value, unit, delta, caption, icon, tone = "neutr
         {href && <ArrowRightIcon aria-hidden="true" className="mt-0.5 ml-auto size-3.5 shrink-0 opacity-0 transition-opacity group-hover/figure:opacity-100 group-focus-visible/figure:opacity-100" />}
       </div>
       <div className={cn("flex flex-wrap items-baseline gap-x-1.5", size === "lg" && "pt-1")}>
-        <span className={cn("min-w-0 tabular-nums [overflow-wrap:anywhere]", size === "lg" ? "text-title-lg @[14rem]/figure:text-display-sm" : "text-title-md")} data-slot="figure-value">
+        {/* v0.7: a number never breaks mid-figure; it steps down a size in a narrow column instead. */}
+        <span className={cn("min-w-0 whitespace-nowrap tabular-nums", size === "lg" ? "text-title-md @[10rem]/figure:text-title-lg @[14rem]/figure:text-display-sm" : "text-title-sm @[10rem]/figure:text-title-md")} data-slot="figure-value">
           {value}
         </span>
         {unit && <span className={cn("text-on-surface-variant", size === "lg" ? "text-title-sm" : "text-sm")}>{unit}</span>}
       </div>
       {delta && <Delta {...delta} />}
       {caption && (
-        <div className="text-body-sm text-on-surface-tertiary" id={captionId}>
+        <div className="text-meta text-on-surface-tertiary" id={captionId}>
           {caption}
         </div>
       )}

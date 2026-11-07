@@ -108,7 +108,7 @@ function SheetTitle({
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn("text-on-surface text-title-sm", className)}
+      className={cn("text-on-surface text-title-module", className)}
       {...props}
     />
   )

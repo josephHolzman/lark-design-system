@@ -52,7 +52,7 @@ export function TranscriptLine({ speaker, time, dateTime, flag, className, child
     <li className={cn("flex min-w-0 flex-col gap-0.5", className)} data-flag={flag} data-slot="transcript-line" {...props}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="text-label-lg text-on-surface">{speaker}</span>
-        <time className="font-mono text-[12px] leading-4 tracking-[-0.4px] text-on-surface-tertiary tabular-nums" dateTime={dateTime ?? offsetDuration(time)}>
+        <time className="font-mono text-meta leading-4 tracking-[-0.4px] text-on-surface-tertiary tabular-nums" dateTime={dateTime ?? offsetDuration(time)}>
           {time}
         </time>
         {flag && <Badge variant={FLAG_VARIANT[flag]}>{flag}</Badge>}

@@ -34,7 +34,7 @@ export function ConfidenceBadge({ level, className }: { level: Confidence; class
   return (
     <span
       className={cn(
-        "inline-flex h-5 w-fit shrink-0 items-center gap-1.5 rounded-full px-2 text-label-md whitespace-nowrap",
+        "inline-flex h-5 w-fit shrink-0 items-center gap-1.5 rounded-full px-2 text-meta-strong whitespace-nowrap",
         level === "low" ? "bg-warning-container text-on-warning-container" : "bg-outline-variant text-on-surface-variant",
         className
       )}
@@ -63,7 +63,7 @@ export function EvidencePopover({ evidence, summary, children, label = "Why?" }:
     <Popover>
       <PopoverTrigger asChild>
         {children ?? (
-          <button className="link-default hit-area rounded-sm text-body-sm focus-ring outline-none" type="button">
+          <button className="link-default hit-area rounded-sm text-body-md focus-ring outline-none" type="button">
             {label}
           </button>
         )}
@@ -74,7 +74,7 @@ export function EvidencePopover({ evidence, summary, children, label = "Why?" }:
           {evidence.map((e, i) => (
             <li className="flex flex-col gap-1" key={e.label}>
               <SourceChip href={e.href} index={i + 1} kind={e.kind} label={e.label} />
-              {e.quote && <blockquote className="border-l-2 border-outline-strong pl-2 text-body-sm text-on-surface-variant">{e.quote}</blockquote>}
+              {e.quote && <blockquote className="border-l-2 border-outline-strong pl-2 text-body-md text-on-surface-variant">{e.quote}</blockquote>}
             </li>
           ))}
         </ul>
@@ -117,19 +117,19 @@ export function AiRunCell({
     );
   if (state === "queued")
     return (
-      <span className="inline-flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+      <span className="inline-flex items-center gap-1.5 text-body-md text-on-surface-variant">
         <CircleIcon aria-hidden="true" className="size-3.5" /> Queued
       </span>
     );
   if (state === "running")
     return (
-      <span className="inline-flex items-center gap-1.5 text-body-sm text-on-tertiary-container">
+      <span className="inline-flex items-center gap-1.5 text-body-md text-on-tertiary-container">
         <LoaderCircleIcon aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> Running…
       </span>
     );
   if (state === "failed")
     return (
-      <span className="inline-flex min-w-0 items-center gap-1.5 text-body-sm text-error">
+      <span className="inline-flex min-w-0 items-center gap-1.5 text-body-md text-error">
         <AlertCircleIcon aria-hidden="true" className="size-3.5 shrink-0" />
         <span className="min-w-0">{error ?? "Failed"}</span>
         <Button aria-label="Retry" className="text-error" onClick={onRun} size="icon-xs" variant="ghost">
@@ -137,7 +137,7 @@ export function AiRunCell({
         </Button>
       </span>
     );
-  if (state === "skipped") return <span className="text-body-sm text-on-surface-tertiary">Not run: condition not met</span>;
+  if (state === "skipped") return <span className="text-body-md text-on-surface-tertiary">Not run: condition not met</span>;
   // The value wraps rather than truncating (it is the answer); confidence and "Why?" sit on
   // their own line so neither squeezes the value in a narrow column.
   const meta = (confidence && confidence !== "high") || evidence;
@@ -208,18 +208,18 @@ export function PlanReview({ steps: initial, onApprove, onCancel, className }: {
       <header className="flex items-center gap-2 px-4 pt-3 pb-2">
         <SparklesIcon aria-hidden="true" className="size-4 text-tertiary" />
         <h3 className="text-title-sm">ACE&apos;s plan</h3>
-        <span className="text-body-sm text-on-surface-variant">{steps.length} steps. Nothing runs until you approve.</span>
+        <span className="text-body-md text-on-surface-variant">{steps.length} steps. Nothing runs until you approve.</span>
       </header>
       <ol className="flex flex-col px-2 pb-2">
         {steps.map((s, i) => (
           <li className="group/step flex items-start gap-3 rounded-md px-2 py-2 hover:bg-surface-container-low" key={s.id}>
-            <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-surface-container tabular-nums leading-none font-medium text-xs text-on-surface-variant">{i + 1}</span>
+            <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-surface-container tabular-nums leading-none font-medium text-meta text-on-surface-variant">{i + 1}</span>
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="flex flex-wrap items-center gap-2 text-sm">
                 {s.title}
-                {s.risky && <span className="rounded-full bg-warning-container px-2 text-label-md text-on-warning-container">Needs your OK</span>}
+                {s.risky && <span className="rounded-full bg-warning-container px-2 text-meta-strong text-on-warning-container">Needs your OK</span>}
               </span>
-              {s.detail && <span className="text-body-sm text-on-surface-variant">{s.detail}</span>}
+              {s.detail && <span className="text-body-md text-on-surface-variant">{s.detail}</span>}
             </div>
             <span className="flex items-center gap-0.5 opacity-60 group-hover/step:opacity-100 group-focus-within/step:opacity-100">
               <Button aria-label={`Move step ${i + 1} up`} disabled={i === 0} onClick={() => move(i, -1)} size="icon-xs" variant="ghost">
@@ -267,7 +267,7 @@ export function RunSteps({ title, steps, className }: { title: ReactNode; steps:
           <LoaderCircleIcon aria-hidden="true" className="size-4 animate-spin text-tertiary motion-reduce:animate-none" />
         )}
         <span className="text-label-lg">{title}</span>
-        <span className="ml-auto text-body-sm text-on-surface-variant tabular-nums">
+        <span className="ml-auto text-meta text-on-surface-variant tabular-nums">
           {failed ? "Stopped: " : ""}
           {done} of {steps.length} steps
         </span>
@@ -287,7 +287,7 @@ export function RunSteps({ title, steps, className }: { title: ReactNode; steps:
                   {s.title}
                   <span className="sr-only">, {s.state}</span>
                 </span>
-                {s.detail && <span className="text-body-sm text-on-surface-variant">{s.detail}</span>}
+                {s.detail && <span className="text-body-md text-on-surface-variant">{s.detail}</span>}
               </span>
             </li>
           ))}

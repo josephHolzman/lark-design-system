@@ -86,7 +86,7 @@ export function InlineEdit({
           value={draft}
         />
         {error && (
-          <span className="text-body-sm text-error" id={errId} role="alert">
+          <span className="text-body-md text-error" id={errId} role="alert">
             {error}
           </span>
         )}
@@ -168,7 +168,7 @@ export function ChangeReview({
     <section className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="change-review">
       <header className="flex flex-wrap items-center gap-2 px-4 py-3">
         <h3 className="text-title-sm">{title}</h3>
-        <span className="text-body-sm text-on-surface-variant">
+        <span className="text-meta text-on-surface-variant">
           {pending ? `${pending} to review` : "All reviewed"}
         </span>
       </header>
@@ -184,11 +184,11 @@ export function ChangeReview({
               )}
               key={c.id}
             >
-              <span className="text-label-md text-on-surface-tertiary">{c.field}</span>
+              <span className="text-label-lg text-on-surface-tertiary">{c.field}</span>
               <span className="flex min-w-0 flex-col gap-0.5">
                 <DiffValue from={c.from} to={c.to} />
                 {(c.reason || c.by) && (
-                  <span className="text-body-sm text-on-surface-variant">
+                  <span className="text-meta text-on-surface-variant">
                     {c.by}
                     {c.by && c.reason && " · "}
                     {c.reason}
@@ -198,7 +198,7 @@ export function ChangeReview({
               <span className="flex items-center gap-1 justify-self-start sm:justify-self-end">
                 {d ? (
                   <>
-                    <span className={cn("inline-flex items-center gap-1 text-label-md", d === "accepted" ? "text-success" : "text-on-surface-variant")}>
+                    <span className={cn("inline-flex items-center gap-1 text-label-lg", d === "accepted" ? "text-success" : "text-on-surface-variant")}>
                       {d === "accepted" ? <CheckIcon className="size-3.5" /> : <XIcon className="size-3.5" />}
                       {d === "accepted" ? "Accepted" : "Rejected"}
                     </span>
@@ -222,7 +222,7 @@ export function ChangeReview({
         })}
       </ul>
       <footer className="flex flex-wrap items-center gap-2 border-t border-outline-variant px-4 py-2.5">
-        <span className="text-body-sm text-on-surface-variant">
+        <span className="text-meta text-on-surface-variant">
           {accepted.length} of {changes.length} accepted
         </span>
         {/* v0.6: bulk decisions sit with the apply action in the footer, not in the header. */}

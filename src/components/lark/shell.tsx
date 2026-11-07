@@ -163,7 +163,7 @@ export type ScopeTone = keyof typeof SCOPE_DOT;
  */
 export function ScopePill({ label, href, tone = "neutral", className }: { label: string; href?: string; tone?: ScopeTone; className?: string }) {
   const cls = cn(
-    "inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-outline-variant bg-surface px-2 text-label-md text-on-surface-variant",
+    "inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-outline-variant bg-surface px-2 text-meta-strong text-on-surface-variant",
     href && "state-layer [--state-hover:0.05] focus-ring outline-none",
     className
   );
@@ -320,7 +320,7 @@ export function AppSidebar({
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-label-lg text-on-surface">{workspace.name}</span>
-                    <span className="truncate text-body-sm text-on-surface-variant">{workspace.subtitle}</span>
+                    <span className="truncate text-meta text-on-surface-variant">{workspace.subtitle}</span>
                   </span>
                   <ChevronsUpDownIcon aria-hidden="true" className="ml-auto text-on-surface-variant" />
                 </SidebarMenuButton>
@@ -422,7 +422,7 @@ export function TopbarIconButton({
           {badge ? (
             <span
               aria-hidden="true"
-              className="absolute top-0.5 right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-xs leading-none font-medium tabular-nums text-on-error"
+              className="absolute top-0.5 right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-meta leading-none font-medium tabular-nums text-on-error"
             >
               {badge}
             </span>
@@ -496,13 +496,13 @@ export function SearchCommand({
                 <CommandItem key={it.label} onSelect={() => setOpen(false)}>
                   {it.icon}
                   <span>{it.label}</span>
-                  {it.hint && <span className="ml-auto text-body-sm text-on-surface-variant">{it.hint}</span>}
+                  {it.hint && <span className="ml-auto text-meta text-on-surface-variant">{it.hint}</span>}
                 </CommandItem>
               ))}
             </CommandGroup>
           ))}
         </CommandList>
-        <div aria-hidden="true" className="flex items-center gap-4 border-t border-outline-variant px-3 py-2 text-body-sm text-on-surface-variant">
+        <div aria-hidden="true" className="flex items-center gap-4 border-t border-outline-variant px-3 py-2 text-meta text-on-surface-variant">
           <span className="inline-flex items-center gap-1.5">
             <Kbd>↑</Kbd>
             <Kbd>↓</Kbd> to move
@@ -521,10 +521,10 @@ export function SearchCommand({
 
 /* ---------------------------------------------------------------- Actions */
 
-/** Beams reversed (dark) button: the top bar's AI entry point. */
+/** Ask ACE (v0.7): the primary action, so sky (Lark's colour for the primary action), not reversed. */
 export function AskAceButton({ onClick, label = "Ask ACE" }: { onClick?: () => void; label?: string }) {
   return (
-    <Button className="gap-1.5 pl-1.5" onClick={onClick} variant="reversed">
+    <Button className="gap-1.5 pl-1.5" onClick={onClick} variant="default">
       <AceMark size="sm" />
       {label}
     </Button>
@@ -581,8 +581,8 @@ export function UserMenu({
       <DropdownMenuContent align="end" className={cn("w-64", className)}>
         <DropdownMenuLabel className="flex flex-col gap-0.5">
           <span className="text-title-sm">{name}</span>
-          {detail && <span className="text-body-sm font-normal text-on-surface-variant">{detail}</span>}
-          {email && <span className="font-mono text-xs font-normal text-on-surface-variant">{email}</span>}
+          {detail && <span className="text-body-md font-normal text-on-surface-variant">{detail}</span>}
+          {email && <span className="font-mono text-meta font-normal text-on-surface-variant">{email}</span>}
         </DropdownMenuLabel>
         {children ?? (
           <UserMenuSection>
@@ -604,7 +604,7 @@ export function UserMenuSection({ label, children }: { label?: string; children:
       <DropdownMenuSeparator />
       <DropdownMenuGroup aria-labelledby={label ? id : undefined}>
         {label && (
-          <DropdownMenuLabel className="text-label-md font-normal text-on-surface-variant" id={id}>
+          <DropdownMenuLabel className="text-meta-strong font-normal text-on-surface-variant" id={id}>
             {label}
           </DropdownMenuLabel>
         )}
@@ -688,7 +688,7 @@ export function UserMenuRadioGroup({
   return (
     <DropdownMenuRadioGroup aria-labelledby={label ? id : undefined} onValueChange={onValueChange} value={value}>
       {label && (
-        <DropdownMenuLabel className="text-label-md font-normal text-on-surface-variant" id={id}>
+        <DropdownMenuLabel className="text-meta-strong font-normal text-on-surface-variant" id={id}>
           {label}
         </DropdownMenuLabel>
       )}
@@ -696,7 +696,7 @@ export function UserMenuRadioGroup({
         <DropdownMenuRadioItem className="items-start" key={o.value} value={o.value}>
           <span className="flex min-w-0 flex-col">
             <span className={cn(o.value === value && "font-medium text-on-surface")}>{o.label}</span>
-            {o.description && <span className="text-body-sm text-on-surface-variant">{o.description}</span>}
+            {o.description && <span className="text-body-md text-on-surface-variant">{o.description}</span>}
           </span>
         </DropdownMenuRadioItem>
       ))}

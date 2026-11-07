@@ -107,7 +107,7 @@ function Frame({ id, title, when, children, wide }: { id: string; title: string;
           <h3 className="text-title-sm" id={`${id}-t`}>
             {title}
           </h3>
-          <p className="text-body-sm text-on-surface-variant">{when}</p>
+          <p data-meta="timestamp" className="text-meta text-on-surface-variant">{when}</p>
         </header>
         <div className="flex flex-1 flex-col bg-surface px-4 py-5">
           <ChatColumn wide={wide}>{children}</ChatColumn>

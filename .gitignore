@@ -49,3 +49,7 @@ next-env.d.ts
 
 # scratch
 /_to_delete
+
+# Playwright
+/test-results/
+/playwright-report/

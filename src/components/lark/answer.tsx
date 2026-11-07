@@ -304,7 +304,7 @@ const TONE: Record<AnswerTone, { cls: string; icon?: typeof CheckCircle2Icon; wo
 export function ToneText({ status, className }: { status: AnswerStatus; className?: string }) {
   const t = TONE[status.tone ?? "neutral"];
   return (
-    <span className={cn("inline-flex items-start gap-1.5 text-body-sm", t.cls, className)} data-slot="tone-text" data-tone={status.tone ?? "neutral"}>
+    <span className={cn("inline-flex items-start gap-1.5 text-body-md", t.cls, className)} data-slot="tone-text" data-tone={status.tone ?? "neutral"}>
       {t.icon && <t.icon aria-hidden className="mt-0.5 size-3.5 shrink-0" />}
       <span>{status.text}</span>
     </span>
@@ -398,13 +398,13 @@ export function ActionTray({
       )}
       {(ordered.length > 0 || note) && (
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-          {note && <span className="text-body-sm text-on-surface-variant">{note}</span>}
+          {note && <span className="text-body-md text-on-surface-variant">{note}</span>}
           {ordered.map((a, i) => (
             <ActionButton action={a} key={`${a.label ?? a.send}-${i}`} onEffect={(e) => run(e, { message: setMessage, status: setStatus })} />
           ))}
         </div>
       )}
-      <p aria-live="polite" className={cn("basis-full text-body-sm text-on-surface", !message && "sr-only")} role="status">
+      <p aria-live="polite" className={cn("basis-full text-body-md text-on-surface", !message && "sr-only")} role="status">
         {message}
       </p>
     </div>
@@ -447,7 +447,7 @@ export function AnswerBlock({
           {(title || meta) && (
             <div className="flex flex-wrap items-baseline gap-x-2">
               {title && <H className="text-label-lg text-on-surface">{title}</H>}
-              {meta && <span className="text-body-sm text-on-surface-variant">{meta}</span>}
+              {meta && <span className="text-meta text-on-surface-variant">{meta}</span>}
             </div>
           )}
           {intro && <p className="text-sm text-on-surface-variant">{intro}</p>}
@@ -549,7 +549,7 @@ export function PropertiesWidget({ rows, display = "list" }: { rows: PropRow[]; 
           <span className="flex flex-col gap-0.5">
             {r.editable ? <EditableValue row={r} /> : <span className="tabular-nums">{r.value}</span>}
             {r.status && <ToneText status={r.status} />}
-            {r.note && <span className="text-body-sm text-on-surface-variant">{r.note}</span>}
+            {r.note && <span className="text-body-md text-on-surface-variant">{r.note}</span>}
           </span>
         </DescriptionItem>
       ))}
@@ -572,8 +572,8 @@ function RowBody({ row, titleNode }: { row: AnswerRow; titleNode?: ReactNode }) 
   return (
     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
       <span className="text-sm text-on-surface">{titleNode ?? row.title}</span>
-      {row.meta && <span className="text-body-sm text-on-surface-variant">{row.meta}</span>}
-      {row.detail && <span className="text-body-sm text-on-surface">{row.detail}</span>}
+      {row.meta && <span className="text-meta text-on-surface-variant">{row.meta}</span>}
+      {row.detail && <span className="text-body-md text-on-surface">{row.detail}</span>}
       {row.status && <ToneText status={row.status} />}
     </span>
   );
@@ -602,7 +602,7 @@ export function ListWidget({ rows, selectable, ordered, name }: { rows: AnswerRo
             <RowLeading row={r} />
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="text-sm font-medium">{r.title}</span>
-              {supporting(r) && <span className="text-body-sm text-on-surface-variant">{supporting(r)}</span>}
+              {supporting(r) && <span className="text-body-md text-on-surface-variant">{supporting(r)}</span>}
             </span>
             {r.value && <span className="shrink-0 text-sm tabular-nums">{r.value}</span>}
           </label>
@@ -618,7 +618,7 @@ export function ListWidget({ rows, selectable, ordered, name }: { rows: AnswerRo
             headline={
               ordered ? (
                 <>
-                  <span className="mr-2 font-mono text-label-md text-on-surface-variant">{i + 1}</span>
+                  <span className="mr-2 font-mono text-meta-strong text-on-surface-variant">{i + 1}</span>
                   {r.title}
                 </>
               ) : (
@@ -644,7 +644,7 @@ export function ListWidget({ rows, selectable, ordered, name }: { rows: AnswerRo
         ))}
       </List>
       {msg && (
-        <p className="text-body-sm text-on-surface" role="status">
+        <p className="text-body-md text-on-surface" role="status">
           {msg}
         </p>
       )}
@@ -683,7 +683,7 @@ export function OptionsWidget({ name, options, variant, label }: { name: string;
               <span className="text-label-lg text-on-surface">{o.title}</span>
             </span>
             {o.value && <span className="pl-6.5 text-sm tabular-nums">{o.value}</span>}
-            {o.meta && <span className="pl-6.5 text-body-sm text-on-surface-variant">{o.meta}</span>}
+            {o.meta && <span className="pl-6.5 text-meta text-on-surface-variant">{o.meta}</span>}
             {o.note && <ToneText className="pl-6.5" status={o.note} />}
             {o.detail && <span className="pl-6.5 text-sm text-on-surface">{o.detail}</span>}
           </label>
@@ -751,7 +751,7 @@ export function TableWidget({ columns, rows, caption }: Pick<TableSection, "colu
                         {cell}
                       </span>
                     )}
-                    {r.sub?.[ci] && <span className={cn("block text-body-sm text-on-surface-variant", ci === 0 && expandable && "pl-6")}>{r.sub[ci]}</span>}
+                    {r.sub?.[ci] && <span className={cn("block text-meta text-on-surface-variant", ci === 0 && expandable && "pl-6")}>{r.sub[ci]}</span>}
                     {ci === 0 && r.status && (
                       <span className={cn("mt-0.5 block @md:hidden", expandable && "pl-6")}>
                         <ToneText status={r.status} />
@@ -827,7 +827,7 @@ function DataTableToggle({ table, label }: { table: AnswerDataTable; label: stri
 
 function Legend({ items }: { items: Array<{ label: string; tone?: AnswerSeriesTone; dashed?: boolean }> }) {
   return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-body-sm text-on-surface-variant">
+    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-body-md text-on-surface-variant">
       {items.map((l, i) => (
         <li className="inline-flex items-center gap-1.5" key={l.label}>
           <span aria-hidden className={cn("inline-block h-2.5 w-3 rounded-[2px]", l.dashed && "h-0 border-t-2 border-dashed")} style={l.dashed ? { borderColor: SERIES_COLOR[l.tone ?? (`series${(i % 4) + 1}` as AnswerSeriesTone)] } : { background: SERIES_COLOR[l.tone ?? (`series${(i % 4) + 1}` as AnswerSeriesTone)] }} />
@@ -851,7 +851,7 @@ function Readouts({ items, selected, onSelect, label }: { items: Array<{ label: 
       {items.length <= 6 ? (
         <Segmented aria-label={label} className="w-fit max-w-full overflow-x-auto" onValueChange={(v) => onSelect(Number(v))} options={items.map((it, i) => ({ value: String(i), label: it.label.replace(/, \d{4}$/, "") }))} value={String(selected)} />
       ) : (
-        <label className="flex items-center gap-2 text-body-sm text-on-surface-variant">
+        <label className="flex items-center gap-2 text-body-md text-on-surface-variant">
           {label}
           <select className="focus-ring h-8 rounded-md border border-input bg-surface-container-lowest px-2 text-sm text-on-surface" onChange={(e) => onSelect(Number(e.target.value))} value={selected}>
             {items.map((it, i) => (
@@ -992,7 +992,7 @@ export function BarsWidget({ max, bars, reference, selected: initial, data, labe
   const r = sel >= 0 ? bars[sel]?.readout : undefined;
   return (
     <div className="flex flex-col gap-3" data-slot="bars-widget">
-      {reference && <p className="text-body-sm text-on-surface-variant">Dashed line: {reference.label}</p>}
+      {reference && <p data-meta="caption" className="text-meta text-on-surface-variant">Dashed line: {reference.label}</p>}
       <ul className="flex flex-col gap-2.5">
         {bars.map((b, i) => {
           const content = (
@@ -1006,7 +1006,7 @@ export function BarsWidget({ max, bars, reference, selected: initial, data, labe
                 {reference && <span className="absolute -inset-y-1 border-l-2 border-dashed border-on-surface-variant" style={{ left: pct(reference.value) }} />}
               </span>
               {b.lines?.map((l) => (
-                <span className="text-body-sm text-on-surface-variant" key={l}>
+                <span className="text-meta text-on-surface-variant" key={l}>
                   {l}
                 </span>
               ))}
@@ -1045,23 +1045,23 @@ export function TimelineWidget({ axis, span, headers, lanes }: Omit<TimelineSect
   return (
     <div className="flex flex-col gap-2" data-slot="timeline-widget">
       <div className="grid grid-cols-[minmax(7rem,30%)_1fr] items-end gap-x-3 @lg:grid-cols-[minmax(8rem,28%)_1fr_auto]">
-        <span className="text-label-md text-on-surface-variant">{headers?.track ?? ""}</span>
+        <span className="text-meta-strong text-on-surface-variant">{headers?.track ?? ""}</span>
         <div aria-hidden className="relative h-5">
           {axis.map((a) => (
-            <span className="absolute -translate-x-1/2 text-body-sm whitespace-nowrap text-on-surface-variant first:translate-x-0 last:-translate-x-full" key={a.label} style={{ left: pct(a.at) }}>
+            <span className="absolute -translate-x-1/2 text-meta whitespace-nowrap text-on-surface-variant first:translate-x-0 last:-translate-x-full" key={a.label} style={{ left: pct(a.at) }}>
               {a.label}
             </span>
           ))}
         </div>
-        <span className="hidden text-right text-label-md text-on-surface-variant @lg:block">{headers?.value ?? ""}</span>
+        <span className="hidden text-right text-meta-strong text-on-surface-variant @lg:block">{headers?.value ?? ""}</span>
       </div>
       <ul className="flex flex-col gap-2">
         {lanes.map((l) => (
           <li className="grid grid-cols-[minmax(7rem,30%)_1fr] items-start gap-x-3 gap-y-1 @lg:grid-cols-[minmax(8rem,28%)_1fr_auto]" key={l.name}>
             <span className="flex min-w-0 flex-col">
               <span className="text-sm text-on-surface">{l.name}</span>
-              {l.meta && <span className="text-body-sm text-on-surface-variant">{l.meta}</span>}
-              {l.period && <span className="text-body-sm text-on-surface-variant">{l.period}</span>}
+              {l.meta && <span className="text-meta text-on-surface-variant">{l.meta}</span>}
+              {l.period && <span className="text-meta text-on-surface-variant">{l.period}</span>}
             </span>
             <span aria-hidden className="relative block h-5 rounded-sm bg-surface-container">
               <span className={cn("absolute inset-y-0.5 rounded-sm", TONE_BAR[l.tone ?? "accent"])} style={{ left: pct(l.start), width: pct(Math.max(l.end - l.start, total * 0.01)) }} />
@@ -1147,7 +1147,7 @@ function CompareValue({ it }: { it: CompareSection["items"][number] }) {
   return (
     <Figure caption={it.detail} className="bg-transparent p-0" label={it.label} value={it.value}>
       {(it.source || it.system) && (
-        <span className="inline-flex items-center gap-1.5 text-body-sm text-on-surface-variant">
+        <span className="inline-flex items-center gap-1.5 text-meta text-on-surface-variant">
           <Logo system={it.system} size={14} />
           {it.source ?? it.system}
         </span>
@@ -1192,7 +1192,7 @@ export function CompareWidget({ relation = "vs", items, footer }: Pick<CompareSe
           </div>
         ))}
       </div>
-      {footer && <p className="border-t border-outline-faint pt-3 text-body-sm text-on-surface-variant">{footer}</p>}
+      {footer && <p data-meta="footnote" className="border-t border-outline-faint pt-3 text-meta text-on-surface-variant">{footer}</p>}
     </div>
   );
 }
@@ -1227,7 +1227,7 @@ export function QuoteWidget({ text, attribution, system }: { text: string; attri
   return (
     <figure className={cn("flex flex-col gap-2.5", own && "rounded-lg bg-card p-4")} data-slot="quote-widget">
       {attribution && (
-        <figcaption className="flex flex-wrap items-center gap-2 text-body-sm text-on-surface-variant">
+        <figcaption className="flex flex-wrap items-center gap-2 text-meta text-on-surface-variant">
           <PersonAvatar name={who.trim()} size="sm" />
           <span className="text-on-surface">{who.trim()}</span>
           {rest.length > 0 && <span>{rest.join(",").trim()}</span>}
@@ -1299,15 +1299,15 @@ function FieldControl({ f }: { f: AnswerField }) {
     case "segmented":
       return (
         <fieldset className="flex flex-col gap-1.5">
-          <legend className="mb-1.5 text-label-md text-on-surface-variant">{f.label}</legend>
+          <legend className="mb-1.5 text-label-lg text-on-surface-variant">{f.label}</legend>
           <Segmented aria-label={f.label} onValueChange={setSeg} options={(f.options ?? []).map((o) => ({ value: o, label: o }))} value={seg} />
-          {f.help && <p className="text-body-sm text-on-surface-variant">{f.help}</p>}
+          {f.help && <p className="text-body-md text-on-surface-variant">{f.help}</p>}
         </fieldset>
       );
     case "radio":
       return (
         <fieldset className="flex flex-col gap-1.5 @lg:col-span-2">
-          <legend className="mb-1.5 text-label-md text-on-surface-variant">{f.label}</legend>
+          <legend className="mb-1.5 text-label-lg text-on-surface-variant">{f.label}</legend>
           <RadioGroup aria-label={f.label} defaultValue={f.value} disabled={f.readonly}>
             {(f.options ?? []).map((o) => (
               <label className="flex cursor-pointer items-start gap-2.5 text-sm" key={o}>
@@ -1316,7 +1316,7 @@ function FieldControl({ f }: { f: AnswerField }) {
               </label>
             ))}
           </RadioGroup>
-          {f.help && <p className="text-body-sm text-on-surface-variant">{f.help}</p>}
+          {f.help && <p className="text-body-md text-on-surface-variant">{f.help}</p>}
         </fieldset>
       );
     case "checkbox":
@@ -1328,7 +1328,7 @@ function FieldControl({ f }: { f: AnswerField }) {
               {f.label}
             </label>
             {f.help && (
-              <p className="text-body-sm text-on-surface-variant" id={`${id}-h`}>
+              <p className="text-body-md text-on-surface-variant" id={`${id}-h`}>
                 {f.help}
               </p>
             )}
@@ -1338,7 +1338,7 @@ function FieldControl({ f }: { f: AnswerField }) {
     case "file":
       return (
         <div className="flex flex-col gap-1.5 @lg:col-span-2">
-          <span className="text-label-md text-on-surface-variant">{f.label}</span>
+          <span className="text-label-lg text-on-surface-variant">{f.label}</span>
           <FileDropzone hint={f.help} onFiles={() => {}} />
         </div>
       );
@@ -1383,7 +1383,7 @@ export function DraftWidget(d: Omit<DraftSection, "type"> & { sendActions?: Answ
   const press = (label: string) => run(d.effects?.[label], { message: setMsg, status: setStatus });
   return (
     <div className="flex flex-col overflow-hidden rounded-lg bg-card" data-slot="draft-widget">
-      <div className="flex flex-wrap items-center gap-2 border-b border-outline-variant bg-surface-container-low px-3.5 py-2 text-body-sm">
+      <div className="flex flex-wrap items-center gap-2 border-b border-outline-variant bg-surface-container-low px-3.5 py-2 text-body-md">
         <ServiceLogo service={d.app} size={16} />
         <span className="text-label-lg text-on-surface">{d.heading ?? `Draft in ${d.app}`}</span>
         {status && <ToneText className="ml-auto" status={status} />}
@@ -1415,7 +1415,7 @@ export function DraftWidget(d: Omit<DraftSection, "type"> & { sendActions?: Answ
       </label>
       <textarea className="min-h-32 w-full resize-y bg-transparent px-3.5 py-3 text-sm text-on-surface outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring" defaultValue={d.body.join("\n\n")} id={bodyId} placeholder={d.placeholder} />
       {d.footer?.length ? (
-        <div className="flex flex-col gap-0.5 border-t border-outline-faint px-3.5 py-2 text-body-sm text-on-surface-variant">
+        <div className="flex flex-col gap-0.5 border-t border-outline-faint px-3.5 py-2 text-meta text-on-surface-variant">
           {d.footer.map((f) => (
             <span key={f}>{f}</span>
           ))}
@@ -1441,16 +1441,16 @@ export function DraftWidget(d: Omit<DraftSection, "type"> & { sendActions?: Answ
                     {m.from}
                     {m.draft && <span className="text-on-surface-variant"> (draft)</span>}
                   </span>
-                  <span className="text-body-sm text-on-surface-variant">{m.subject}</span>
+                  <span className="text-body-md text-on-surface-variant">{m.subject}</span>
                 </span>
-                {m.when && <span className="shrink-0 text-body-sm text-on-surface-variant">{m.when}</span>}
+                {m.when && <span className="shrink-0 text-meta text-on-surface-variant">{m.when}</span>}
               </button>
               {openMail === i && m.body && <p className="px-3.5 pb-3 pl-12 text-sm whitespace-pre-line">{m.body}</p>}
             </li>
           ))}
         </ul>
       ) : null}
-      <p aria-live="polite" className={cn("px-3.5 pb-2 text-body-sm", !msg && "sr-only")} role="status">
+      <p aria-live="polite" className={cn("px-3.5 pb-2 text-body-md", !msg && "sr-only")} role="status">
         {msg}
       </p>
       {d.sendActions?.length ? <ActionTray actions={d.sendActions} className="border-t border-outline-faint px-3.5 py-2.5" note={d.sendNote} /> : null}
@@ -1495,7 +1495,7 @@ export function LinksWidget({ lead, leadStatus, links }: { lead?: string; leadSt
         ))}
       </ul>
       {msg && (
-        <p className="text-body-sm" role="status">
+        <p className="text-body-md" role="status">
           {msg}
         </p>
       )}
@@ -1544,7 +1544,7 @@ export function MediaWidget({ alt, caption, heading, text, action, actionHref, s
           // eslint-disable-next-line @next/next/no-img-element -- app-provided media
           <img alt={alt} className="size-full object-cover" src={src} />
         ) : (
-          <span aria-label={alt} className="flex flex-col items-center gap-2 p-4 text-center text-body-sm text-on-surface-variant" role="img">
+          <span aria-label={alt} className="flex flex-col items-center gap-2 p-4 text-center text-meta text-on-surface-variant" role="img">
             <ImageIcon aria-hidden className="size-6" />
             {system && <ServiceLogo service={system} size={16} />}
           </span>
@@ -1554,7 +1554,7 @@ export function MediaWidget({ alt, caption, heading, text, action, actionHref, s
         <figcaption className="flex flex-col gap-1.5">
           {heading && <span className="text-label-lg">{heading}</span>}
           {text && <span className="text-sm">{text}</span>}
-          {caption && <span className="text-body-sm text-on-surface-variant">{caption}</span>}
+          {caption && <span className="text-meta text-on-surface-variant">{caption}</span>}
           {action &&
             (actionHref ? (
               <Button asChild className="w-fit" size="sm" variant="secondary">
@@ -1601,7 +1601,7 @@ type MessageSection = Extract<AnswerSection, { type: "message" }>;
 export function MessageWidget({ channel, from, to, subject, text, status, when }: Omit<MessageSection, "type">) {
   return (
     <div className="flex flex-col gap-2.5" data-slot="message-widget">
-      <p className="flex flex-wrap items-center gap-2 text-body-sm text-on-surface-variant">
+      <p className="flex flex-wrap items-center gap-2 text-body-md text-on-surface-variant">
         <PersonAvatar name={from.name} size="sm" />
         <span className="text-on-surface">{from.name}</span>
         <ArrowRightIcon aria-label="to" className="size-3.5" role="img" />
@@ -1859,11 +1859,11 @@ export function AnswerView({
   }));
   return (
     <Ctx.Provider value={ctx}>
-      <article aria-labelledby={headId} className={cn("@container flex min-w-0 flex-col gap-3 rounded-2xl bg-surface-container p-3 wrap-break-word", className)} data-slot="answer">
+      <article aria-labelledby={headId} className={cn("@container flex min-w-0 flex-col gap-3 rounded-2xl bg-inset p-3 wrap-break-word", className)} data-slot="answer">
         <header className="flex flex-col gap-1.5 px-1 pt-1 pb-1">
           {d.tag && (
             <button
-              className="focus-ring state-layer [--state-hover:0.04] mb-1 inline-flex h-7 w-fit max-w-full items-center gap-2 rounded-md border border-outline-variant bg-card pr-2.5 pl-1 text-body-sm outline-none"
+              className="focus-ring state-layer [--state-hover:0.04] mb-1 inline-flex h-7 w-fit max-w-full items-center gap-2 rounded-md border border-outline-variant bg-card pr-2.5 pl-1 text-body-md outline-none"
               onClick={onOpenSystem}
               type="button"
             >
@@ -1876,7 +1876,7 @@ export function AnswerView({
             {d.headline}
           </H>
           {(d.context?.text || (d.context?.status && !d.actions?.length)) && (
-            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm text-on-surface-variant">
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body-md text-on-surface-variant">
               {d.context?.text}
               {d.context?.status && !d.actions?.length && <ToneText status={d.context.status} />}
             </p>
@@ -1901,7 +1901,7 @@ export function AnswerView({
             </TabsList>
             {d.tabs.map((t, i) => (
               <TabsContent className="flex flex-col gap-3 pt-3" key={t.label} value={String(i)}>
-                {t.meta && <p className="px-1 text-body-sm text-on-surface-variant">{t.meta}</p>}
+                {t.meta && <p data-meta="meta" className="px-1 text-meta text-on-surface-variant">{t.meta}</p>}
                 <Body aside={t.aside} layout={d.layout} sections={t.sections} />
               </TabsContent>
             ))}
@@ -1935,7 +1935,7 @@ export function AnswerSurface({ children, onNavigate, onOpenSystem, className }:
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
   return (
     <Ctx.Provider value={{ revealed, reveal: (id) => setRevealed((s) => new Set(s).add(id)), onNavigate, onOpenSystem, chooseVariant: () => {}, depth: 0, level: 4 }}>
-      <div className={cn("@container flex min-w-0 flex-col gap-3 rounded-2xl bg-surface-container p-3 wrap-break-word", className)} data-slot="answer-surface">
+      <div className={cn("@container flex min-w-0 flex-col gap-3 rounded-2xl bg-inset p-3 wrap-break-word", className)} data-slot="answer-surface">
         {children}
       </div>
     </Ctx.Provider>
@@ -1948,7 +1948,7 @@ export function AnswerSurface({ children, onNavigate, onOpenSystem, className }:
  */
 export function AnswerSkeleton({ label = "ACE is preparing the answer", className }: { label?: string; className?: string }) {
   return (
-    <div aria-busy="true" className={cn("flex min-w-0 flex-col gap-3 rounded-2xl bg-surface-container p-3", className)} data-slot="answer-skeleton" role="status">
+    <div aria-busy="true" className={cn("flex min-w-0 flex-col gap-3 rounded-2xl bg-inset p-3", className)} data-slot="answer-skeleton" role="status">
       <span className="sr-only">{label}</span>
       <div aria-hidden className="flex flex-col gap-2 px-1 pt-1 [&_[data-slot=skeleton]]:motion-reduce:animate-none">
         <Skeleton className="h-6 w-2/3" />

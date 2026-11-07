@@ -1,4 +1,6 @@
-import { ArrowLeftIcon } from "lucide-react";
+"use client";
+
+import { ArrowLeftIcon, ChevronDownIcon } from "lucide-react";
 
 import { LarkLink as Link } from "./provider";
 import type { ComponentProps, ReactNode } from "react";
@@ -6,6 +8,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 import { CountPill } from "./lists";
+import { MoreLabel, OverflowMeasure, splitOverflow, useOverflow } from "./overflow";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export type PageHeaderProps = Omit<ComponentProps<"header">, "title"> & {
   /**
@@ -61,14 +65,14 @@ export function PageHeader({
                 {back.label}
               </Link>
             )}
-            {eyebrow && <div className="text-label-md text-on-surface-variant">{eyebrow}</div>}
+            {eyebrow && <div className="text-meta-strong text-on-surface-variant">{eyebrow}</div>}
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
               <h1 className="text-title-md text-on-surface md:text-title-lg">{title}</h1>
               {status}
             </div>
             {description && <p className="max-w-[68ch] text-sm text-on-surface-variant">{description}</p>}
             {meta && (
-              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-body-sm text-on-surface-variant [&>*:not(:last-child)]:after:ml-1.5 [&>*:not(:last-child)]:after:content-['·']">
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-meta text-on-surface-variant [&>*:not(:last-child)]:after:ml-1.5 [&>*:not(:last-child)]:after:content-['·']">
                 {meta}
               </div>
             )}
@@ -83,21 +87,29 @@ export function PageHeader({
 
 export type PageTab = { label: string; href: string; count?: number; current?: boolean };
 
+const TAB =
+  "focus-ring relative inline-flex h-10 items-center gap-1.5 rounded-sm text-sm whitespace-nowrap text-on-surface-variant outline-none hover:text-on-surface";
+
 /**
  * Section navigation in Beams' underline style (2px ink, selected 550) that is a
  * list of links with aria-current="page", because each tab changes the URL. For panels
  * that swap in place, use ui/tabs (real ARIA tabs) instead.
+ * v0.7: never wraps or scrolls. Tabs that don't fit go into a "More" menu; the current tab
+ * always stays in the bar.
  */
 export function PageTabs({ tabs, label, className }: { tabs: PageTab[]; label: string; className?: string }) {
+  const pinned = tabs.findIndex((t) => t.current);
+  const { containerRef, measureRef, visible } = useOverflow(tabs.length, pinned);
+  const { shown, hidden } = splitOverflow(tabs, visible, pinned);
   return (
-    <nav aria-label={label} className={cn("-mb-px min-w-0 overflow-x-auto border-b border-outline-variant", className)}>
-      <ul className="flex w-max items-stretch gap-5" role="list">
-        {tabs.map((t) => (
+    <nav aria-label={label} className={cn("relative -mb-px min-w-0 overflow-hidden border-b border-outline-variant", className)} ref={containerRef as React.RefObject<HTMLElement>}>
+      <ul className="flex items-stretch gap-5" role="list">
+        {shown.map((t) => (
           <li className="flex" key={t.label}>
             <Link
               aria-current={t.current ? "page" : undefined}
               className={cn(
-                "focus-ring relative inline-flex h-10 items-center gap-1.5 rounded-sm text-sm whitespace-nowrap text-on-surface-variant outline-none hover:text-on-surface",
+                TAB,
                 "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-on-surface after:opacity-0",
                 "aria-[current=page]:font-semibold aria-[current=page]:text-on-surface aria-[current=page]:after:opacity-100"
               )}
@@ -108,7 +120,37 @@ export function PageTabs({ tabs, label, className }: { tabs: PageTab[]; label: s
             </Link>
           </li>
         ))}
+        {hidden.length > 0 && (
+          <li className="flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger className={TAB} data-slot="tabs-more">
+                <MoreLabel count={hidden.length} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {hidden.map((t) => (
+                  <DropdownMenuItem asChild key={t.label}>
+                    <Link href={t.href}>
+                      {t.label}
+                      {t.count != null && <CountPill className="ml-auto" value={t.count} variant="pill" />}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </li>
+        )}
       </ul>
+      <OverflowMeasure className="gap-5" measureRef={measureRef}>
+        {tabs.map((t) => (
+          <span className={cn(TAB, "font-semibold")} key={t.label}>
+            {t.label}
+            {t.count != null && <CountPill value={t.count} variant="pill" />}
+          </span>
+        ))}
+        <span className={TAB}>
+          More <ChevronDownIcon className="size-4" />
+        </span>
+      </OverflowMeasure>
     </nav>
   );
 }

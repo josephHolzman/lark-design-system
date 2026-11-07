@@ -79,7 +79,7 @@ export function AceChat() {
               <>
                 <span>ACE, deal desk agent</span>
                 <button
-                  className="focus-ring state-layer [--state-hover:0.04] inline-flex h-6 items-center gap-1.5 rounded-md bg-surface-container pr-2 pl-1 text-body-sm text-on-surface outline-none"
+                  className="focus-ring state-layer [--state-hover:0.04] inline-flex h-6 items-center gap-1.5 rounded-md bg-surface-container pr-2 pl-1 text-body-md text-on-surface outline-none"
                   onClick={openSystem}
                   type="button"
                 >

@@ -61,7 +61,7 @@ export function ActionMenu({
         {sections.map((s, si) => (
           <DropdownMenuGroup key={si}>
             {si > 0 && <DropdownMenuSeparator />}
-            {s.label && <DropdownMenuLabel className="text-label-md text-on-surface-tertiary">{s.label}</DropdownMenuLabel>}
+            {s.label && <DropdownMenuLabel className="text-meta-strong text-on-surface-tertiary">{s.label}</DropdownMenuLabel>}
             {s.items.map((it) =>
               it.disabledReason ? (
                 <Tooltip key={it.label}>
@@ -194,7 +194,7 @@ export function SavedViewMenu({
           ))}
         </div>
         <ul aria-label="Views" className="flex max-h-64 flex-col gap-0.5 overflow-auto" role="listbox">
-          {list.length === 0 && <li className="px-2 py-3 text-body-sm text-on-surface-variant">No views match.</li>}
+          {list.length === 0 && <li className="px-2 py-3 text-body-md text-on-surface-variant">No views match.</li>}
           {list.map((v) => (
             <li
               aria-selected={v.id === value}
@@ -218,7 +218,7 @@ export function SavedViewMenu({
               tabIndex={0}
             >
               <span className="min-w-0 flex-1 truncate">{v.name}</span>
-              {v.count && <span className="font-mono text-xs text-on-surface-variant">{v.count}</span>}
+              {v.count && <span className="font-mono text-meta text-on-surface-variant">{v.count}</span>}
               {v.id === value && <CheckIcon aria-hidden="true" className="size-4" />}
             </li>
           ))}
@@ -310,10 +310,10 @@ export function FacetFilterMenu({
                 onCheckedChange={(c) => setDraft((d) => (c ? [...d, f.value] : d.filter((x) => x !== f.value)))}
               />
               <span className="min-w-0 flex-1 truncate">{f.label}</span>
-              {f.count != null && <span className="font-mono text-xs text-on-surface-variant">{f.count}</span>}
+              {f.count != null && <span className="font-mono text-meta text-on-surface-variant">{f.count}</span>}
             </label>
           ))}
-          {list.length === 0 && <p className="px-2 py-3 text-body-sm text-on-surface-variant">No matches.</p>}
+          {list.length === 0 && <p className="px-2 py-3 text-body-md text-on-surface-variant">No matches.</p>}
         </fieldset>
         <div className="flex justify-between gap-2 border-t border-outline-variant p-2">
           <Button disabled={!draft.length} onClick={() => setDraft([])} size="sm" variant="ghost">
@@ -381,7 +381,7 @@ export function ColumnsPanel({
           value={q}
         />
       </label>
-      <p className="px-1 text-label-md text-on-surface-tertiary">
+      <p className="px-1 text-meta-strong text-on-surface-tertiary" data-meta="count">
         Shown columns <span className="font-mono">{visible.length}</span>
       </p>
       <ul className="flex flex-col gap-0.5" role="list">
@@ -437,7 +437,7 @@ export function FacetList({ label, facets, value, onChange }: { label: string; f
           type="button"
         >
           <span className="min-w-0 flex-1 truncate">{f.label}</span>
-          {f.count != null && <span className="font-mono text-xs text-on-surface-variant tabular-nums">{f.count}</span>}
+          {f.count != null && <span className="font-mono text-meta text-on-surface-variant tabular-nums">{f.count}</span>}
         </button>
       ))}
     </div>
@@ -466,7 +466,7 @@ export function CountSegments({ label, items, value, onChange }: { label: string
           type="button"
         >
           <span className="text-label-lg">{it.label}</span>
-          <span className="font-mono text-xs tracking-[-0.4px] text-on-surface-variant">{it.count}</span>
+          <span className="font-mono text-meta tracking-[-0.4px] text-on-surface-variant">{it.count}</span>
         </button>
       ))}
     </div>
@@ -493,7 +493,7 @@ export function VerticalNav({ label, items, value, onChange }: { label: string; 
             >
               {it.icon}
               <span className="flex-1">{it.label}</span>
-              {it.count != null && <span className="font-mono text-xs">{it.count}</span>}
+              {it.count != null && <span className="font-mono text-meta">{it.count}</span>}
             </button>
           </li>
         ))}

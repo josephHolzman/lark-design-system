@@ -87,7 +87,7 @@ export function SourceLine({
   className?: string;
 }) {
   return (
-    <p className={cn("inline-flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-body-sm text-on-surface-variant", className)} data-slot="source-line">
+    <p data-meta="source" className={cn("inline-flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-meta text-on-surface-variant", className)} data-slot="source-line">
       <ServiceLogo service={service} size={14} />
       <span className="text-on-surface">{service}</span>
       {record && <span>{record}</span>}
@@ -169,7 +169,7 @@ export function DealFigures({ items, money, className }: { items: DealFigure[]; 
     <dl className={cn("lark-stagger grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4", className)} data-slot="deal-figures">
       {items.map((f) => (
         <div className="flex min-w-0 flex-col gap-1" key={f.label}>
-          <dt className="text-label-md text-on-surface-variant">{f.label}</dt>
+          <dt className="text-label-lg text-on-surface-variant">{f.label}</dt>
           <dd className="flex flex-col gap-1">
             <span className="text-[1.875rem] leading-9 font-light tracking-[-0.02em] text-on-surface">
               <CountUp format={fmt(f)} value={f.value} />
@@ -177,7 +177,7 @@ export function DealFigures({ items, money, className }: { items: DealFigure[]; 
             {f.status && (
               <span
                 className={cn(
-                  "inline-flex items-center gap-1 text-body-sm",
+                  "inline-flex items-center gap-1 text-meta",
                   f.status.tone === "critical" ? "text-error" : f.status.tone === "caution" ? "text-on-warning-container" : f.status.tone === "positive" ? "text-success" : "text-on-surface-variant"
                 )}
               >
@@ -185,7 +185,7 @@ export function DealFigures({ items, money, className }: { items: DealFigure[]; 
                 {f.status.text}
               </span>
             )}
-            {f.delta && <span className={cn("text-body-sm", f.delta.good === undefined ? "text-on-surface-variant" : f.delta.good ? "text-success" : "text-error")}>{f.delta.text}</span>}
+            {f.delta && <span className={cn("text-meta whitespace-nowrap", f.delta.good === undefined ? "text-on-surface-variant" : f.delta.good ? "text-success" : "text-error")}>{f.delta.text}</span>}
             {f.source && <SourceLine meta={f.source.meta} record={f.source.record} service={f.source.service} />}
           </dd>
         </div>
@@ -306,10 +306,10 @@ export function QuoteLines({
   const families = [...new Set(lines.map((l) => l.family ?? ""))];
   const statusOf = (l: QuoteLine) => LINE_STATUS[l.status ?? (discountLimit !== undefined && l.discount > discountLimit ? "above-limit" : "ok")];
 
-  const th = "px-3 py-2 text-left align-bottom text-label-md font-normal text-on-surface-variant";
-  const sub = "block text-body-sm text-on-surface-tertiary";
+  const th = "px-3 py-2 text-left align-bottom text-meta-strong font-normal text-on-surface-variant";
+  const sub = "block text-meta text-on-surface-tertiary";
   const td = "border-t border-outline-faint px-3 py-3 align-top";
-  const proposedLine = "mt-1 flex items-center justify-end gap-1 text-body-sm font-semibold text-on-tertiary-container";
+  const proposedLine = "mt-1 flex items-center justify-end gap-1 text-meta font-semibold text-on-tertiary-container";
 
   const summary = (
     <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1.5 text-sm sm:min-w-72" data-slot="quote-totals">
@@ -357,14 +357,14 @@ export function QuoteLines({
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-col">
                   <span className="text-on-surface">{l.product}</span>
-                  <span className="text-body-sm text-on-surface-variant">{[l.sku, isOneTime(l) ? "One-time" : "Per year"].filter(Boolean).join(", ")}</span>
+                  <span className="text-meta text-on-surface-variant">{[l.sku, isOneTime(l) ? "One-time" : "Per year"].filter(Boolean).join(", ")}</span>
                 </div>
                 <span className="flex flex-col items-end text-right">
                   <span className="font-semibold tabular-nums">{m(netOf(l))}</span>
-                  {p && <span className="text-body-sm font-semibold text-on-tertiary-container tabular-nums">Proposed {m(netOf(proposedOf(l)))}</span>}
+                  {p && <span className="text-meta font-semibold text-on-tertiary-container tabular-nums">Proposed {m(netOf(proposedOf(l)))}</span>}
                 </span>
               </div>
-              <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-body-sm">
+              <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-body-md">
                 <dt className="text-on-surface-variant">Quantity</dt>
                 <dd className="tabular-nums">
                   {l.quantity.toLocaleString()}
@@ -377,7 +377,7 @@ export function QuoteLines({
                   {p?.discount !== undefined && <span className="font-semibold text-on-tertiary-container">Proposed {pct(p.discount)}</span>}
                 </dd>
               </dl>
-              <p className={cn("inline-flex items-start gap-1.5 text-body-sm", st.cls)}>
+              <p className={cn("inline-flex items-start gap-1.5 text-body-md", st.cls)}>
                 <st.icon aria-hidden className={cn("mt-0.5 size-3.5 shrink-0", st.spin && "animate-spin motion-reduce:animate-none")} />
                 <span>
                   {st.word}
@@ -385,7 +385,7 @@ export function QuoteLines({
                 </span>
               </p>
               {p && (
-                <p className="inline-flex items-start gap-1.5 text-body-sm text-on-tertiary-container">
+                <p className="inline-flex items-start gap-1.5 text-body-md text-on-tertiary-container">
                   <SparklesIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
                   Proposed by {p.by}
                   {p.reason ? `: ${p.reason}` : ""}
@@ -394,7 +394,7 @@ export function QuoteLines({
             </article>
           );
         })}
-        <div className="rounded-lg bg-surface-container px-3 py-2.5">{summary}</div>
+        <div className="rounded-lg bg-inset px-3 py-2.5">{summary}</div>
       </div>
 
       <div className={cn("flex flex-col max-md:hidden", className)} data-slot="quote-lines">
@@ -434,7 +434,7 @@ export function QuoteLines({
               <tbody key={fam || "_"}>
                 {fam && (
                   <tr>
-                    <th className="sticky left-0 border-t border-outline-variant bg-card px-3 pt-4 pb-1.5 text-left text-label-md font-semibold text-on-surface" colSpan={5} scope="rowgroup">
+                    <th className="sticky left-0 border-t border-outline-variant bg-card px-3 pt-4 pb-1.5 text-left text-label-lg font-semibold text-on-surface" colSpan={5} scope="rowgroup">
                       {fam}
                     </th>
                   </tr>
@@ -451,11 +451,11 @@ export function QuoteLines({
                         <th className={cn(td, "sticky left-0 z-[1] text-left font-normal", tint, p && "shadow-[inset_3px_0_0_var(--tertiary)]")} scope="row">
                           <span className="flex flex-col gap-0.5">
                             <span className="text-on-surface">{l.product}</span>
-                            <span className="text-body-sm text-on-surface-variant">
+                            <span className="text-meta text-on-surface-variant">
                               {[l.sku, isOneTime(l) ? "one-time" : null, l.start ? `starts ${l.start}` : null].filter(Boolean).join(", ")}
                             </span>
                             {/* Status lives with the product: one column fewer, and the reason reads with the line it's about. */}
-                            <span className={cn("mt-1 inline-flex items-start gap-1.5 text-body-sm", st.cls)}>
+                            <span className={cn("mt-1 inline-flex items-start gap-1.5 text-body-md", st.cls)}>
                               <st.icon aria-hidden className={cn("mt-0.5 size-3.5 shrink-0", st.spin && "animate-spin motion-reduce:animate-none")} />
                               <span>
                                 <span className="font-medium">{st.word}</span>
@@ -463,7 +463,7 @@ export function QuoteLines({
                               </span>
                             </span>
                             {p && (
-                              <span className="inline-flex items-start gap-1.5 text-body-sm text-on-tertiary-container">
+                              <span className="inline-flex items-start gap-1.5 text-body-md text-on-tertiary-container">
                                 <SparklesIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />
                                 <span>
                                   <span className="font-medium">{p.by} proposes a change</span>
@@ -479,14 +479,14 @@ export function QuoteLines({
                           ) : (
                             <>
                               {l.quantity.toLocaleString()}
-                              {l.unit && <span className="block text-body-sm text-on-surface-variant">{l.unit}</span>}
+                              {l.unit && <span className="block text-meta text-on-surface-variant">{l.unit}</span>}
                               {p?.quantity !== undefined && <span className={proposedLine}>Proposed {p.quantity.toLocaleString()}</span>}
                             </>
                           )}
                         </td>
                         <td className={cn(td, "text-right tabular-nums")}>
                           {m(l.listPrice)}
-                          {l.unit && <span className="block text-body-sm text-on-surface-variant">per {l.unit}</span>}
+                          {l.unit && <span className="block text-meta text-on-surface-variant">per {l.unit}</span>}
                         </td>
                         <td className={td}>
                           {editable && l.status !== "locked" ? (
@@ -500,7 +500,7 @@ export function QuoteLines({
                         </td>
                         <td className={cn(td, "text-right tabular-nums")}>
                           <span className={cn(p && "text-on-surface-variant")}>{m(netOf(l))}</span>
-                          {isOneTime(l) && <span className="block text-body-sm text-on-surface-variant">one-time</span>}
+                          {isOneTime(l) && <span className="block text-meta text-on-surface-variant">one-time</span>}
                           {p && <span className={proposedLine}>Proposed {m(netOf(pl))}</span>}
                         </td>
                       </tr>
@@ -573,9 +573,9 @@ export function PriceWaterfall({
         <li className="grid grid-cols-[minmax(8rem,14rem)_1fr_auto] items-center gap-3 border-b border-outline-faint py-2 last:border-0" key={i}>
           <span className="flex min-w-0 flex-col">
             <span className={cn("text-sm", r.total ? "font-semibold text-on-surface" : "text-on-surface")}>{r.label}</span>
-            {"detail" in r && r.detail && <span className="text-body-sm text-on-surface-variant">{r.detail}</span>}
+            {"detail" in r && r.detail && <span className="text-body-md text-on-surface-variant">{r.detail}</span>}
             {"source" in r && r.source && (
-              <span className="mt-0.5 inline-flex items-center gap-1 text-body-sm text-on-surface-variant">
+              <span className="mt-0.5 inline-flex items-center gap-1 text-meta text-on-surface-variant">
                 <ServiceLogo service={r.source} size={12} />
                 {r.source}
               </span>
@@ -623,7 +623,7 @@ export function PolicyChecks({ checks, className }: { checks: PolicyCheck[]; cla
   const counts = checks.reduce<Record<string, number>>((a, c) => ({ ...a, [c.status]: (a[c.status] ?? 0) + 1 }), {});
   return (
     <section aria-label="Policy checks" className={cn("flex flex-col gap-2", className)} data-slot="policy-checks">
-      <p className="text-body-sm text-on-surface-variant">
+      <p className="text-body-md text-on-surface-variant">
         {checks.length} rules checked: {counts.pass ?? 0} within policy
         {counts["needs-approval"] ? `, ${counts["needs-approval"]} need approval` : ""}
         {counts.exceeds ? `, ${counts.exceeds} over a limit` : ""}
@@ -638,12 +638,12 @@ export function PolicyChecks({ checks, className }: { checks: PolicyCheck[]; cla
               <p.icon aria-hidden className={cn("mt-0.5 size-4 shrink-0", p.cls)} />
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <p className="text-sm text-on-surface">{c.rule}</p>
-                {c.detail && <p className="text-body-sm text-on-surface-variant">{c.detail}</p>}
+                {c.detail && <p className="text-body-md text-on-surface-variant">{c.detail}</p>}
                 {c.source && <SourceLine record={c.source.record} service={c.source.service} />}
               </div>
               <div className="flex flex-col items-end gap-0.5 text-right">
-                <span className={cn("text-body-sm", p.cls)}>{p.word}</span>
-                {c.approver && <span className="text-body-sm text-on-surface-variant">{c.approver}</span>}
+                <span className={cn("text-body-md", p.cls)}>{p.word}</span>
+                {c.approver && <span className="text-body-md text-on-surface-variant">{c.approver}</span>}
               </div>
             </li>
           );
@@ -698,8 +698,8 @@ export function ApprovalRoute({ steps, className }: { steps: ApprovalStep[]; cla
       <ol aria-label="Approval route" className={cn("lark-stagger grid gap-3 @xl/route:auto-cols-fr @xl/route:grid-flow-col", className)} data-slot="approval-route">
         {steps.map((s, i) => (
           <li className="flex min-w-0 flex-col gap-2" key={s.id}>
-            <p className="flex items-center gap-2 text-label-md text-on-surface-variant">
-              <span className="inline-flex size-5 items-center justify-center rounded-full bg-surface-container-high text-xs leading-none font-medium tabular-nums text-on-surface">{i + 1}</span>
+            <p className="flex items-center gap-2 text-label-lg text-on-surface-variant">
+              <span className="inline-flex size-5 items-center justify-center rounded-full bg-surface-container-high text-meta leading-none font-medium tabular-nums text-on-surface">{i + 1}</span>
               <span>
                 {s.label}
                 {s.mode === "parallel" && s.approvers.length > 1 && <span className="text-on-surface-tertiary">, at the same time</span>}
@@ -714,25 +714,25 @@ export function ApprovalRoute({ steps, className }: { steps: ApprovalStep[]; cla
                       <PersonAvatar name={a.name} size="md" />
                       <div className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate text-sm text-on-surface">{a.name}</span>
-                        <span className="truncate text-body-sm text-on-surface-variant">{a.role}</span>
+                        <span className="truncate text-meta text-on-surface-variant">{a.role}</span>
                       </div>
                       {a.channel && (
-                        <span className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant">
+                        <span className="inline-flex items-center gap-1 text-meta text-on-surface-variant">
                           <ServiceLogo service={a.channel} size={14} />
                           <span className="sr-only">Decides in </span>
                           {a.channel}
                         </span>
                       )}
                     </div>
-                    <p className={cn("inline-flex items-center gap-1.5 text-body-sm", st.cls)}>
+                    <p className={cn("inline-flex items-center gap-1.5 text-body-md", st.cls)}>
                       <st.icon aria-hidden className="size-3.5" />
                       <span>
                         {st.word}
                         {a.when && <span className="text-on-surface-variant">, {a.when}</span>}
                       </span>
                     </p>
-                    {a.reason && <p className="text-body-sm text-on-surface-variant">Needed because: {a.reason}</p>}
-                    {a.note && <p className="rounded-md bg-surface-container px-2 py-1.5 text-body-sm text-on-surface">{a.note}</p>}
+                    {a.reason && <p className="text-body-md text-on-surface-variant">Needed because: {a.reason}</p>}
+                    {a.note && <p className="rounded-md bg-inset px-2 py-1.5 text-body-md text-on-surface">{a.note}</p>}
                   </li>
                 );
               })}
@@ -771,9 +771,9 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
   const labels = scenarios[0]?.metrics.map((m) => m.label) ?? [];
   const colTone = (s: Scenario) => (chosen === s.id ? "bg-secondary-container" : s.recommended ? "bg-primary-container/30" : undefined);
   const Delta = ({ mt }: { mt?: Scenario["metrics"][number] }) =>
-    mt?.delta ? <span className={cn("block text-body-sm", mt.better === undefined ? "text-on-surface-variant" : mt.better ? "text-success" : "text-error")}>{mt.delta}</span> : null;
+    mt?.delta ? <span className={cn("block text-meta", mt.better === undefined ? "text-on-surface-variant" : mt.better ? "text-success" : "text-error")}>{mt.delta}</span> : null;
   const Policy = ({ s }: { s: Scenario }) => (
-    <span className={cn("inline-flex items-start gap-1.5 text-body-sm", s.policy.ok ? "text-success" : "text-on-warning-container")}>
+    <span className={cn("inline-flex items-start gap-1.5 text-body-md", s.policy.ok ? "text-success" : "text-on-warning-container")}>
       {s.policy.ok ? <CheckIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" /> : <AlertTriangleIcon aria-hidden className="mt-0.5 size-3.5 shrink-0" />}
       {s.policy.text}
     </span>
@@ -787,7 +787,7 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
     ) : null;
   return (
     <section aria-label="Pricing options" className={cn("@container flex flex-col gap-3", className)} data-slot="scenario-compare">
-      <p className="text-body-sm text-on-surface-variant">{current}</p>
+      <p className="text-body-md text-on-surface-variant">{current}</p>
 
       {/* Wide containers (42rem+): one table, rows aligned across options. Decided by the
           container, not the viewport, so it also works in a side column or a peek. */}
@@ -810,7 +810,7 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
                     {s.recommended && <Badge variant="info">Recommended</Badge>}
                     {s.provisional && <ProvisionalBadge kind="unsaved" />}
                   </span>
-                  {s.summary && <span className="mt-1 block text-body-sm text-on-surface-variant">{s.summary}</span>}
+                  {s.summary && <span className="mt-1 block text-body-md text-on-surface-variant">{s.summary}</span>}
                 </th>
               ))}
             </tr>
@@ -890,7 +890,7 @@ export function ScenarioCompare({ scenarios, current = "Compared with quote R4",
                 {s.recommended && <Badge variant="info">Recommended</Badge>}
                 {s.provisional && <ProvisionalBadge kind="unsaved" />}
               </div>
-              {s.summary && <p className="text-body-sm text-on-surface-variant">{s.summary}</p>}
+              {s.summary && <p className="text-body-md text-on-surface-variant">{s.summary}</p>}
               {s.bestFor && s.bestFor.length > 0 && <BestFor items={s.bestFor} />}
             </header>
             <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 text-sm">
@@ -937,7 +937,7 @@ export function InvoiceSchedule({ rows, contractTotal, money, className }: { row
           <thead className="bg-surface-container-low">
             <tr>
               {["Invoice", "Service period", "Due", "Amount"].map((h, i) => (
-                <th className={cn("h-10 px-3 text-label-md font-normal text-on-surface-variant", i === 3 ? "text-right" : "text-left")} key={h} scope="col">
+                <th className={cn("h-10 px-3 text-meta-strong font-normal text-on-surface-variant", i === 3 ? "text-right" : "text-left")} key={h} scope="col">
                   {h}
                 </th>
               ))}
@@ -953,7 +953,7 @@ export function InvoiceSchedule({ rows, contractTotal, money, className }: { row
                 </th>
                 <td className="border-t border-outline-faint px-3 py-2.5">
                   {r.period}
-                  {r.note && <span className="block text-body-sm text-on-surface-variant">{r.note}</span>}
+                  {r.note && <span className="block text-body-md text-on-surface-variant">{r.note}</span>}
                 </td>
                 <td className="border-t border-outline-faint px-3 py-2.5 whitespace-nowrap">{r.due}</td>
                 <td className="border-t border-outline-faint px-3 py-2.5 text-right tabular-nums">{r.changed ? <Change from={m(r.changed.from)} to={m(r.amount)} /> : m(r.amount)}</td>
@@ -970,7 +970,7 @@ export function InvoiceSchedule({ rows, contractTotal, money, className }: { row
           </tfoot>
         </table>
       </div>
-      <p aria-live="polite" className={cn("inline-flex items-center gap-1.5 text-body-sm", diff === 0 ? "text-success" : "text-on-warning-container")}>
+      <p aria-live="polite" className={cn("inline-flex items-center gap-1.5 text-body-md", diff === 0 ? "text-success" : "text-on-warning-container")}>
         {diff === 0 ? <CheckCircle2Icon aria-hidden className="size-3.5" /> : <AlertTriangleIcon aria-hidden className="size-3.5" />}
         {diff === 0 ? `Balances exactly with the contract value, ${m(contractTotal)}.` : `${m(Math.abs(diff))} ${diff > 0 ? "more" : "less"} than the contract value (${m(contractTotal)}). Fix before saving.`}
       </p>
@@ -1012,10 +1012,10 @@ export function OrderMatch({
           <caption className="sr-only">Accepted quote compared with the purchase order</caption>
           <thead className="bg-surface-container-low">
             <tr>
-              <th className="h-10 px-3 text-left text-label-md font-normal text-on-surface-variant" scope="col">
+              <th className="h-10 px-3 text-left text-meta-strong font-normal text-on-surface-variant" scope="col">
                 Field
               </th>
-              <th className="h-10 px-3 text-left text-label-md font-normal text-on-surface-variant" scope="col">
+              <th className="h-10 px-3 text-left text-meta-strong font-normal text-on-surface-variant" scope="col">
                 <span className="inline-flex items-center gap-1.5">
                   <ServiceLogo service={accepted.service} size={14} />
                   Accepted: {accepted.record}
@@ -1024,7 +1024,7 @@ export function OrderMatch({
               <th className="w-10" scope="col">
                 <span className="sr-only">Match</span>
               </th>
-              <th className="h-10 px-3 text-left text-label-md font-normal text-on-surface-variant" scope="col">
+              <th className="h-10 px-3 text-left text-meta-strong font-normal text-on-surface-variant" scope="col">
                 <span className="inline-flex items-center gap-1.5">
                   <ServiceLogo service={received.service} size={14} />
                   Received: {received.record}
@@ -1050,7 +1050,7 @@ export function OrderMatch({
                 </td>
                 <td className="border-t border-outline-faint px-3 py-2.5 align-top">
                   <span className={cn(r.status !== "match" && "rounded-sm px-1 ring-1 ring-warning")}>{r.status === "missing" ? <em className="text-on-surface-variant">Not on the PO</em> : r.received}</span>
-                  {r.resolution && <span className="mt-1 block text-body-sm text-on-surface-variant">{r.resolution}</span>}
+                  {r.resolution && <span className="mt-1 block text-meta text-on-surface-variant">{r.resolution}</span>}
                 </td>
               </tr>
             ))}
@@ -1067,7 +1067,7 @@ export function OrderMatch({
 /** Why an action can't run right now, and the one thing that unblocks it (Apply blocked, Self-approval denied). */
 export function BlockedReason({ title, children, action, className }: { title: ReactNode; children?: ReactNode; action?: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex items-start gap-2.5 rounded-lg bg-surface-container p-3 text-sm", className)} data-slot="blocked-reason">
+    <div className={cn("flex items-start gap-2.5 rounded-lg bg-inset p-3 text-sm", className)} data-slot="blocked-reason">
       <BanIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-on-surface-variant" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="font-semibold text-on-surface">{title}</p>
@@ -1116,14 +1116,14 @@ export function ApprovalMatrix({
   return (
     <div className={cn("overflow-x-auto rounded-lg border border-edge bg-card", className)} data-slot="approval-matrix">
       <table className="w-full min-w-[30rem] border-separate border-spacing-0 text-sm">
-        <caption className="px-4 pt-3 pb-2 text-left text-body-sm text-on-surface-variant">{caption}</caption>
+        <caption className="px-4 pt-3 pb-2 text-left text-meta text-on-surface-variant">{caption}</caption>
         <thead>
           <tr>
-            <th className="w-[1%] border-b border-outline-variant px-4 py-2 text-left text-label-md font-normal whitespace-nowrap text-on-surface-variant" scope="col">
+            <th className="w-[1%] border-b border-outline-variant px-4 py-2 text-left text-meta-strong font-normal whitespace-nowrap text-on-surface-variant" scope="col">
               Condition
             </th>
             {levels.map((l) => (
-              <th className="border-b border-outline-variant px-1 py-2 text-center text-label-md font-normal whitespace-nowrap text-on-surface-variant" key={l.id} scope="col">
+              <th className="border-b border-outline-variant px-1 py-2 text-center text-meta-strong font-normal whitespace-nowrap text-on-surface-variant" key={l.id} scope="col">
                 {l.label}
               </th>
             ))}
@@ -1139,12 +1139,12 @@ export function ApprovalMatrix({
                     <span className="text-on-surface">{r.label}</span>
                     {isChanged && <Badge variant="warning">Changed</Badge>}
                   </span>
-                  {r.description && <span className="block text-body-sm text-on-surface-variant">{r.description}</span>}
+                  {r.description && <span className="block text-body-md text-on-surface-variant">{r.description}</span>}
                 </th>
                 {levels.map((l) => {
                   const on = value[r.id] === l.id;
                   const cell = cn(
-                    "flex h-8 w-full items-center justify-center gap-1.5 rounded-md border px-1.5 text-label-md whitespace-nowrap transition-colors",
+                    "flex h-8 w-full items-center justify-center gap-1.5 rounded-md border px-1.5 text-meta-strong whitespace-nowrap transition-colors",
                     on ? "border-selected-border bg-secondary-container text-on-secondary-container" : "border-transparent bg-surface-container text-on-surface-tertiary"
                   );
                   return (

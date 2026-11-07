@@ -3,6 +3,78 @@
 All notable changes to Lark (`@josephholzman/lark`, imported as `@deepgrids/lark`). Versions follow semver; until 1.0, minor versions may
 change component APIs (each is listed here).
 
+## 0.7.0 (2026-11-07)
+
+The redesign rules (one job per module, a real type ladder, three surfaces, room, narrow
+behaviour) in the library first: foundations, a re-audit of the components, and the first
+two patterns rebuilt on them.
+
+**New patterns**
+
+- **`ApprovalPath`** (`lark/approvals`), replacing `ApprovalRoute` for new work. One job: "who
+  still has to approve, and what's blocking?". The answer first, in words
+  (`summarizeApprovals`: "2 of 6 approved · waiting on Pricing, Finance and Legal", or
+  "Blocked: Finance returned it · 2 of 6 approved"); a segmented progress bar; stages as a
+  horizontal track with connectors from 48rem of its own width, a vertical stepper below that;
+  parallel approvers stacked in an inset inside their stage; each approver a compact row
+  (avatar, name, role, StatusBadge) whose reason, note, channel and time open in place
+  (`aria-expanded`). Restricted approvers (`restricted: true`) show the role and decision, not
+  the person. `ApprovalPathSkeleton` for loading.
+- **`ActivityFeed`** (`lark/activity`): entries coded by party (customer, seller, internal,
+  system) with a mark, a colour and the word; the message as a quote; one meta line (time,
+  reference); grouped by day ("Today", "Yesterday", dates); Segmented filters with counts;
+  "Show older" after `initialCount`; provenance said once at the top; `ActivityFeedSkeleton`.
+- **`SituationSummary`**: the lead band above a feed or a record: status in words, the problem
+  in one line, the next step, one action. Lays out by its own width.
+- Examples `/examples/approvals` and `/examples/deal-activity` with a state switcher (default,
+  loading, empty, error, missing fields, long names and big numbers, conflicting sources,
+  permission-limited, many rows) and a 420px side-panel width; `?state=…&width=panel` opens one
+  directly. Playwright runs axe and an overflow check on every state at both widths.
+
+**Fixes**
+
+- `cn()` (tailwind-merge) now knows `text-meta`, `text-meta-strong`, `text-title-module` and
+  the display sizes as font sizes. Without it, `cn("text-meta", "text-on-surface-variant")`
+  dropped the size and the text fell back to 16px.
+- `useOverflow` shows every item when its container isn't laid out (hidden panels, tests).
+
+**Foundations**
+
+- **Type ladder:** page 30 → module 20 (`text-title-module`; 18 previewable, open decision) →
+  item 16 (`text-title-sm`) → body 14 → meta 12. **12px is metadata only:** new `text-meta` and
+  `text-meta-strong`; the raw 12px classes (`text-xs`, `text-body-sm`, `text-label-md`,
+  `text-subtext`) are gone from Lark's components and examples. Of 248 uses, 140 were metadata
+  (now `text-meta`) and 108 were sentences, labels or legends (now 14px).
+- **`lark-lint`** (`npx lark-lint src`, also `npm run lint:lark`, part of `verify`): fails a raw
+  12px class, and `text-meta` on a sentence (a `<p>`, `<li>`, `<label>`, `<legend>` or
+  `<blockquote>` without `data-meta`, or a description, help, detail, note, reason, message).
+- **Surfaces (after Cohere's North UI, sampled from product screenshots):** new `--module`,
+  `--inset` and `--edge` roles (`bg-module`, `bg-inset`, `border-edge`). Light uses Cohere's
+  lightness steps with a faint sand cast (new `linen` steps, OKLCH chroma .0045): canvas
+  linen-98 #fbfaf7 → module white with an 11% ink hairline → inset linen-95 #f3f2ef; the light
+  surface-container ramp moves to linen too (stone-150 insets read as sand and too strong). Dusk:
+  dusk-100 → dusk-300 (modules were dusk-200, barely off the canvas) → dusk-400. Groups and trays
+  inside modules use `bg-inset`. Tested for separation and 4.5:1 text on every step.
+- **Spacing tokens:** `p-module` / `gap-module-gap` (24, 16 under 640px or inside a module under
+  30rem), `gap-item` (16), `p-row` (12); `rounded-module` (16; 12 previewable, open decision).
+  Page layouts use 24px gaps; list rows have 12px padding.
+- **SectionCard:** 24px padding, module title, `variant="feature"` (`tone` iris or sky) and
+  `variant="status"` (`tone` warning, error, success, info; always an icon tile, title says the
+  status), optional `icon` tile; title clamps at 2 lines. `ui/Card` uses the same module tokens.
+- **Narrow behaviour:** `TruncateText`, `ClampText` (full text in a focusable tooltip when cut)
+  and `NoBreak`. `PageTabs` and `Segmented` never wrap or scroll: overflow goes to a "More" menu
+  and the current item stays visible (`useOverflow`, `splitOverflow`). `Segmented` options take a
+  `count`. `DescriptionList` inline pairs stack under 22rem; `ListItem` trailing content wraps
+  below the row under 12rem; `ChatWelcome` tasks are rows of a list under 28rem (container, not
+  viewport); `ApprovalChain` lanes stack under 13rem each; `Figure` values never break mid-number.
+- **Colour jobs:** `AskAceButton` is sky (primary), not reversed.
+- Item titles at 16: Callout, TimelineItem, StepList, ActionCard, ListItem. Dialog and Sheet
+  titles at the module step. DescriptionList terms 14px.
+- Examples: `/examples/foundations` (ladder, surfaces, variants, the two open decisions side by
+  side) and `/examples/width-matrix` (280–1080). Playwright: `npm run test:e2e` runs the width
+  matrix (no overflow, no wrapping, screenshots per width) and axe with colour contrast on every
+  example page in light, dusk and at 390px.
+
 ## 0.6.0 (2026-11-07)
 
 Shapes from Cohere's product UI, fitted to Lark's rules, and cited answers for approvers.

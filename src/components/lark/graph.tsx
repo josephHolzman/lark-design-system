@@ -62,7 +62,7 @@ export function GraphNode({ title, meta, icon, tone = "neutral", selected, dimme
       )}
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-label-lg">{title}</span>
-        <span className="truncate text-body-sm text-on-surface-variant">{meta}</span>
+        <span className="truncate text-meta text-on-surface-variant">{meta}</span>
       </span>
       {selected && <span className="sr-only">, selected</span>}
       {children}
@@ -79,7 +79,7 @@ export type GraphEdgeLabelProps = ComponentProps<"div">;
 export function GraphEdgeLabel({ className, ...props }: GraphEdgeLabelProps) {
   return (
     <div
-      className={cn("nodrag nopan pointer-events-auto absolute inline-flex h-5 items-center rounded-full border border-outline-variant bg-surface px-2 text-label-md whitespace-nowrap text-on-surface-variant", className)}
+      className={cn("nodrag nopan pointer-events-auto absolute inline-flex h-5 items-center rounded-full border border-outline-variant bg-surface px-2 text-meta-strong whitespace-nowrap text-on-surface-variant", className)}
       data-slot="graph-edge-label"
       {...props}
     />

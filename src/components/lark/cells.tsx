@@ -33,7 +33,7 @@ export function RecordCell({ leading, name, href, onOpen, meta }: { leading?: Re
             {name}
           </button>
         )}
-        {meta && <span className="truncate text-body-sm text-on-surface-tertiary">{meta}</span>}
+        {meta && <span className="truncate text-meta text-on-surface-tertiary">{meta}</span>}
       </span>
     </span>
   );
@@ -44,7 +44,7 @@ export function TextCell({ title, preview }: { title: ReactNode; preview?: React
   return (
     <span className="flex min-w-0 flex-col">
       <span className="truncate">{title}</span>
-      {preview && <span className="truncate text-body-sm text-on-surface-variant">{preview}</span>}
+      {preview && <span className="truncate text-meta text-on-surface-variant">{preview}</span>}
     </span>
   );
 }
@@ -55,7 +55,7 @@ export function MoneyCell({ value, currency = "USD", sub, compact }: { value: nu
   return (
     <span className="flex flex-col items-end">
       <span className="tabular-nums">{fmt.format(value)}</span>
-      {sub && <span className="text-body-sm text-on-surface-tertiary">{sub}</span>}
+      {sub && <span className="text-meta text-on-surface-tertiary">{sub}</span>}
     </span>
   );
 }
@@ -95,7 +95,7 @@ export function SparklineCell({ points, summary, width = 64, change }: { points:
         <circle cx={width} cy={18 - ((points[points.length - 1] - min) / span) * 16} fill="currentColor" r="2" />
       </svg>
       {change && (
-        <span aria-hidden="true" className={cn("text-body-sm tabular-nums", up ? "text-on-surface-variant" : "text-on-warning-container")}>
+        <span aria-hidden="true" className={cn("text-meta tabular-nums", up ? "text-on-surface-variant" : "text-on-warning-container")}>
           {change}
         </span>
       )}
@@ -113,7 +113,7 @@ export function ProgressCell({ done, total, label }: { done: number; total: numb
           <span className={cn("h-1.5 w-4 rounded-full", i < done ? "bg-success" : "bg-outline-strong")} key={i} />
         ))}
       </span>
-      <span className="text-body-sm whitespace-nowrap text-on-surface-variant tabular-nums">
+      <span className="text-meta whitespace-nowrap text-on-surface-variant tabular-nums">
         {done} of {total}
         <span className="sr-only"> {label ?? "complete"}</span>
       </span>
@@ -133,7 +133,7 @@ export function AvatarStack({ names, max = 3 }: { names: string[]; max?: number 
             <PersonAvatar className="-ml-1.5 ring-2 ring-card first:ml-0" key={n} name={n} size="sm" />
           ))}
           {rest > 0 && (
-            <span aria-hidden="true" className="-ml-1.5 inline-flex size-6 items-center justify-center rounded-full bg-surface-container-high text-xs leading-none font-medium tabular-nums text-on-surface-variant ring-2 ring-card">
+            <span aria-hidden="true" className="-ml-1.5 inline-flex size-6 items-center justify-center rounded-full bg-surface-container-high text-meta leading-none font-medium tabular-nums text-on-surface-variant ring-2 ring-card">
               +{rest}
             </span>
           )}
@@ -160,7 +160,7 @@ export function TagsCell({ tags, max = 2 }: { tags: Tag[]; max?: number }) {
       {rest.length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className="focus-ring inline-flex h-5 items-center rounded-full bg-surface-container px-1.5 text-xs leading-none font-medium tabular-nums text-on-surface-variant outline-none" type="button">
+            <button className="focus-ring inline-flex h-5 items-center rounded-full bg-surface-container px-1.5 text-meta leading-none font-medium tabular-nums text-on-surface-variant outline-none" type="button">
               +{rest.length}
               <span className="sr-only"> more: {rest.map((r) => r.label).join(", ")}</span>
             </button>
@@ -179,7 +179,7 @@ export function DateCell({ iso, label, relative }: { iso: string; label: string;
       <time dateTime={iso} title={iso}>
         {label}
       </time>
-      {relative && <span className="text-body-sm text-on-surface-tertiary">{relative}</span>}
+      {relative && <span className="text-meta text-on-surface-tertiary">{relative}</span>}
     </span>
   );
 }

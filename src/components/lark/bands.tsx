@@ -55,7 +55,7 @@ export function HeroBand({ eyebrow, title, description, actions, media, mediaAlt
       {...props}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        {eyebrow && <p className="text-label-md text-on-surface-variant">{eyebrow}</p>}
+        {eyebrow && <p data-meta="eyebrow" className="text-meta-strong text-on-surface-variant">{eyebrow}</p>}
         <Heading className="text-title-lg text-balance" id={titleId}>
           {title}
         </Heading>
@@ -136,7 +136,7 @@ export function IllustratedChoiceCard({
             {title}
           </span>
           {current && (
-            <span aria-hidden="true" className="ml-auto inline-flex h-5 items-center rounded-full bg-secondary-container px-2 text-label-md text-on-secondary-container">
+            <span aria-hidden="true" className="ml-auto inline-flex h-5 items-center rounded-full bg-secondary-container px-2 text-meta-strong text-on-secondary-container">
               Current
             </span>
           )}

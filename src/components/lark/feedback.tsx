@@ -146,7 +146,7 @@ export function Callout({
         {icon ?? <Icon />}
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        {title && <p className={cn("text-label-lg font-semibold", t.title)}>{title}</p>}
+        {title && <p className={cn("text-title-sm", t.title)}>{title}</p>}
         {children && <div className="min-w-0 text-on-surface [&_a]:underline [&_a]:underline-offset-3 [&_ul]:list-disc [&_ul]:pl-5">{children}</div>}
         {actions && <div className="mt-1.5 flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
@@ -227,7 +227,7 @@ export function StatePanel({
         {description && <p className="text-sm text-on-surface-variant">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap justify-center gap-2">{actions}</div>}
-      {details && <p className="font-mono text-xs text-on-surface-tertiary">{details}</p>}
+      {details && <p data-meta="details" className="font-mono text-meta text-on-surface-tertiary">{details}</p>}
     </div>
   );
 }
@@ -274,7 +274,7 @@ export type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
  */
 export function SaveStatus({ state, onRetry, savedLabel = "Saved", className }: { state: SaveState; onRetry?: () => void; savedLabel?: string; className?: string }) {
   return (
-    <span aria-live="polite" className={cn("inline-flex items-center gap-1.5 text-body-sm text-on-surface-variant", className)} role="status">
+    <span aria-live="polite" className={cn("inline-flex items-center gap-1.5 text-meta text-on-surface-variant", className)} role="status">
       {state === "dirty" && (
         <>
           <span aria-hidden="true" className="size-1.5 rounded-full bg-warning" /> Unsaved changes
@@ -371,7 +371,7 @@ export function UnsavedChangesBar({
       <div className="ml-auto flex items-center gap-2">
         {confirming ? (
           <>
-            <span className="text-body-sm text-on-surface-variant">Discard your changes?</span>
+            <span className="text-body-md text-on-surface-variant">Discard your changes?</span>
             <Button onClick={() => setConfirming(false)} size="sm" variant="ghost">
               Keep editing
             </Button>
@@ -405,7 +405,7 @@ export function UnsavedChangesBar({
 /** Marks a field or row whose value differs from the saved one. Not colour alone: it has a text label. */
 export function DirtyMark({ label = "Edited" }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1 text-label-md text-on-warning-container">
+    <span className="inline-flex items-center gap-1 text-meta-strong text-on-warning-container">
       <span aria-hidden="true" className="size-1.5 rounded-full bg-warning" />
       {label}
     </span>

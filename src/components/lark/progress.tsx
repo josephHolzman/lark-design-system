@@ -44,7 +44,7 @@ export function StageProgress({ stages, current, orientation = "horizontal", cla
               <span
                 aria-hidden="true"
                 className={cn(
-                  "relative z-10 inline-flex size-6 shrink-0 items-center justify-center rounded-full text-label-md tabular-nums",
+                  "relative z-10 inline-flex size-6 shrink-0 items-center justify-center rounded-full text-meta-strong tabular-nums",
                   state === "complete" && "bg-on-surface text-surface",
                   state === "current" && "border-2 border-on-surface bg-card text-on-surface",
                   state === "upcoming" && "border border-outline bg-card text-on-surface-variant"
@@ -70,7 +70,7 @@ export function StageProgress({ stages, current, orientation = "horizontal", cla
                   {state === "complete" ? ", complete" : state === "current" ? ", current step" : ", not started"}
                 </span>
               </span>
-              {s.description && <span className="text-body-sm text-on-surface-variant">{s.description}</span>}
+              {s.description && <span className="text-body-md text-on-surface-variant">{s.description}</span>}
             </div>
           </li>
         );
@@ -122,15 +122,15 @@ export function TimelineItem({ icon, tone = "neutral", title, description, meta,
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
         <div className="flex min-w-0 items-baseline gap-2">
-          <span className="min-w-0 flex-1 text-sm font-medium">{title}</span>
+          <span className="min-w-0 flex-1 text-title-sm">{title}</span>
           {time && (
-            <time className="shrink-0 text-body-sm text-on-surface-variant tabular-nums" dateTime={time.dateTime}>
+            <time className="shrink-0 text-meta text-on-surface-variant tabular-nums" dateTime={time.dateTime}>
               {time.label}
             </time>
           )}
         </div>
-        {description && <p className="text-body-sm text-on-surface">{description}</p>}
-        {meta && <p className="text-body-sm text-on-surface-variant">{meta}</p>}
+        {description && <p className="text-body-md text-on-surface">{description}</p>}
+        {meta && <p data-meta="meta" className="text-meta text-on-surface-variant">{meta}</p>}
       </div>
     </li>
   );
@@ -166,7 +166,9 @@ export function ApprovalChain({ steps, layout = "stack", className }: { steps: A
     <ol
       className={cn(
         "min-w-0",
-        lanes ? "grid divide-y divide-outline-variant md:grid-cols-[repeat(var(--lanes),minmax(0,1fr))] md:divide-x md:divide-y-0" : "flex flex-col gap-2",
+        // v0.7: lanes sit side by side only while each gets 13rem; narrower, they stack (by the
+        // space they have, not the viewport, so a side panel stacks on a wide screen).
+        lanes ? "grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr))]" : "flex flex-col gap-2",
         className
       )}
       data-layout={layout}
@@ -174,10 +176,10 @@ export function ApprovalChain({ steps, layout = "stack", className }: { steps: A
       style={lanes ? ({ "--lanes": steps.length } as CSSProperties) : undefined}
     >
       {steps.map((s, i) => (
-        <li className={cn("flex min-w-0 gap-3", lanes ? "p-4" : "rounded-lg border border-edge bg-card p-3")} key={s.title}>
+        <li className={cn("flex min-w-0 gap-3 rounded-lg border border-edge bg-card", lanes ? "p-4" : "p-3")} key={s.title}>
           <span
             aria-hidden="true"
-            className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-container tabular-nums leading-none font-medium text-xs text-on-surface-variant"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-container tabular-nums leading-none font-medium text-meta text-on-surface-variant"
           >
             {i + 1}
           </span>
@@ -186,13 +188,13 @@ export function ApprovalChain({ steps, layout = "stack", className }: { steps: A
             <div className={cn("flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1", lanes && "flex-col items-start")}>
               <span className="text-title-sm">{s.title}</span>
               {s.sku && (
-                <span className="rounded-md bg-surface-container-high px-1.5 py-0.5 font-mono text-xs leading-4 text-on-surface-variant">
+                <span className="rounded-md bg-surface-container-high px-1.5 py-0.5 font-mono text-meta leading-4 text-on-surface-variant">
                   {s.sku}
                 </span>
               )}
               <StatusBadge className={lanes ? undefined : "ml-auto"} status={s.status} />
             </div>
-            <div className="flex items-start gap-2 text-body-sm text-on-surface-variant">
+            <div className="flex items-start gap-2 text-body-md text-on-surface-variant">
               <PersonAvatar name={s.approver} size="xs" />
               {/* 18px text beside a 20px avatar: nudge the first line to the avatar's centre. */}
               <span className="pt-px">
@@ -200,11 +202,11 @@ export function ApprovalChain({ steps, layout = "stack", className }: { steps: A
                 {s.when && <> · {s.when}</>}
               </span>
             </div>
-            {s.condition && <p className="text-body-sm text-on-surface-variant">{s.condition}</p>}
+            {s.condition && <p className="text-body-md text-on-surface-variant">{s.condition}</p>}
             {s.note && (
-              <p className="rounded-md bg-surface-container px-2.5 py-1.5 text-body-sm text-on-surface">{s.note}</p>
+              <p className="rounded-md bg-inset px-2.5 py-1.5 text-body-md text-on-surface">{s.note}</p>
             )}
-            {s.dependency && <p className="text-body-sm text-on-surface-variant">{s.dependency}</p>}
+            {s.dependency && <p className="text-body-md text-on-surface-variant">{s.dependency}</p>}
             {s.action && <div className="mt-auto flex flex-wrap items-center gap-2 pt-1.5">{s.action}</div>}
           </div>
         </li>

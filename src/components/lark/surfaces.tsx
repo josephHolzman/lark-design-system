@@ -44,7 +44,7 @@ export function Tray({ title, description, action, footer, link, as: H = "h3", c
   return (
     <section
       aria-labelledby={title ? id : undefined}
-      className={cn("flex min-w-0 flex-col gap-3 rounded-2xl bg-surface-container p-3", className)}
+      className={cn("flex min-w-0 flex-col gap-3 rounded-2xl bg-inset p-3", className)}
       data-slot="tray"
       {...props}
     >
@@ -56,7 +56,7 @@ export function Tray({ title, description, action, footer, link, as: H = "h3", c
                 {title}
               </H>
             )}
-            {description && <p className="text-body-sm text-on-surface-variant">{description}</p>}
+            {description && <p className="text-body-md text-on-surface-variant">{description}</p>}
           </div>
           {action && <div className="-my-1 flex shrink-0 items-center gap-1">{action}</div>}
         </header>
@@ -95,7 +95,7 @@ export function ProvisionalBadge({ kind = "proposed", children, className }: { k
   const p = PROVISIONAL[kind];
   return (
     <span
-      className={cn("inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-full border border-dashed px-2 text-label-md whitespace-nowrap", p.cls, className)}
+      className={cn("inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-full border border-dashed px-2 text-meta-strong whitespace-nowrap", p.cls, className)}
       data-kind={kind}
       data-slot="provisional-badge"
     >
@@ -132,7 +132,7 @@ export function CompoundTag({
   return (
     <span
       className={cn(
-        "inline-flex h-6 w-fit shrink-0 items-stretch overflow-hidden rounded-full border text-label-md whitespace-nowrap",
+        "inline-flex h-6 w-fit shrink-0 items-stretch overflow-hidden rounded-full border text-meta-strong whitespace-nowrap",
         tone === "neutral" && "border-outline-strong bg-surface-container-lowest text-on-surface",
         tone === "ai" && "border-ai-border bg-tertiary-container text-on-tertiary-container",
         tone === "warning" && "border-transparent bg-warning-container text-on-warning-container",
@@ -228,7 +228,7 @@ export function Freshness({ at, label, staleAfter, now, verb = "Updated", classN
   const stale = known && staleAfter !== undefined && ref - date.getTime() > staleAfter * 60_000;
   const phrase = label ?? (known ? relativeTime(date, new Date(ref)) : `at ${date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`);
   return (
-    <span className={cn("inline-flex items-center gap-1 text-body-sm", stale ? "text-on-warning-container" : "text-on-surface-tertiary", className)} data-slot="freshness" data-stale={stale || undefined}>
+    <span className={cn("inline-flex items-center gap-1 text-meta", stale ? "text-on-warning-container" : "text-on-surface-tertiary", className)} data-slot="freshness" data-stale={stale || undefined}>
       {stale && <ClockIcon aria-hidden className="size-3.5" />}
       {verb}{" "}
       {/* The server can't know the reader's clock or time zone: it renders the exact time, and the

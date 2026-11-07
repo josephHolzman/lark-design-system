@@ -229,8 +229,8 @@ export function WidgetGallery() {
               {f.entries.map((e) => (
                 <div className="flex min-w-0 flex-col gap-2" key={e.type}>
                   <div className="flex flex-col gap-0.5">
-                    <h3 className="font-mono text-label-md text-on-surface">{e.type}</h3>
-                    <p className="text-body-sm text-on-surface-variant">{e.when}</p>
+                    <h3 className="font-mono text-label-lg text-on-surface">{e.type}</h3>
+                    <p className="text-body-md text-on-surface-variant">{e.when}</p>
                   </div>
                   <AnswerSurface className="flex-1 [&>*:only-child]:flex-1">{e.node ?? (e.section ? <AnswerSectionView section={e.section} /> : null)}</AnswerSurface>
                 </div>

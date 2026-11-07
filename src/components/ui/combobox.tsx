@@ -159,7 +159,7 @@ function Combobox({
       {clearable && selected && !disabled && (
         <button
           aria-label={`Clear ${selected.label}`}
-          className="focus-ring hit-area absolute top-1/2 right-7 inline-flex size-5 -translate-y-1/2 items-center justify-center rounded-sm text-on-surface-variant outline-none hover:text-on-surface"
+          className="focus-ring hit-area absolute top-1/2 right-7 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-sm text-on-surface-variant outline-none hover:text-on-surface"
           onClick={() => onValueChange(undefined)}
           type="button"
         >

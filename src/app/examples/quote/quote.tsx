@@ -136,7 +136,7 @@ export function QuoteWorkbench() {
               <>
                 <span>Renewal, 36 months</span>
                 <span>Priya Raman</span>
-                <span className="font-mono text-xs">OPP-20431</span>
+                <span className="font-mono text-meta">OPP-20431</span>
               </>
             }
             status={<StatusBadge size="md" status="Discount exception" />}
