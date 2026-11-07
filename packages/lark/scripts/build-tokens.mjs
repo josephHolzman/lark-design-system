@@ -11,7 +11,7 @@ import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const { primitives, modes } = await import(pathToFileURL(path.join(root, "packages/lark/dist/tokens.js")).href);
-const css = fs.readFileSync(path.join(root, "src/app/globals.css"), "utf8");
+const css = fs.readFileSync(path.join(root, "src/app/globals.css"), "utf8").replace(/\r\n/g, "\n"); // Windows checkouts (core.autocrlf) give CRLF; the patterns below expect LF.
 
 const color = (hex) => ({ $type: "color", $value: hex.toLowerCase() });
 

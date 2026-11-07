@@ -11,7 +11,7 @@ const root = process.cwd();
 const dist = path.join(root, "packages/lark/dist");
 fs.mkdirSync(path.join(dist, "fonts"), { recursive: true });
 
-let css = fs.readFileSync(path.join(root, "src/app/globals.css"), "utf8");
+let css = fs.readFileSync(path.join(root, "src/app/globals.css"), "utf8").replace(/\r\n/g, "\n"); // Windows checkouts (core.autocrlf) give CRLF; the patterns below expect LF.
 
 /* ---------------------------------------------------------------- fonts */
 const fonts = [
