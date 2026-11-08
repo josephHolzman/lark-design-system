@@ -13,6 +13,7 @@
 import {
   AlertTriangleIcon,
   ArrowDownIcon,
+  ArrowUpRightIcon,
   BanIcon,
   CheckCircle2Icon,
   CheckIcon,
@@ -48,6 +49,7 @@ import { cn } from "@/lib/utils";
 
 import { Callout } from "./feedback";
 import { AceMark, PersonAvatar, ServiceLogo } from "./identity";
+import { Illustration, type IllustrationSpec } from "./illustration";
 
 /* ================================================================ shared */
 
@@ -401,8 +403,27 @@ export function StreamingText({ children, streaming, className }: { children: Re
   );
 }
 
-/** After Stop: what was finished and kept, and how to pick it back up. */
-export function StoppedNotice({ kept, onContinue, onDiscard }: { kept?: ReactNode[]; onContinue?: () => void; onDiscard?: () => void }) {
+/**
+ * After Stop: what was finished and kept, and how to pick it back up. `note` replaces the fixed
+ * "Nothing was saved or sent" sentence when that isn't true (the server may finish and save the
+ * answer after the person stops waiting); `onRetry` retries the same request ID.
+ */
+export function StoppedNotice({
+  kept,
+  note = "Nothing was saved or sent after that point.",
+  onContinue,
+  onRetry,
+  retryLabel = "Try again",
+  onDiscard,
+}: {
+  kept?: ReactNode[];
+  /** The truth about what happened after Stop. */
+  note?: ReactNode;
+  onContinue?: () => void;
+  onRetry?: () => void;
+  retryLabel?: string;
+  onDiscard?: () => void;
+}) {
   return (
     <div className="flex flex-col gap-2 rounded-2xl bg-inset px-4 py-3 text-sm" data-slot="stopped-notice" role="status">
       <p className="flex items-center gap-2 text-label-lg font-semibold">
@@ -418,9 +439,14 @@ export function StoppedNotice({ kept, onContinue, onDiscard }: { kept?: ReactNod
           </ul>
         </>
       )}
-      <p className="text-on-surface-variant">Nothing was saved or sent after that point.</p>
-      {(onContinue || onDiscard) && (
+      {note && <p className="text-on-surface-variant">{note}</p>}
+      {(onContinue || onRetry || onDiscard) && (
         <div className="mt-1 flex flex-wrap gap-2">
+          {onRetry && (
+            <Button onClick={onRetry} size="sm" variant="secondary">
+              <RotateCcwIcon /> {retryLabel}
+            </Button>
+          )}
           {onContinue && (
             <Button onClick={onContinue} size="sm" variant="secondary">
               <PlayIcon /> Continue from here
@@ -495,6 +521,11 @@ export type ChatSource = {
   /** "Updated 2 min ago", "Version 3 of 4". */
   meta?: string;
   state?: "ok" | "stale" | "superseded" | "inaccessible" | "deleted";
+  /**
+   * v0.8: open the saved record somewhere else (the deal details) instead of its excerpt here.
+   * Without it a source with an excerpt opens the excerpt in place.
+   */
+  onOpen?: () => void;
 };
 
 const SOURCE_STATE: Record<NonNullable<ChatSource["state"]>, { word: string; icon?: typeof LockIcon; cls: string }> = {
@@ -630,7 +661,7 @@ export function AnswerSources({
           const st = SOURCE_STATE[s.state ?? "ok"];
           const isOpen = open === s.id;
           const gone = s.state === "inaccessible" || s.state === "deleted";
-          const canOpen = !!s.excerpt && !gone;
+          const canOpen = (!!s.excerpt || !!s.onOpen) && !gone;
           return (
             <li
               className={cn("flex flex-col rounded-lg", gone ? "bg-surface-container-high" : "bg-tertiary-container/60", canOpen && "has-[button:hover]:bg-tertiary-container")}
@@ -638,10 +669,13 @@ export function AnswerSources({
               key={s.id}
             >
               <button
-                aria-expanded={canOpen ? isOpen : undefined}
+                aria-expanded={s.excerpt ? isOpen : undefined}
                 className="focus-ring flex min-h-14 w-full items-start gap-3 rounded-lg p-3 text-left outline-none disabled:cursor-default"
                 disabled={!canOpen}
-                onClick={() => setOpen(isOpen ? null : s.id)}
+                onClick={() => {
+                  if (s.onOpen) s.onOpen();
+                  else setOpen(isOpen ? null : s.id);
+                }}
                 type="button"
               >
                 <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-surface-container-lowest" data-slot="source-tile">
@@ -660,9 +694,14 @@ export function AnswerSources({
                     </span>
                   )}
                 </span>
-                {canOpen && <ChevronRightIcon aria-hidden className={cn("mt-2 size-4 shrink-0 text-on-surface-variant transition-transform", isOpen && "rotate-90")} />}
+                {canOpen &&
+                  (s.onOpen ? (
+                    <ArrowUpRightIcon aria-hidden className="mt-2 size-4 shrink-0 text-on-surface-variant" />
+                  ) : (
+                    <ChevronRightIcon aria-hidden className={cn("mt-2 size-4 shrink-0 text-on-surface-variant transition-transform", isOpen && "rotate-90")} />
+                  ))}
               </button>
-              {canOpen && isOpen && <blockquote className="mx-3 mb-3 ml-14 border-l-2 border-ai-border pl-3 text-sm text-on-surface">{s.excerpt}</blockquote>}
+              {s.excerpt && isOpen && <blockquote className="mx-3 mb-3 ml-14 border-l-2 border-ai-border pl-3 text-sm text-on-surface">{s.excerpt}</blockquote>}
             </li>
           );
         })}
@@ -841,6 +880,10 @@ export function ActionReview({
   onRefresh,
   decidedBy,
   system,
+  approveDisabled,
+  declineDisabled,
+  describedBy,
+  fields,
 }: {
   title: ReactNode;
   children?: ReactNode;
@@ -852,6 +895,13 @@ export function ActionReview({
   onRefresh?: () => void;
   decidedBy?: string;
   system?: string;
+  /** v0.8: the decision waits for prerequisites; the button stays visible and disabled. */
+  approveDisabled?: boolean;
+  declineDisabled?: boolean;
+  /** Points both buttons at the field or note that explains what's missing. */
+  describedBy?: string;
+  /** A form slot below the explanation (the note a "Request changes" decision requires). */
+  fields?: ReactNode;
 }) {
   const decided = state !== "pending";
   const word = {
@@ -872,6 +922,7 @@ export function ActionReview({
         {title}
       </p>
       {children && <div className="text-sm text-on-surface-variant">{children}</div>}
+      {fields && <div className="flex flex-col gap-2">{fields}</div>}
       {decided && word ? (
         <div className="flex flex-col items-start gap-2">
           <p aria-live="polite" className={cn("flex items-start gap-1.5 text-sm", word.cls)}>
@@ -885,10 +936,10 @@ export function ActionReview({
         </div>
       ) : (
         <div className="flex flex-wrap gap-2">
-          <Button onClick={onApprove} size="sm">
+          <Button aria-describedby={describedBy} disabled={approveDisabled} onClick={onApprove} size="sm">
             {approveLabel}
           </Button>
-          <Button onClick={onDecline} size="sm" variant="ghost">
+          <Button aria-describedby={describedBy} disabled={declineDisabled} onClick={onDecline} size="sm" variant="ghost">
             {declineLabel}
           </Button>
         </div>
@@ -1270,6 +1321,8 @@ export function ConversationListItem({
   current,
   href = "#",
   time,
+  onSelect,
+  disabled,
 }: {
   title: string;
   meta?: string;
@@ -1278,17 +1331,33 @@ export function ConversationListItem({
   current?: boolean;
   href?: string;
   time?: string;
+  /** v0.8: switch threads in place without a page load (the href stays for open-in-new-tab). */
+  onSelect?: () => void;
+  /** Block the switch (an answer is running); the row stays readable and the link is announced. */
+  disabled?: boolean;
 }) {
   const c = CONV[status];
   return (
     <a
       aria-current={current ? "page" : undefined}
+      aria-disabled={disabled || undefined}
       className={cn(
         "focus-ring group flex min-h-12 items-start gap-2.5 rounded-md px-2.5 py-2 outline-none",
-        current ? "bg-secondary-container" : "hover:bg-surface-container-low"
+        current ? "bg-secondary-container" : "hover:bg-surface-container-low",
+        disabled && "cursor-default opacity-60"
       )}
       data-slot="conversation-item"
       href={href}
+      onClick={(e) => {
+        if (disabled) {
+          e.preventDefault();
+          return;
+        }
+        if (onSelect) {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
     >
       <span className="mt-1.5 flex size-2 shrink-0 items-center justify-center">
         {unread && <span className="size-2 rounded-full bg-primary" />}
@@ -1327,18 +1396,33 @@ export function ChatWelcome({
   suggestions,
   onSuggestion,
   tasks,
+  illustration,
+  titleAs: Title = "h2",
+  eyebrow,
 }: {
   title?: ReactNode;
   description?: ReactNode;
   suggestions?: string[];
   onSuggestion?: (s: string) => void;
   tasks?: ReactNode;
+  /** v0.8: a picture above the welcome. Decorative unless `alt`. */
+  illustration?: IllustrationSpec;
+  /** The new chat's title is the page h1; inside a panel it stays h2. Default "h2". */
+  titleAs?: "h1" | "h2" | "h3";
+  /** One short line above the title ("New chat"). */
+  eyebrow?: ReactNode;
 }) {
   return (
     <div className="flex flex-col items-center gap-5 py-6 text-center" data-slot="chat-welcome">
+      {illustration && <Illustration {...illustration} className="max-w-96" />}
       <AceMark size="lg" />
       <div className="flex flex-col gap-1.5">
-        <h2 className="text-title-md text-on-surface">{title}</h2>
+        {eyebrow && (
+          <p className="text-meta-strong text-on-surface-variant" data-meta="eyebrow">
+            {eyebrow}
+          </p>
+        )}
+        <Title className="text-title-md text-on-surface">{title}</Title>
         {description && <p className="mx-auto max-w-[52ch] text-sm text-on-surface-variant">{description}</p>}
       </div>
       {suggestions && suggestions.length > 0 && (
