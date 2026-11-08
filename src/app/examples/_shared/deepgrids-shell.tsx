@@ -39,7 +39,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-type Section = "home" | "inbox" | "deals" | "deals-list" | "quote" | "ace" | "settings" | "patterns" | "chat-states" | "widgets" | "chat-panel" | "foundations" | "width-matrix" | "approvals" | "deal-activity";
+type Section = "home" | "inbox" | "deals" | "deals-list" | "quote" | "ace" | "settings" | "patterns" | "chat-states" | "widgets" | "chat-panel" | "foundations" | "width-matrix" | "approvals" | "deal-activity" | "slots";
 
 const nav = (current: Section): NavGroup[] => [
   {
@@ -77,6 +77,7 @@ const nav = (current: Section): NavGroup[] => [
       { label: "Connections", href: "#", icon: <CableIcon /> },
       { label: "Settings", href: "/examples/settings", icon: <SettingsIcon />, current: current === "settings" },
       { label: "Lark foundations", href: "/examples/foundations", icon: <LayersIcon />, current: current === "foundations" },
+      { label: "Slots and fixes", href: "/examples/slots", icon: <LayersIcon />, current: current === "slots" },
       { label: "Width matrix", href: "/examples/width-matrix", icon: <LayoutGridIcon />, current: current === "width-matrix" },
       { label: "Approvals", href: "/examples/approvals", icon: <LayersIcon />, current: current === "approvals" },
       { label: "Deal activity", href: "/examples/deal-activity", icon: <MessagesSquareIcon />, current: current === "deal-activity" },

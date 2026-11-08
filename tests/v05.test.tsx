@@ -58,13 +58,12 @@ describe("IllustratedChoiceCard (G6)", () => {
     );
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(2);
-    const seller = screen.getByRole("link", { name: "Seller" });
+    // The name contains the title, description and cta (WCAG 2.5.3: label in name).
+    const seller = screen.getByRole("link", { name: "Seller. Draft and price quotes. Explore this role" });
     expect(seller.getAttribute("href")).toBe("/seller");
     expect(seller.getAttribute("aria-current")).toBe("true");
-    expect(seller.getAttribute("aria-describedby")).toBeTruthy();
-    expect(document.getElementById(seller.getAttribute("aria-describedby")!)?.textContent).toBe("Draft and price quotes.");
     expect(seller.textContent).toContain("Explore this role");
-    const desk = screen.getByRole("link", { name: "Deal desk" });
+    const desk = screen.getByRole("link", { name: "Deal desk. Review approvals. Open" });
     expect(desk.hasAttribute("aria-current")).toBe(false);
     expect(desk.textContent).toContain("Open");
     expect(desk.className).toContain("hover:border-outline-strong");
