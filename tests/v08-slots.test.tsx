@@ -78,6 +78,13 @@ describe("Illustration", () => {
     expect(panel.className).toContain("text-left");
     expect(panel.className).not.toContain("text-center");
   });
+
+  it("sizes a promo's media by the promo's own width, not the viewport", () => {
+    const { container } = render(<PromoCard media={<img alt="" height={48} src={JPEG} width={48} />} title="Try ACE" />);
+    const promo = container.querySelector("[data-slot=promo-card]") as HTMLElement;
+    expect(promo.className).toContain("@container/promo");
+    expect(promo.firstElementChild?.className).toContain("@[24rem]/promo:block");
+  });
 });
 
 describe("CompanyLogo fallback", () => {

@@ -587,13 +587,13 @@ export function PromoCard({
   return (
     <aside
       className={cn(
-        "relative flex min-w-0 items-center gap-4 rounded-lg border p-3 pr-10",
+        "@container/promo relative flex min-w-0 items-center gap-4 rounded-lg border p-3 pr-10",
         tone === "dark" ? "dark border-transparent bg-surface text-on-surface" : "border-edge bg-card",
         className
       )}
       data-slot="promo-card"
     >
-      {media && <div className="hidden shrink-0 overflow-hidden rounded-md sm:block">{media}</div>}
+      {media && <div className="hidden shrink-0 overflow-hidden rounded-md @[24rem]/promo:block">{media}</div>}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {illustration && <Illustration {...illustration} className="mb-1" />}
         <T className="text-title-sm">{title}</T>
