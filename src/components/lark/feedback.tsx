@@ -48,6 +48,7 @@ export function Banner({
   children,
   action,
   onDismiss,
+  dismissLabel = "Dismiss",
   icon,
   illustration,
   className,
@@ -58,6 +59,8 @@ export function Banner({
   /** Inline link or a small button. */
   action?: ReactNode;
   onDismiss?: () => void;
+  /** The dismiss button's name, when one banner's dismissal needs to say what it dismisses. */
+  dismissLabel?: string;
   icon?: ReactNode;
   /** v0.8: a picture above the banner's line. Decorative unless `alt`. */
   illustration?: IllustrationSpec;
@@ -86,7 +89,7 @@ export function Banner({
       </div>
       {onDismiss && (
         <button
-          aria-label="Dismiss"
+          aria-label={dismissLabel}
           className="state-layer focus-ring -my-1 -mr-1 inline-flex size-6 shrink-0 items-center justify-center rounded-[6px] outline-none"
           onClick={onDismiss}
           type="button"
@@ -419,7 +422,16 @@ export function UnsavedChangesBar({
               {discardLabel}
             </Button>
             {children}
-            <Button disabled={saving || saveDisabled} onClick={onSave} size="sm">
+            {/* A pending save keeps the button focusable (disabling it drops keyboard focus
+                mid-Tab); `aria-disabled` and the guard block a second submit. */}
+            <Button
+              aria-busy={saving || undefined}
+              aria-disabled={saving || saveDisabled || undefined}
+              onClick={() => {
+                if (!saving && !saveDisabled) onSave();
+              }}
+              size="sm"
+            >
               {saving && <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />}
               {saving ? "Saving…" : "Save changes"}
             </Button>

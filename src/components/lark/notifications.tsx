@@ -182,7 +182,7 @@ export function NotificationsPanel({
                               </span>
                               {/* Unread is a status, so it says its word: a dot alone is colour. */}
                               {item.unread && <StatusBadge icon={CircleDotIcon} size="sm" status="Unread" tone="info" />}
-                              <time className="shrink-0 text-meta whitespace-nowrap text-on-surface-variant tabular-nums" dateTime={at.toISOString()}>
+                              <time className="shrink-0 text-meta whitespace-nowrap text-on-surface-variant tabular-nums" dateTime={at.toISOString()} title={at.toLocaleString("en-US")}>
                                 {at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                               </time>
                             </div>

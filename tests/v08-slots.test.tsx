@@ -308,6 +308,15 @@ describe("§3 small fixes", () => {
     expect(screen.getByRole("button", { name: "Review approvals" })).toBeTruthy();
   });
 
+  it("UnsavedChangesBar keeps Save focusable while it saves", () => {
+    render(<UnsavedChangesBar onDiscard={() => {}} onSave={() => {}} open saving />);
+    const save = screen.getByRole("button", { name: /Saving/ });
+    // A disabled button drops keyboard focus mid-Tab; aria-disabled blocks the press instead.
+    expect(save).toHaveProperty("disabled", false);
+    expect(save.getAttribute("aria-disabled")).toBe("true");
+    expect(save.getAttribute("aria-busy")).toBe("true");
+  });
+
   it("ActionReview can disable its buttons and hold a field", () => {
     render(
       <ActionReview approveDisabled declineDisabled describedBy="note" fields={<label htmlFor="note">What needs changing?</label>} title="Request changes">
