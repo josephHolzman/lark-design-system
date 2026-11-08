@@ -23,6 +23,7 @@ export * from "./layouts";
 export * from "./lists";
 export * from "./master-detail";
 export * from "./menus";
+export * from "./notifications";
 export * from "./overflow";
 export * from "./page-header";
 export * from "./progress";
