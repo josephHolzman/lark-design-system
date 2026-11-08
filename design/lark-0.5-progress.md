@@ -6,6 +6,7 @@ Gap list: `deepgrids/apps/enterprise-workspace/docs/lark/lark-gaps.md` §1.
 - [x] K2
 - [x] K8a
 - [x] K8b
+- [x] K8c
 
 ## K1 (2026-11-05)
 
@@ -98,3 +99,30 @@ Open:
 - `RecordDrawer` focus return needs the opener to still be in the document when it closes.
 - `NotificationsPanel` keeps filter and read state with the caller: `Mark all as read` is a callback and `mentionsMe` powers Mentions. Confirm both names.
 - The first Playwright click needs hydration; the new tests wait for `networkidle` + 750ms on the dev server.
+
+## K8c (2026-11-07)
+
+Plan:
+1. `AgentTaskCard` + `AgentTaskRow` + `AgentTaskGrid` (agent-task.tsx): avatar or AceMark, 16 title clamp 2, state badge (queued, running, needs review, done, failed), one context line, one primary action, hover actions, Meter while running.
+2. `AgentTaskGrid` at its own width: cards 2-up from 36rem, 3-up from 60rem; below 36rem a List of rows (avatar · title · badge · action).
+3. `DecisionPanel` (decision-panel.tsx): question 20, summary 14, radio option cards (label, consequence, recommended, disabled reason), optional required reason textarea, primary/secondary, sticky actions, aside facts, SaveStatus, sky feature module.
+4. `VersionCompare` (version-compare.tsx): left/right version headers, rows of before/after, change word + icon, Only changes switch; two columns wide, one per row narrow.
+5. `ImpactPreview` (impact-preview.tsx): summary sentence, compact from→to rows with tone icon + word, PolicyChecks slot; rows stack by container width.
+6. `/examples/work` with fake data, linked from the shell gallery and added to the axe page list.
+7. All four in `/examples/width-matrix`; extend `width-matrix.spec.ts`.
+8. vitest + axe per component; lint, lint:lark, typecheck, test, verify, Playwright; commit per component; tick K8c + handoff.
+
+Handoff:
+- `AgentTaskCard` / `AgentTaskRow` / `AgentTaskGrid` (`agent-task.tsx`): agent avatar or AceMark + name, 16 title clamp 2, status badge in words (Queued, Running, Needs review, Done, Failed), one context line, one action, the rest in HoverActions, a labelled Meter while running (`progress`). The grid is 2 cards from 36rem, 3 from 60rem, and a List of rows below (both forms are in the DOM; the container query's `display:none` keeps the hidden one out of the accessibility tree).
+- `DecisionPanel` (`decision-panel.tsx`): a sky feature module whose `@container/decision` is a wrapper (`.lark-module` already names its own container). Question 20, summary 14, radio option cards (consequence, Recommended, "Not available: <reason>"), optional required reason, SaveStatus, sticky actions; options and the 18rem aside sit side by side from 40rem. The aside is `relative`, so a FactGrid's absolute sr-only text does not drift when the page scrolls.
+- `VersionCompare`: before/after headers (version, author, time), rows of before → after; `kind` or an inferred change from the two values, always an icon + word (Added, Removed, Changed); Only changes switch; two value columns from 40rem, before then after per row below.
+- `ImpactPreview`: summary, compact label + from → to rows (tone icon and an sr-only word), PolicyChecks slot; label and change side by side from 28rem.
+- Examples: `/examples/work` ("Work and decisions", linked in the gallery) and all four in `/examples/width-matrix`; `work` in the axe page list. `width-matrix.spec.ts` checks cards/rows at 576, 2/3 columns at 960, DecisionPanel 2 columns at 640, VersionCompare before/after at 640, ImpactPreview side by side at 448.
+- Skipped: docs/CHANGELOG/version (K8d); no new lark-gaps §3 rows.
+- Checks: lint 0 errors (32 old warnings), lint:lark, typecheck, vitest 132, verify (build:lib + smoke:lib), Playwright 58.
+Open:
+- DecisionPanel owns the option/reason state and disables the primary until both are ready; the caller drives `status` (SaveStatus). Confirm that split, and whether an option's `disabled` reason should be announced on focus as well as read inline.
+- Decision options are new radio cards inside the panel, not Lark's existing `ChoiceCard` (a whole prompt + choices + submit). Should `ChoiceCard` grow a one-option card?
+- `VersionCompare` infers Added/Removed/Changed from the two values when `kind` is absent; a row whose text matches is unchanged. Passing `kind` on an equal pair would still mark it changed.
+- A running `AgentTaskCard` shows no meter unless `progress` is passed; the example passes it for one task.
+- `ImpactPreview` tone words ("changes", "increases", "decreases", "needs attention") are screen-reader only; confirm the four names.
