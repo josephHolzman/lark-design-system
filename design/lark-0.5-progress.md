@@ -9,6 +9,7 @@ Gap list: `deepgrids/apps/enterprise-workspace/docs/lark/lark-gaps.md` §1.
 - [x] K8c
 - [x] K8d
 - [x] K8e
+- [x] K8f
 
 ## K1 (2026-11-05)
 
@@ -227,3 +228,190 @@ Open:
 - §4 also asks icon-only buttons to have a tooltip; Lark's ⋯, close and dismiss buttons have accessible names but no tooltip. Flag rather than adding a tooltip to every control.
 - An `AgentTaskCard` with `state="running"` and no `progress` shows no bar (the caller must pass it). Should running imply an indeterminate bar?
 - The component matrix renders overlay components closed; their open states are reviewed on `/examples/records` and in `width-matrix.spec.ts`.
+
+## K8f (2026-11-08)
+
+Plan:
+1. Inventory every runtime export in `src/components/lark` (plus the `graph` entry and the `ui` primitives it re-exports) with the `industry-conventions.md` sections it serves; skip the components K8e covered.
+2. Read each against `design-standards.md` §1–§7 and its conventions in seven batches: cards and sections; lists and tables; forms and inputs; feedback and overlays; navigation; AI/ACE; data display.
+3. Look at each batch in its example page at 1440 and 390 (Playwright screenshots) and in the component matrix at 280–1080.
+4. Fix violations in the component, keeping the public API; add an optional prop where the caller has to supply context (row label, sort state, the item a repeated control acts on).
+5. Update the examples with realistic Deepgrids content (fictional accounts only).
+6. After each batch run `npm run lint`, `npm run lint:lark`, `npm run typecheck`, `npm test`; at the end `npm run verify` and `npx playwright test`; one commit per batch.
+
+Handoff:
+- The audit was code-first: every file in `src/components/lark` was opened and searched for the fault patterns (eyebrows, 12px non-meta, floating or repeated actions, unnamed icon buttons, colour-only status, truncation, dates, targets, drag-only controls), the changed components were read in full, and each corrected component was looked at in `/examples/components` (280/360/480/720/1080) and the composed examples (`/examples/patterns`, `/examples/deals`, `/examples/slots`) at 1440 and 390.
+- Fixed this pass: the card footer pin and action alignment; object/entity/section text truncation; per-item names on repeated controls (ObjectCard star, DataGrid rows, ChangeReview, TurnActions, AiRunCell, ProactiveTask, EvidencePopover); row labels and controlled sorting in `DataGrid` (gaps G12/G13, which had not been built); a focusable Save while saving; `AppSidebar`'s hard-coded workspace row; SavedViewMenu's tabs without panels; radio arrow keys; touch-visible hover actions; sticky-bar focus clearance (grid and activity feed); exact timestamps on hover; and no eyebrow over any title (PageHeader folds one into the meta line; HeroBand shows it as a badge).
+- Already covered by K8e (not re-listed below): `AgentTaskCard`, `AgentTaskRow`, `AgentTaskGrid`, `Illustration`, `CompanyLogo`, `NumberInput`, `TabsList`, `FactGrid`, `MasterDetail`, `RecordDrawer`, `DecisionPanel`, `ImpactPreview`, `StatePanel`, `ChatWelcome`, `PromoCard`. Four of them were touched again here: `SectionCard` (title clamp), `Banner` (`dismissLabel`), `NotificationsPanel` and `VersionCompare` (exact timestamp on hover).
+- Exported hooks and constants (not components): `useTheme`, `themeEventName`, `themeScriptSource` (`theme.tsx`), `useNow`, `relativeTime` (`surfaces.tsx`), `useDirtyState`, `useLeaveGuard` (`feedback.tsx`), `useOverflow`, `splitOverflow` (`overflow.tsx`), `serviceKey`, `safeLogoSrc`, `initials` (`identity.tsx`), `offsetDuration` (`transcript.tsx`), `summarizeApprovals` (`approvals.tsx`), `PARTY` (`activity.tsx`), `BAND_TONE` (`bands.tsx`), `STATUSES` (`status-badge.tsx`), `STEP_STATE_LABEL` (`steps.tsx`), `provisionalEdge` (`surfaces.tsx`), `formatMoney` and the `money` helpers (`cpq.tsx`). Checked with their components; no changes.
+
+### Inventory and conformance (component | sections checked | violations found | fixed? | API change)
+
+| Component (file) | Sections | Violations found | Fixed? | API change |
+|---|---|---|---|---|
+| ActivityFeed (activity) | 1, 3, 7, 14, 17 | Relative time had no exact timestamp; a sticky day heading could cover a focused row; a cut reference had no title | Yes | — |
+| ActivityFeedSkeleton (activity) | 11 | None | — | — |
+| SituationSummary (activity) | 1, 3, 7 | None | — | — |
+| AiColumnStatus (ai) | 11, 15 | None | — | — |
+| AiRunCell (ai) | 2, 3, 11, 15 | "Run"/"Retry" repeated per row without the row's name | Yes | additive `itemLabel` |
+| ConfidenceBadge (ai) | 3, 15 | None | — | — |
+| EvidencePopover (ai) | 4, 8, 15 | "Why?" repeated per value without the value | Yes | additive `context` |
+| PlanReview (ai) | 8, 15, 16 | None (move/remove named per step) | — | — |
+| RunSteps (ai) | 11, 15 | None (idle has no spinner; states in words) | — | — |
+| ActionTray (answer) | 4, 15 | None | — | — |
+| AnswerBlock, AnswerSurface, SectionList (answer) | 1, 15 | None | — | — |
+| AnswerSectionView, AnswerView (answer) | 1, 9, 15, 17 | No eyebrow; one status per answer | — | — |
+| AnswerSkeleton (answer) | 11 | None | — | — |
+| BarsWidget, ChartWidget, CompareWidget, TimelineWidget, WaterfallWidget (answer) | 2, 11, 14, 15 | None found (numbers in text, sources once) | — | — |
+| Disclosure (answer) | 9, 15 | None | — | — |
+| DraftWidget, FormWidget, QuestionWidget, OptionsWidget (answer) | 6, 9, 15 | None found (labels, options in words) | — | — |
+| FlowWidget, LinksWidget, ListWidget, MasterWidget, MediaWidget, MessageWidget, NoteWidget, PropertiesWidget, QuoteWidget, StatsWidget, StepsWidget, TableWidget, TilesWidget, ToneText (answer) | 1, 2, 7, 11, 15, 17 | None found in this pass (matrix + axe cover them; see Open) | — | — |
+| ApprovalPath, ApprovalPathSkeleton (approvals) | 2, 3, 8, 11 | None (state in words; disclosure names its approver) | — | — |
+| HeroBand (bands) | 1, 4, 5, 17 | Eyebrow over the title | Yes | `eyebrow` now a badge beside the title |
+| IllustratedChoiceCard (bands) | 1, 4, 5, 17 | None (whole card one link, name from visible words) | — | — |
+| ActionCard (cards) | 1, 4, 5, 17 | Action floated mid-card, footers did not align | Yes | — (visual) |
+| BestFor (cards) | 6 | None | — | — |
+| CardLink (cards) | 4, 5 | None | — | — |
+| ChecklistCard (cards) | 1, 11 | Title at the 24 step over a module of 20 | Yes | — |
+| ChoiceCard (cards) | 1, 6 | Prompt at 14 (a body size) and unnamed radios | Yes | — |
+| EntityCard (cards) | 1, 13 | Name and facts truncated with no full text | Yes | — |
+| IconChip (cards) | 1 | None | — | — |
+| ObjectCard (cards) | 1, 3, 4, 13, 17 | Star named only "Star" for every card, no tooltip; description cut with no full text | Yes | — (name changes) |
+| ObjectFact (cards) | 3, 14 | None | — | — |
+| TemplateCard (cards) | 1, 4, 17 | None | — | — |
+| ActionsCell (cells) | 2, 4 | None (caller names the menu) | — | — |
+| AvatarStack, TagsCell (cells) | 2, 3, 13 | None (full list in a tooltip and a name) | — | — |
+| DateCell (cells) | 2, 14 | None (already exact on hover) | — | — |
+| HoverActions (cells) | 2, 4, 17 | Hover-only on touch | Yes | — |
+| MoneyCell, Num (cells, data) | 2, 14 | None (right-aligned, tabular) | — | — |
+| PercentBarCell, ProgressCell (cells) | 2, 3, 11 | None (words as well as the bar) | — | — |
+| RecordCell (cells) | 2, 13 | No way to give a link its row context | Yes | additive `linkLabel` |
+| SparklineCell (cells) | 2, 14 | None | — | — |
+| TextCell (cells) | 2, 13 | Truncated with no title | Yes | — |
+| ActionReceipt, ActionReview (chat) | 3, 6, 7, 8, 16 | None (states in words, buttons can say why) | — | — |
+| AnswerSources, Cite, Claim (chat) | 4, 8, 15 | None | — | — |
+| AssistantTurn, TurnBlock, StreamingText, ThinkingRow (chat) | 7, 11, 15 | None | — | — |
+| BranchSwitcher (chat) | 9, 15 | None | — | — |
+| ChatColumn, SystemMark, TimeDivider, UserTurn (chat) | 1, 3, 7, 14, 15 | None found (times remain caller strings; see Open) | — | — |
+| ClarifyQuestion, ComposerNotice, QueuedFollowUps, ReplyError, ScreenSessionNotice, StoppedNotice (chat) | 6, 7, 8, 11, 15 | None found (one next step each; request ID shown) | — | — |
+| ConflictCompare, InjectionNotice, JumpToLatest (chat) | 3, 4, 7, 15 | None | — | — |
+| ConversationListItem (chat) | 2, 3, 14, 15 | Unread is a dot plus a bold title; see Open | No — Open | — |
+| DraftCard (chat) | 6, 15, 16 | None | — | — |
+| ModeSwitch (chat) | 4, 6, 15 | None (modes above the ceiling visible with the reason) | — | — |
+| ProactiveTask (chat) | 1, 4, 15 | Action repeated per task without its task | Yes | — (name changes) |
+| ToolCallRow, WorkLog (chat) | 11, 15 | None | — | — |
+| ChatComposer, ChatLayout, ChatPanel, Reasoning, SuggestionChips (conversation) | 1, 4, 6, 7, 8, 11, 15, 17 | None | — | — |
+| TurnActions (conversation) | 4, 15 | Copy/Regenerate/votes repeated per turn without the answer | Yes | additive `context` |
+| ApprovalMatrix, ApprovalRoute (cpq) | 1, 2, 3, 6, 8 | ApprovalRoute's approver cards are bordered cards inside a module (see Open); names cut without a title | Partly | — (titles only) |
+| BlockedReason, DiscountMeter, PolicyChecks, SourceLine (cpq) | 2, 3, 7, 11, 14 | None (each result in words with its source) | — | — |
+| CountUp, DealFigures (cpq) | 1, 11, 14 | None (exact figures, source per figure) | — | — |
+| CpqStages (cpq) | 3, 11 | None (state in words, record's own labels) | — | — |
+| InvoiceSchedule, OrderMatch (cpq) | 2, 3, 14 | None (numbers right-aligned, ≠ named) | — | — |
+| PriceWaterfall (cpq) | 2, 14 | None | — | — |
+| QuoteLines (cpq) | 2, 3, 6, 14, 17 | None (status once with its line; numbers right) | — | — |
+| ScenarioCompare (cpq) | 2, 3, 14 | None | — | — |
+| DataGrid (data-grid) | 2, 3, 6, 11, 12, 13, 17 | Row controls all named "Select row N"/"Show details"; no controlled sorting; no trailing header; focus could sit under the sticky header | Yes | additive `getRowLabel`, `sorting`, `onSortingChange`, `trailingHeader` |
+| SortableHead, TablePager, SourceList (data) | 2 | None | — | — |
+| SourceChip (data) | 3, 13 | Cut label with no title | Yes | — |
+| ChangeReview (editing) | 3, 4, 6, 7, 16 | Accept/Reject/Undo repeated per row without the field | Yes | — (name changes) |
+| DiffValue (editing) | 2, 3 | None (was/now for screen readers) | — | — |
+| InlineEdit (editing) | 4, 6, 7 | A cut value had no full text for pointer users | Yes | — |
+| Callout (feedback) | 7 | None | — | — |
+| DirtyMark (feedback) | 3, 6 | None (word, not colour alone) | — | — |
+| SaveStatus (feedback) | 3, 7, 11 | None | — | — |
+| SkeletonCard, SkeletonFigure, SkeletonLines (feedback) | 11 | None | — | — |
+| UnsavedChangesBar (feedback) | 4, 6, 7, 16 | Saving disabled Save and dropped focus mid-Tab | Yes | behaviour (see below) |
+| Figure, FigureCard (figure) | 1, 3, 4, 14 | None (label 14, whole card one link, caption described) | — | — |
+| FigureStrip (figure) | 2, 14, 17 | None (one size per strip, columns by its own width) | — | — |
+| Meter, Sparkline (figure) | 3, 11, 14 | None (meter names its value) | — | — |
+| FilterBar, FilterCount (filters) | 10 | None | — | — |
+| FilterChip (filters) | 4, 10 | None (pressed state and check) | — | — |
+| FilterSearch (filters) | 4, 6, 10 | None (label always present) | — | — |
+| Segmented (filters) | 9, 10, 17 | None (More outside the track's list semantics) | — | — |
+| GraphEdgeLabel, GraphNode (graph) | 1, 3, 14, 15 | None (words beside every mark) | — | — |
+| AceMark, PersonAvatar, ServiceLogo, ServiceStack (identity) | 1, 3, 14, 15 | None (marks decorative, names beside them) | — | — |
+| CreateDrawer (layouts) | 4, 6, 8 | None | — | — |
+| DashboardGrid, DashboardLayout (layouts) | 1, 17 | None | — | — |
+| HeaderBand (layouts) | 5 | None | — | — |
+| ListLayout (layouts) | 2, 10, 17 | None (rail becomes a disclosure) | — | — |
+| RecordLayout, RecordPeek (layouts) | 5, 8, 17 | None | — | — |
+| SettingsLayout, SplitView (layouts) | 2, 8, 9, 17 | None (named focusable panes) | — | — |
+| CountPill (lists) | 3 | None | — | — |
+| DescriptionItem, DescriptionList (lists) | 2, 6, 17 | None (stacks under 22rem) | — | — |
+| List, ListItem (lists) | 2, 3, 4, 17 | None (trailing controls stay at the end) | — | — |
+| ActionMenu (menus) | 2, 4, 8, 16 | None (destructive last, disabled say why) | — | — |
+| ColumnsPanel (menus) | 2, 4, 17 | Move buttons hover-only on touch | Yes | — |
+| CountSegments, FacetList (menus) | 4, 9, 10, 17 | Radios did not answer arrow keys; every item was a Tab stop | Yes | keyboard behaviour |
+| FacetFilterMenu (menus) | 4, 10 | Checkboxes had no accessible name | Yes | — |
+| SavedViewMenu (menus) | 4, 8, 10 | `role=tablist` with no tabpanel or arrow keys | Yes | semantics |
+| SplitButton (menus) | 4 | None | — | — |
+| VerticalNav (menus) | 4, 9 | None (links when they go to pages) | — | — |
+| MoreLabel, OverflowMeasure (overflow) | 4, 9, 17 | None | — | — |
+| PageHeader (page-header) | 5, 17 | Rendered an eyebrow over the title | Yes | deprecated `eyebrow` (moves to the meta line) |
+| PageTabs (page-header) | 4, 9, 17 | None (More keeps the current tab) | — | — |
+| ApprovalChain, StageProgress (progress) | 2, 3, 8, 11 | None (state in words, 24px markers) | — | — |
+| Timeline, TimelineItem (progress) | 2, 3, 14 | No exact timestamp on hover | Yes | — |
+| LarkLink, LarkProvider (provider) | 4 | None | — | — |
+| AppShell (shell) | 5, 17 | None (page content is the main landmark) | — | — |
+| AppSidebar (shell) | 2, 3, 4, 17 | Workspace menu hard-coded entries | Yes | additive `workspaces` |
+| AskAceButton (shell) | 4, 15 | None (busy, expanded, controls) | — | — |
+| ScopePill (shell) | 3, 14 | None | — | — |
+| SearchCommand (shell) | 4, 10 | Results with an `href` were buttons, not links | Yes | — |
+| ThemeToggle, Topbar, TopbarIconButton (shell) | 4, 5, 17 | None (names and tooltips; pressed state) | — | — |
+| UserMenu, UserMenuSection, UserMenuSub (shell) | 4, 8 | None | — | — |
+| UserMenuItem (shell) | 4, 8 | A cut item had no full text | Yes | — |
+| UserMenuRadioGroup (shell) | 4, 8 | None (menuitemradio, checked state) | — | — |
+| StatusBadge (status-badge) | 3 | None (icon + word + tone) | — | — |
+| StepList (steps) | 3, 11 | None (state in words, 24px markers) | — | — |
+| CardStatusFooter, TrayCard (surfaces) | 1, 3 | None | — | — |
+| CompoundTag, ProvisionalBadge, Freshness (surfaces) | 3, 14 | None (words; Freshness has its exact time) | — | — |
+| Tray (surfaces) | 1, 5, 17 | Title at the 14 body size | Yes | — |
+| ClampText, NoBreak, TruncateText (text) | 13 | None (the reference implementation) | — | — |
+| ThemeScript (theme) | — | None | — | — |
+| Transcript, TranscriptLine (transcript) | 2, 3, 14 | None (mono time as `<time>`; offsets as durations) | — | — |
+
+`ui/` primitives (`@deepgrids/lark/ui`) were checked where they surface in these components (Button targets 24/28/32, Checkbox/Radio/Input labels, Tabs, Select). Their own convention review is not part of this pass; the K8a–K8c gap rows that touched them were already fixed in 0.6–0.8.
+
+### design-standards §7 answers (library level)
+
+1. **Card order:** the cards that carry it (`ActionCard`, `ObjectCard`, `AgentTaskCard`, `SectionCard`, `Tray`) keep identity · title + badge · byline · controls, a full-width body and a pinned footer; cards without a footer say so by omitting it.
+2. **Row alignment:** `ActionCard` now pins its action (`mt-auto`), `ObjectCard` and `SectionCard` keep `mt-auto`/flex growth; the component matrix has every card in a row the same width and height.
+3. **12px non-metadata:** none found; `lark-lint` passes on all of `src/components/lark` and `src/app/examples`.
+4. **Visible actions / icon names:** every icon-only control has an accessible name; the repeated ones now include their item (rows, cards, turn actions, run cells, change review). Tooltips: see Open.
+5. **Colour/shape alone:** statuses are icon + word; bars and meters carry `aria-valuenow`/`aria-valuetext` or words; activity parties, approvals and policy checks all have words.
+6. **Recognisable structure:** each component maps to a standard pattern (card, table, field, banner/toast, dialog/drawer, tabs, filter, empty state, progress, diff); no invented interaction replaced a standard one.
+
+### Breaking or deprecated
+
+- **`PageHeader` `eyebrow`**: deprecated. It still compiles, but it no longer renders above the title; the value appears in the meta line under the title. No other prop changed.
+- **`HeroBand` `eyebrow`**: same prop, now a badge beside the title (visual change only).
+- **`ObjectCard` star name**: `aria-label` is now "Star/Unstar <title>" (was "Star"). Tests and tools that looked for "Star" need the card's title.
+- **`UnsavedChangesBar` Save**: while `saving` it is no longer `disabled`; it sets `aria-busy` and `aria-disabled` and ignores the press. A test that asserted `disabled` must change.
+- **`AppSidebar`**: the hard-coded "Northwind sandbox" entry is gone. Pass `workspaces` to keep a switcher; the default is this workspace plus "All spaces".
+- **`SavedViewMenu`**: the Created by me / Shared with team control is a pressed-filter group, not a `tablist` (same look; no tabpanel semantics).
+- **`FacetList`, `CountSegments`**: radios now use a roving tab index, so Tab enters the group once and arrows move within it (was one Tab stop per item).
+- **`DataGrid`**: `initialSorting` still works; `sorting` + `onSortingChange` take over when passed. `getRowLabel` changes the row controls' names (from "Select row N"/"Show details") and `trailingHeader` adds a header cell and an empty body cell per row.
+
+### Examples
+
+- `/examples/components`: `DataGrid` sample now shows `getRowLabel` and a trailing "Add column"; cards render the corrected footers, star names, clamps and titles in the 280–1080 frames.
+- `/examples/deals`: rows are named "<type> · <account>" for their checkboxes and details toggles.
+- `/examples/slots`: the rows-per-page grid names its rows and shows the trailing header.
+- `/examples/patterns`: the Hero band note says the role is a badge beside the title.
+- Screenshots read at 1440 and 390: `/examples/patterns` (band and choice cards), `/examples/deals` (grid, filters, banners), `/examples/slots` (grid with rows per page and the trailing header), and the cards group of `/examples/components`. Nothing overflowed or wrapped; the only visual correction from the look was removing `sticky` from the trailing header cell, which had covered the value column at 390.
+
+Checks: `npm run lint` 0 errors (32 existing warnings) · `npm run lint:lark` ok · `npm run typecheck` ok · `npm test` 146 · `npm run verify` ok (build:lib + smoke:lib) · `npx playwright test` 65 passed.
+
+Open:
+- **Icon buttons still have names but no tooltips.** `design-standards.md` §4 and industry-conventions §4.5 want both. This pass added a tooltip where a name alone was ambiguous (`ObjectCard`'s star); adding a tooltip to every ⋯, close, dismiss and collapse control is a library-wide change K8e flagged and this pass did not make. Which wins: a tooltip on every icon-only control, or the names only?
+- **`ApprovalRoute`** still draws each approver as a bordered card inside a `SectionCard` (industry-conventions §1.8: no cards in cards). `ApprovalPath` (the 0.7 component) is the lane/row form; moving `ApprovalRoute` to it changes the approval examples. Should `ApprovalRoute` be deprecated in favour of `ApprovalPath`?
+- **`HeroBand`'s role badge / `PageHeader`'s folded eyebrow:** G5 asked for an eyebrow; the standards forbid one over a title. I kept the information (badge beside the title; meta line) — confirm the workspace accepts that reading.
+- **Answer widgets** (`AnswerView`'s 14 widget renderers) were covered by the component width matrix, the axe pass and a read of `AnswerView`/`AnswerSkeleton`, not a line-by-line audit of every widget. No check failed on them; a deeper pass may still find wording or alignment faults.
+- **Chat times** (`UserTurn` `time`, `AssistantTurn` `agent.time`) are caller strings, so they are not `<time>` with a machine-readable value or an exact timestamp on hover. Adding `dateTime` would be an API change; do the app's chat surfaces need it?
+- **`ChoiceCard`**'s Continue stays disabled until a choice, which §4.6 normally forbids; LARK v0.3 documents it for this card ("Continue disabled until chosen"). Keep the documented exception?
+- **`ConversationListItem`** shows unread as a dot plus a bold title, with the word only for screen readers; `NotificationsPanel` now uses a visible "Unread" badge. Should the conversation row show the word too (it adds a chip to every unread row)?
+- **`SavedViewMenu`**'s view list is a `listbox` whose options are Tab stops; arrow-key navigation is still missing. I fixed the false `tablist` above it but not the listbox roving focus; worth doing with a shared listbox helper?
+- **`DataGrid` trailing header:** the last header cell now sits at the end of the horizontal scroll (not sticky, so it never covers values). At 390 the Add column control is off-screen until the user scrolls sideways; confirm that is better than a pinned control over the number column.
+- **`HoverActions`** becomes visible under `pointer: coarse`; jsdom cannot evaluate that media query, so only the Playwright matrix exercises it.
+- **Sticky bars and focused controls:** the grid gets `scroll-padding-top` and activity rows get `scroll-mt`, but `UnsavedChangesBar` (sticky to the bottom) can still cover a focused control in the page behind it. A page-level `scroll-padding-bottom` is the caller's layout decision; say if Lark should own it.
+- **`SectionCard` `action`** still accepts text actions even though §5 says controls only; the prop is typed `ReactNode` and the examples pass icon menus. Enforce it with a type or leave it documented?
