@@ -27,6 +27,7 @@ export * from "./overflow";
 export * from "./page-header";
 export * from "./progress";
 export * from "./provider";
+export * from "./record-drawer";
 export * from "./shell";
 export * from "./status-badge";
 export * from "./steps";
