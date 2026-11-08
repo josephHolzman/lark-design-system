@@ -107,7 +107,7 @@ function SideHeader({ side, heading }: { side: VersionSide; heading: string }) {
       {side.time != null && (
         <p className="text-meta text-on-surface-variant tabular-nums" data-meta="timestamp">
           {side.time instanceof Date ? (
-            <time dateTime={side.time.toISOString()}>
+            <time dateTime={side.time.toISOString()} title={side.time.toLocaleString("en-US")}>
               {side.time.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} ·{" "}
               {side.time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
             </time>

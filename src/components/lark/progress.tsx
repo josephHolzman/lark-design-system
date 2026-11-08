@@ -124,7 +124,7 @@ export function TimelineItem({ icon, tone = "neutral", title, description, meta,
         <div className="flex min-w-0 items-baseline gap-2">
           <span className="min-w-0 flex-1 text-title-sm">{title}</span>
           {time && (
-            <time className="shrink-0 text-meta text-on-surface-variant tabular-nums" dateTime={time.dateTime}>
+            <time className="shrink-0 text-meta text-on-surface-variant tabular-nums" dateTime={time.dateTime} title={time.dateTime}>
               {time.label}
             </time>
           )}

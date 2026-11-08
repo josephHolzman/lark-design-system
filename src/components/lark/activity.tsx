@@ -64,7 +64,8 @@ function Entry({ e }: { e: ActivityEntry }) {
   const p = PARTY[e.party];
   const at = new Date(e.at);
   return (
-    <li className="flex min-w-0 gap-3 py-3" data-party={e.party}>
+    // scroll-mt keeps a focused row clear of the sticky day heading (WCAG 2.4.11).
+    <li className="flex min-w-0 scroll-mt-8 gap-3 py-3" data-party={e.party}>
       <span aria-hidden="true" className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md [&>svg]:size-4", p.mark)}>
         <p.icon />
       </span>
@@ -76,11 +77,15 @@ function Entry({ e }: { e: ActivityEntry }) {
         <p className="text-body-md text-on-surface [overflow-wrap:break-word]">{e.title}</p>
         {e.message && <blockquote className={cn("border-l-2 pl-3 text-body-md text-on-surface-variant [overflow-wrap:break-word]", p.quote)}>{e.message}</blockquote>}
         <p className="flex min-w-0 flex-wrap gap-x-1.5 text-meta text-on-surface-variant" data-meta="meta">
-          <time dateTime={e.at}>{time(at)}</time>
+          <time dateTime={e.at} title={at.toLocaleString("en-US")}>
+            {time(at)}
+          </time>
           {e.reference && (
             <>
               <span aria-hidden="true">·</span>
-              <span className="min-w-0 truncate">{e.reference}</span>
+              <span className="min-w-0 truncate" title={e.reference}>
+                {e.reference}
+              </span>
             </>
           )}
         </p>
