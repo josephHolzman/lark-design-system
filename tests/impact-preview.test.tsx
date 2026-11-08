@@ -29,6 +29,8 @@ describe("ImpactPreview", () => {
     expect(screen.getByText("22.5%")).toBeTruthy();
     expect(Array.from(container.querySelectorAll("[data-slot=no-break]")).some((node) => node.textContent === "$421,000.00")).toBe(true);
     expect(container.querySelector("[data-tone=warning]")?.textContent).toContain("needs attention");
+    // The warning is also said in visible words, not only by an icon and a tone.
+    expect(screen.getByText("Needs attention").getAttribute("aria-hidden")).toBe("true");
     expect(screen.getByText("2 rules checked: 1 within policy, 1 needs approval.")).toBeTruthy();
     expect(await axeViolations(container)).toEqual([]);
   });

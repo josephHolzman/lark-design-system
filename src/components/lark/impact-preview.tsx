@@ -87,6 +87,12 @@ export function ImpactPreview({ items, summary, policyChecks, className }: Impac
                 <Icon aria-hidden="true" className={cn("size-3.5 shrink-0 self-center", tone.tone)} />
                 <span className="sr-only">to </span>
                 <ImpactValue strong>{item.to}</ImpactValue>
+                {/* A warning says so in words; an arrow alone is shape and colour. */}
+                {item.tone === "warning" && (
+                  <span aria-hidden="true" className="text-body-md text-on-warning-container">
+                    Needs attention
+                  </span>
+                )}
               </span>
             </li>
           );
