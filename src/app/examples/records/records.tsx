@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowRightIcon, BellIcon, Building2Icon, FileTextIcon, InboxIcon, ReceiptTextIcon } from "lucide-react";
+import { ArrowRightIcon, BellIcon, InboxIcon, ReceiptTextIcon } from "lucide-react";
 import { useState } from "react";
 
 import { FactGrid } from "@/components/lark/fact-grid";
+import { CompanyLogo } from "@/components/lark/identity";
 import { List, ListItem } from "@/components/lark/lists";
 import { MasterDetail } from "@/components/lark/master-detail";
 import { NotificationsPanel, type NotificationItem } from "@/components/lark/notifications";
@@ -209,15 +210,6 @@ export function Records() {
         </div>
       </SectionCard>
 
-      <div className="grid gap-module-gap lg:grid-cols-2">
-        <SectionCard description="A logo stays a company mark; an icon gets a quiet tile; badges sit under the subtitle." title="Record marks">
-          <div className="flex flex-wrap items-center gap-3 text-body-md text-on-surface-variant">
-            <Building2Icon aria-hidden className="size-4" /> Company logos and icons both fit the header.
-            <FileTextIcon aria-hidden className="size-4" /> No customer files are used on this page.
-          </div>
-        </SectionCard>
-      </div>
-
       <RecordDrawer
         badges={
           <>
@@ -235,7 +227,7 @@ export function Records() {
             </Button>
           </>
         }
-        icon={<ReceiptTextIcon />}
+        logo={<CompanyLogo name={quote.account} size="lg" />}
         onOpenChange={setDrawer}
         open={drawer}
         size="lg"
