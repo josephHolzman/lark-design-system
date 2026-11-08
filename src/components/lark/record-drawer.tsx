@@ -57,18 +57,14 @@ export function RecordDrawer({
   className,
 }: RecordDrawerProps) {
   // Radix returns focus to a DialogTrigger; a controlled drawer has none, so remember the
-  // element that opened it and put focus back there ourselves.
+  // element that opened it and put focus back there ourselves. onOpenAutoFocus runs before
+  // Radix moves focus into the drawer, so the opener is still the active element.
   const opener = useRef<HTMLElement | null>(null);
-  const wasOpen = useRef(false);
-  if (typeof document !== "undefined" && open && !wasOpen.current) {
-    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  }
-  wasOpen.current = open;
 
   return (
     <Sheet onOpenChange={onOpenChange} open={open}>
       <SheetContent
-        className={cn("w-full gap-0 sm:max-w-none", SIZES[size], className)}
+        className={cn("w-full gap-0 sm:max-w-full", SIZES[size], className)}
         data-size={size}
         data-slot="record-drawer"
         onCloseAutoFocus={(event) => {
@@ -76,6 +72,9 @@ export function RecordDrawer({
           const target = opener.current;
           opener.current = null;
           if (target?.isConnected) target.focus();
+        }}
+        onOpenAutoFocus={() => {
+          opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         }}
       >
         <SheetHeader className="flex-row items-start gap-3">
