@@ -587,7 +587,7 @@ export function Claim({ n, source, children }: { n: number; source: ChatSource; 
       <PopoverTrigger asChild>
         <button
           className={cn(
-            "focus-ring inline rounded-[4px] bg-tertiary-container/70 px-1 py-px text-left text-on-surface outline-none [box-decoration-break:clone] hover:bg-tertiary-container",
+            "focus-ring hit-area inline rounded-[4px] bg-tertiary-container/70 px-1 py-px text-left text-on-surface outline-none [box-decoration-break:clone] hover:bg-tertiary-container",
             problem && "bg-warning-container/70 hover:bg-warning-container"
           )}
           data-slot="claim"
