@@ -21,6 +21,7 @@ export * from "./identity";
 export * from "./illustration";
 export * from "./layouts";
 export * from "./lists";
+export * from "./master-detail";
 export * from "./menus";
 export * from "./overflow";
 export * from "./page-header";
