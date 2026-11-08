@@ -17,6 +17,7 @@ export * from "./feedback";
 export * from "./figure";
 export * from "./filters";
 export * from "./identity";
+export * from "./illustration";
 export * from "./layouts";
 export * from "./lists";
 export * from "./menus";
