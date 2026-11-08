@@ -13,6 +13,7 @@ export * from "./conversation";
 export * from "./cpq";
 export * from "./data";
 export * from "./data-grid";
+export * from "./decision-panel";
 export * from "./editing";
 export * from "./fact-grid";
 export * from "./feedback";
