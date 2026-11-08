@@ -91,6 +91,11 @@ export type IllustratedChoiceCardProps = Omit<ComponentProps<"a">, "title" | "hr
   cta?: ReactNode;
   /** This is the active choice (the role you're in): sets aria-current="true". */
   current?: boolean;
+  /**
+   * The link's accessible name. Default: the title, description and cta in words, so the name
+   * contains everything visible (WCAG 2.5.3). Pass one when they aren't plain text.
+   */
+  label?: string;
 };
 
 /**
@@ -107,16 +112,25 @@ export function IllustratedChoiceCard({
   tone,
   cta = "Explore this role",
   current,
+  label,
   className,
   ...props
 }: IllustratedChoiceCardProps) {
   const titleId = useId();
   const descId = useId();
+  // A name that contains the visible words: title, description, cta.
+  const text = (n: ReactNode) => (typeof n === "string" || typeof n === "number" ? String(n).trim() : undefined);
+  // Join with a full stop unless the previous part already ends in one, so no doubled punctuation.
+  const autoName = [text(title), text(description), text(cta)]
+    .filter((part): part is string => !!part)
+    .reduce((name, part) => (!name ? part : `${name}${/[.!?]$/.test(name) ? " " : ". "}${part}`), "");
+  const name = label ?? (autoName || undefined);
   return (
     <Link
       aria-current={current ? "true" : undefined}
-      aria-describedby={description ? descId : undefined}
-      aria-labelledby={titleId}
+      aria-describedby={!name && description ? descId : undefined}
+      aria-label={name}
+      aria-labelledby={name ? undefined : titleId}
       className={cn(
         "group/choice focus-ring flex h-full min-w-0 flex-col overflow-hidden rounded-lg border bg-card text-on-surface outline-none transition-colors duration-(--duration-short2)",
         current ? "border-selected-border" : "border-outline-variant hover:border-outline-strong",

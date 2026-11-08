@@ -175,7 +175,7 @@ export function ListItem({
       {...props}
     >
       {href ? (
-        <Link aria-current={selected ? "true" : undefined} className={cn(row, interactive)} href={href}>
+        <Link aria-current={selected ? "true" : undefined} className={cn(row, interactive)} data-slot="list-item-link" href={href}>
           {content}
         </Link>
       ) : onClick ? (

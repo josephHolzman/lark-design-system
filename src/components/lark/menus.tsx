@@ -20,6 +20,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+import { LarkLink as Link } from "./provider";
+
 /* ================================================================ ActionMenu */
 
 export type MenuAction = {
@@ -475,28 +477,51 @@ export function CountSegments({ label, items, value, onChange }: { label: string
 
 /* ================================================================ VerticalNav */
 
-/** Settings-style section navigation: links with aria-current, the current one ink 8%. */
-export function VerticalNav({ label, items, value, onChange }: { label: string; items: { value: string; label: string; icon?: ReactNode; count?: number }[]; value: string; onChange: (v: string) => void }) {
+/**
+ * Settings-style section navigation: links with aria-current, the current one ink 8%. With
+ * `href` an item is a real link (open in a new tab, in the page's parity spec); without one it
+ * is a button that switches the section in place.
+ */
+export function VerticalNav({
+  label,
+  items,
+  value,
+  onChange,
+}: {
+  label: string;
+  items: { value: string; label: string; icon?: ReactNode; count?: number; href?: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <nav aria-label={label}>
       <ul className="flex flex-col gap-0.5" role="list">
-        {items.map((it) => (
-          <li key={it.value}>
-            <button
-              aria-current={it.value === value ? "page" : undefined}
-              className={cn(
-                "state-layer [--state-hover:0.05] focus-ring flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-sm text-on-surface-variant outline-none [&_svg]:size-4",
-                it.value === value && "bg-outline-variant font-medium text-on-surface"
-              )}
-              onClick={() => onChange(it.value)}
-              type="button"
-            >
+        {items.map((it) => {
+          const cls = cn(
+            "state-layer [--state-hover:0.05] focus-ring flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-sm text-on-surface-variant outline-none [&_svg]:size-4",
+            it.value === value && "bg-outline-variant font-medium text-on-surface"
+          );
+          const body = (
+            <>
               {it.icon}
               <span className="flex-1">{it.label}</span>
               {it.count != null && <span className="font-mono text-meta">{it.count}</span>}
-            </button>
-          </li>
-        ))}
+            </>
+          );
+          return (
+            <li key={it.value}>
+              {it.href ? (
+                <Link aria-current={it.value === value ? "page" : undefined} className={cls} href={it.href}>
+                  {body}
+                </Link>
+              ) : (
+                <button aria-current={it.value === value ? "page" : undefined} className={cls} onClick={() => onChange(it.value)} type="button">
+                  {body}
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
