@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 
 const AXE = path.resolve(process.cwd(), "node_modules/axe-core/axe.min.js");
 
-const PAGES = ["foundations", "width-matrix", "patterns", "dashboard", "deals", "quote", "record", "settings", "chat", "chat-states", "widgets", "chat-panel", "approvals", "deal-activity", "slots", "records", "work"];
+const PAGES = ["foundations", "width-matrix", "components", "patterns", "dashboard", "deals", "quote", "record", "settings", "chat", "chat-states", "widgets", "chat-panel", "approvals", "deal-activity", "slots", "records", "work"];
 const MODES = [
   { name: "light", theme: "light", width: 1280 },
   { name: "dusk", theme: "dusk", width: 1280 },
