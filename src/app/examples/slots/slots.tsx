@@ -157,7 +157,6 @@ export function Slots() {
           <div className="flex flex-col gap-item">
             <ChatWelcome
               description="Pick up a quote, check an approval or ask about an account."
-              eyebrow="New chat"
               illustration={{ src: "/illustrations/empty-draft.svg", size: 140 }}
               suggestions={["Draft a renewal email", "Who approves this quote?"]}
               title="What do you need to prepare?"

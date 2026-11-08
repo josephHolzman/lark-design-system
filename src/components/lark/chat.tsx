@@ -1398,7 +1398,6 @@ export function ChatWelcome({
   tasks,
   illustration,
   titleAs: Title = "h2",
-  eyebrow,
 }: {
   title?: ReactNode;
   description?: ReactNode;
@@ -1409,7 +1408,10 @@ export function ChatWelcome({
   illustration?: IllustrationSpec;
   /** The new chat's title is the page h1; inside a panel it stays h2. Default "h2". */
   titleAs?: "h1" | "h2" | "h3";
-  /** One short line above the title ("New chat"). */
+  /**
+   * No longer rendered (v0.9): Lark has no eyebrow above a title. Kept so callers from 0.8
+   * still compile; the shell's breadcrumb says where you are.
+   */
   eyebrow?: ReactNode;
 }) {
   return (
@@ -1417,11 +1419,6 @@ export function ChatWelcome({
       {illustration && <Illustration {...illustration} className="max-w-96" />}
       <AceMark size="lg" />
       <div className="flex flex-col gap-1.5">
-        {eyebrow && (
-          <p className="text-meta-strong text-on-surface-variant" data-meta="eyebrow">
-            {eyebrow}
-          </p>
-        )}
         <Title className="text-title-md text-on-surface">{title}</Title>
         {description && <p className="mx-auto max-w-[52ch] text-sm text-on-surface-variant">{description}</p>}
       </div>
