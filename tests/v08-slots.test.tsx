@@ -156,6 +156,20 @@ describe("Tabs overflow", () => {
     expect(screen.getByText("Approvals panel")).toBeTruthy();
   });
 
+  it("never scrolls by default: tabs fold into More without asking", () => {
+    const { container } = render(
+      <Tabs defaultValue="a">
+        <TabsList aria-label="Sections">
+          <TabsTrigger value="a">Overview</TabsTrigger>
+          <TabsTrigger value="b">Quote lines</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    );
+    const list = container.querySelector("[data-slot=tabs-list]") as HTMLElement;
+    expect(list.getAttribute("data-overflow")).toBe("menu");
+    expect(list.className).not.toContain("overflow-x-auto");
+  });
+
   it("splits around the visible count and keeps the pinned trigger", () => {
     const a = { id: "a" },
       b = { id: "b" },

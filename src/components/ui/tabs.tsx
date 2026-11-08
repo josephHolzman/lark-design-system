@@ -58,14 +58,14 @@ const triggerClass =
  * variant "segmented": Beams' record-page switch (recessed track, selected = ink fill).
  * Both are real ARIA tabs; use them when the panel swaps in place.
  *
- * `overflow="menu"` keeps every trigger reachable when the list is narrower than its items:
- * the ones that don't fit move into a "More" menu, the active trigger is pinned, and roving
- * focus still runs through the visible tabs.
+ * Tabs never wrap or scroll (v0.9): when the list is narrower than its items, the ones that
+ * don't fit move into a "More" menu, the active trigger is pinned, and roving focus still runs
+ * through the visible tabs. This is the default; `overflow="menu"` remains as an explicit opt-in.
  */
 function TabsList({
   className,
   variant = "underline",
-  overflow,
+  overflow = "menu",
   children,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List> & {
@@ -114,7 +114,6 @@ function TabsList({
         variant === "underline" && "h-10 gap-5 border-b border-outline-variant",
         variant === "segmented" &&
           "h-[34px] max-w-full gap-0.5 rounded-md bg-surface-container-high p-0.5",
-        variant === "segmented" && !overflow && "overflow-x-auto",
         overflow === "menu" && "relative flex-nowrap overflow-x-hidden",
         className
       )}
