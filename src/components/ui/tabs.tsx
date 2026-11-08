@@ -89,9 +89,12 @@ function TabsList({
       ? splitOverflow(items, visible, activeIndex)
       : null
 
+  // The More trigger is a sibling of the tablist, never a child: a tablist may hold only tabs
+  // (axe aria-required-children). It matches the list's height so the row stays one line.
   const moreClass = cn(
     triggerClass,
-    "px-2 text-on-surface-variant data-[state=active]:font-normal data-[state=active]:text-on-surface-variant"
+    "px-2 text-on-surface-variant data-[state=active]:font-normal data-[state=active]:text-on-surface-variant",
+    variant === "underline" ? "h-10" : "h-[34px]"
   )
 
   const focusActive = () => {
@@ -108,48 +111,46 @@ function TabsList({
     // the hugging list would always report "fits", so the overflow is measured on the frame,
     // and the measuring row is always present (it is hidden and out of the tab order).
     <div ref={containerRef as React.RefObject<HTMLDivElement>} className="relative min-w-0 w-full" data-slot="tabs-list-frame">
-      <TabsPrimitive.List
-        data-slot="tabs-list"
-        data-variant={variant}
-        data-overflow={overflow}
-        className={cn(
-          "group/tabs-list text-on-surface-variant inline-flex w-fit items-center justify-start",
-          variant === "underline" && "h-10 gap-5 border-b border-outline-variant",
-          variant === "segmented" &&
-            "h-[34px] max-w-full gap-0.5 rounded-md bg-surface-container-high p-0.5",
-          overflow === "menu" && "relative flex-nowrap overflow-x-hidden",
-          className
+      <div className="flex min-w-0 items-stretch">
+        <TabsPrimitive.List
+          data-slot="tabs-list"
+          data-variant={variant}
+          data-overflow={overflow}
+          className={cn(
+            "group/tabs-list text-on-surface-variant inline-flex w-fit items-center justify-start",
+            variant === "underline" && "h-10 gap-5 border-b border-outline-variant",
+            variant === "segmented" &&
+              "h-[34px] max-w-full gap-0.5 rounded-md bg-surface-container-high p-0.5",
+            overflow === "menu" && "relative flex-nowrap overflow-x-hidden",
+            className
+          )}
+          {...props}
+        >
+          {split ? split.shown : children}
+        </TabsPrimitive.List>
+        {split && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={moreClass} type="button">
+                <MoreLabel count={split.hidden.length} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-44">
+              {split.hidden.map((item, i) => (
+                <DropdownMenuItem
+                  key={item.key ?? i}
+                  onSelect={() => {
+                    if (item.props.value !== undefined) ctx?.setValue(item.props.value)
+                    focusActive()
+                  }}
+                >
+                  {item.props.children}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
-        {...props}
-      >
-        {split ? (
-          <>
-            {split.shown}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className={moreClass} type="button">
-                  <MoreLabel count={split.hidden.length} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44">
-                {split.hidden.map((item, i) => (
-                  <DropdownMenuItem
-                    key={item.key ?? i}
-                    onSelect={() => {
-                      if (item.props.value !== undefined) ctx?.setValue(item.props.value)
-                      focusActive()
-                    }}
-                  >
-                    {item.props.children}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        ) : (
-          children
-        )}
-      </TabsPrimitive.List>
+      </div>
       {/* Hidden measuring row: every trigger at its selected width, then the More control. */}
       <OverflowMeasure measureRef={measureRef} className={cn(variant === "underline" ? "gap-5" : "gap-0.5")}>
         {items.map((item, i) => (

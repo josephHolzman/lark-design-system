@@ -12,6 +12,8 @@ test("tabs fold into More inside a narrow card", async ({ page }) => {
   const list = frame.locator("[data-slot=tabs-list]");
   await expect(frame.getByRole("button", { name: /More/ })).toBeVisible();
   await expect(frame.getByRole("tab", { name: "Overview" })).toBeVisible();
+  // A tablist may hold only tabs: the More trigger is its sibling, not its child.
+  await expect(list.getByRole("button", { name: /More/ })).toHaveCount(0);
   const [frameBox, listBox] = await Promise.all([frame.boundingBox(), list.boundingBox()]);
   expect(listBox!.width).toBeLessThanOrEqual(frameBox!.width + 1);
 });
