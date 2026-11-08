@@ -106,7 +106,9 @@ export function InlineEdit({
       onClick={start}
       type="button"
     >
-      <span className={cn("min-w-0 flex-1 truncate", !value && "text-on-surface-tertiary")}>{value ? (format ? format(value) : value) : placeholder}</span>
+      <span className={cn("min-w-0 flex-1 truncate", !value && "text-on-surface-tertiary")} title={!format && value ? value : undefined}>
+        {value ? (format ? format(value) : value) : placeholder}
+      </span>
       {dirty && <span aria-label="edited" className="size-1.5 shrink-0 rounded-full bg-warning" role="img" />}
       {!readOnly && <PencilIcon aria-hidden="true" className="size-3.5 shrink-0 text-on-surface-variant opacity-0 group-hover/edit:opacity-100 group-focus-visible/edit:opacity-100" />}
     </button>
@@ -143,6 +145,8 @@ export type ProposedChange = {
   /** Who proposed it: a person or ACE. */
   by?: ReactNode;
 };
+
+const fieldText = (field: ReactNode) => (typeof field === "string" ? field : "this change");
 
 /**
  * Review a set of proposed changes (an ACE revision, a counteroffer): accept or reject
@@ -202,16 +206,17 @@ export function ChangeReview({
                       {d === "accepted" ? <CheckIcon className="size-3.5" /> : <XIcon className="size-3.5" />}
                       {d === "accepted" ? "Accepted" : "Rejected"}
                     </span>
-                    <Button aria-label={`Undo decision on ${typeof c.field === "string" ? c.field : "change"}`} onClick={() => set(c.id, undefined)} size="icon-xs" variant="ghost">
+                    <Button aria-label={`Undo decision on ${fieldText(c.field)}`} onClick={() => set(c.id, undefined)} size="icon-xs" variant="ghost">
                       <UndoIcon />
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button onClick={() => set(c.id, "rejected")} size="xs" variant="ghost">
+                    {/* The same two actions repeat per row: each names its field (WCAG 2.4.6). */}
+                    <Button aria-label={`Reject ${fieldText(c.field)}`} onClick={() => set(c.id, "rejected")} size="xs" variant="ghost">
                       Reject
                     </Button>
-                    <Button onClick={() => set(c.id, "accepted")} size="xs" variant="secondary">
+                    <Button aria-label={`Accept ${fieldText(c.field)}`} onClick={() => set(c.id, "accepted")} size="xs" variant="secondary">
                       Accept
                     </Button>
                   </>
