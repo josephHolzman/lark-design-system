@@ -142,7 +142,7 @@ function Body({ state }: { state: ExampleState }) {
 
 export function DealActivityExample() {
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader description="SituationSummary over ActivityFeed, in every state. Parties are coded by mark, colour and word." title="Deal activity" />
       <StateSwitcher>
         {(state) => (

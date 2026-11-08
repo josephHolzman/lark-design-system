@@ -178,7 +178,7 @@ function DecisionExample({ nonApprover }: { nonApprover?: boolean }) {
 
 export function ApprovalsExample() {
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader description="ApprovalPath v2 in every state it has to handle. Open an approver to see why they're on the route." title="Approvals" />
       <StateSwitcher>
         {(state) => (

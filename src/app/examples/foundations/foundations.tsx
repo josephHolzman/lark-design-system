@@ -58,7 +58,7 @@ export function Foundations() {
   const [title, setTitle] = useState("20");
   const [radius, setRadius] = useState("16");
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader
         description="Type ladder, surfaces, spacing and module variants for Lark 0.7. Example data throughout."
         title="Foundations"
