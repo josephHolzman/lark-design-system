@@ -58,6 +58,9 @@ describe("MasterDetail", () => {
     expect(container.querySelector("[data-slot=master-detail-detail]")?.className).toContain("hidden");
     expect(screen.getByRole("region", { name: "Quotes" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Details" })).toBeTruthy();
+    // Both panes scroll on their own, so each is a named, focusable region.
+    expect(screen.getByRole("region", { name: "Quotes" }).getAttribute("tabindex")).toBe("0");
+    expect(screen.getByRole("region", { name: "Details" }).getAttribute("tabindex")).toBe("0");
   });
 
   it("passes axe", async () => {

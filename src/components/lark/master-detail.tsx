@@ -95,7 +95,7 @@ export function MasterDetail({ list, detail, selected, onBack, listLabel, detail
         data-slot="master-detail-list"
         role="region"
         ref={listRef}
-        tabIndex={-1}
+        tabIndex={0}
       >
         {list}
       </div>
@@ -105,7 +105,7 @@ export function MasterDetail({ list, detail, selected, onBack, listLabel, detail
         data-slot="master-detail-detail"
         ref={detailRef}
         role="region"
-        tabIndex={-1}
+        tabIndex={0}
       >
         {selected && onBack && (
           <div className="border-b border-outline-variant p-2 @[48rem]/master-detail:hidden">
