@@ -1,4 +1,6 @@
-import type { ComponentProps } from "react";
+"use client";
+
+import { type ComponentProps, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,11 +47,15 @@ export type CompanyLogoProps = Omit<ComponentProps<"span">, "children"> & {
 };
 
 /**
- * A rounded-square mark (companies are squares, people are circles). Falls back to
- * initials on a tone picked deterministically from the name, so a logo is stable
- * across pages.
+ * A rounded-square mark (companies are squares, people are circles). A missing or failed image
+ * falls back to the company's initials on a quiet inset tile, at the same size; `name` stays the
+ * accessible name. Without `src` the initials use a tone picked deterministically from the name,
+ * so a logo is stable across pages.
  */
 export function CompanyLogo({ name, src, size = "md", decorative = true, className, ...props }: CompanyLogoProps) {
+  // Remember which src failed: a new src gets a fresh try.
+  const [failedSrc, setFailedSrc] = useState<string>();
+  const showImage = !!src && failedSrc !== src;
   return (
     <span
       aria-hidden={decorative || undefined}
@@ -59,16 +65,17 @@ export function CompanyLogo({ name, src, size = "md", decorative = true, classNa
         SIZE[size],
         SQUARE[size],
         !src && TONES[hash(name) % TONES.length],
-        src && "bg-surface-container-lowest ring-1 ring-outline-variant ring-inset",
+        src && !showImage && "bg-inset text-on-surface-variant",
+        showImage && "bg-surface-container-lowest ring-1 ring-outline-variant ring-inset",
         className
       )}
       data-slot="company-logo"
       role={decorative ? undefined : "img"}
       {...props}
     >
-      {src ? (
+      {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img alt="" className="size-full object-contain" src={src} />
+        <img alt="" className="size-full object-contain" onError={() => setFailedSrc(src)} src={src} />
       ) : (
         initials(name)
       )}
