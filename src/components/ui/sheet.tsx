@@ -48,9 +48,12 @@ function SheetContent({
   className,
   children,
   side = "right",
+  showCloseButton = true,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left"
+  /** The drawer's own close control. Off when the content provides one. */
+  showCloseButton?: boolean
 }) {
   return (
     <SheetPortal>
@@ -72,10 +75,12 @@ function SheetContent({
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="state-layer focus-ring text-on-surface-variant absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-md disabled:pointer-events-none">
-          <XIcon className="size-4" />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
+        {showCloseButton && (
+          <SheetPrimitive.Close className="state-layer focus-ring text-on-surface-variant absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-md disabled:pointer-events-none">
+            <XIcon className="size-4" />
+            <span className="sr-only">Close</span>
+          </SheetPrimitive.Close>
+        )}
       </SheetPrimitive.Content>
     </SheetPortal>
   )
