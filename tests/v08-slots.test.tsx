@@ -70,6 +70,14 @@ describe("Illustration", () => {
     );
     expect(container.querySelector("[data-slot=illustration]")).toBeNull();
   });
+
+  it("keeps a compact state text-only and left-aligned (a sheet is a small container)", () => {
+    const { container } = render(<StatePanel compact illustration={{ src: JPEG, size: 140 }} kind="first-run" title="No signals yet" />);
+    const panel = container.querySelector("[data-slot=state-panel]") as HTMLElement;
+    expect(container.querySelector("[data-slot=illustration]")).toBeNull();
+    expect(panel.className).toContain("text-left");
+    expect(panel.className).not.toContain("text-center");
+  });
 });
 
 describe("CompanyLogo fallback", () => {
@@ -334,10 +342,10 @@ describe("§3 small fixes", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it("ChatWelcome takes a title level and an eyebrow", () => {
+  it("ChatWelcome takes a title level and never puts an eyebrow over the title", () => {
     render(<ChatWelcome eyebrow="New chat" title="What do you need to prepare?" titleAs="h1" />);
     expect(screen.getByRole("heading", { level: 1, name: "What do you need to prepare?" })).toBeTruthy();
-    expect(screen.getByText("New chat")).toBeTruthy();
+    expect(screen.queryByText("New chat")).toBeNull();
   });
 
   it("AnswerSources can open the saved record", () => {
