@@ -124,7 +124,7 @@ export function AppShell({
       <SidebarInset asChild className="h-svh min-w-0 overflow-hidden">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {topbar}
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">{children}</main>
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto outline-none" tabIndex={0}>{children}</main>
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -376,10 +376,10 @@ export type Crumb = { label: string; href?: string };
  */
 export function Topbar({ crumbs, search, actions }: { crumbs: Crumb[]; search?: ReactNode; actions?: ReactNode }) {
   return (
-    <header className="z-20 flex h-12 shrink-0 items-center gap-2 border-b border-outline-variant bg-surface px-2 md:px-3">
+    <header className="@container/topbar z-20 flex h-12 shrink-0 items-center gap-2 border-b border-outline-variant bg-surface px-2 md:px-3">
       <SidebarTrigger aria-label="Toggle sidebar" className="text-on-surface-variant" />
-      <Separator className="mx-1 hidden data-[orientation=vertical]:h-4 sm:block" orientation="vertical" />
-      <Breadcrumb className="hidden min-w-0 sm:block">
+      <Separator className="mx-1 hidden data-[orientation=vertical]:h-4 @[32rem]/topbar:block" orientation="vertical" />
+      <Breadcrumb className="hidden min-w-0 @[32rem]/topbar:block">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => (
             <Fragment key={c.label}>
@@ -387,7 +387,7 @@ export function Topbar({ crumbs, search, actions }: { crumbs: Crumb[]; search?: 
               <BreadcrumbItem className="min-w-0">
                 {c.href && i < crumbs.length - 1 ? (
                   <BreadcrumbLink asChild>
-                    <Link className="truncate" href={c.href}>
+                    <Link className="hit-area inline-flex min-h-6 items-center truncate" href={c.href}>
                       {c.label}
                     </Link>
                   </BreadcrumbLink>
@@ -399,7 +399,7 @@ export function Topbar({ crumbs, search, actions }: { crumbs: Crumb[]; search?: 
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex min-w-0 flex-1 justify-center px-2">{search}</div>
+      <div className="flex min-w-0 flex-1 justify-center px-2 @max-[20rem]/topbar:hidden">{search}</div>
       <div className="flex shrink-0 items-center gap-1">{actions}</div>
     </header>
   );
@@ -482,15 +482,15 @@ export function SearchCommand({
         aria-label={placeholder}
         className={cn(
           "state-layer [--state-hover:0.03] focus-ring relative flex h-8 w-full max-w-[480px] min-w-0 items-center gap-2 rounded-md border border-outline-variant bg-surface-container-lowest px-2.5 text-sm text-on-surface-tertiary shadow-raised outline-none",
-          // Phones: an icon button; the dialog is the same.
-          "max-sm:ml-auto max-sm:size-8 max-sm:justify-center max-sm:px-0",
+          // A narrow top bar gets an icon button; the dialog is the same.
+          "@max-[30rem]/topbar:ml-auto @max-[30rem]/topbar:size-8 @max-[30rem]/topbar:justify-center @max-[30rem]/topbar:px-0",
           "dark:bg-surface-container dark:shadow-none"
         )}
         onClick={() => setOpen(true)}
         type="button"
       >
         <SearchIcon aria-hidden="true" className="size-4 shrink-0" />
-        <span className="truncate max-sm:sr-only">{placeholder}</span>
+        <span className="truncate @max-[30rem]/topbar:sr-only">{placeholder}</span>
         <Kbd className="ml-auto hidden lg:inline-flex">{shortcut}</Kbd>
       </button>
       <CommandDialog
