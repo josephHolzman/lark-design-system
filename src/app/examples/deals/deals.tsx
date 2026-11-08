@@ -6,9 +6,11 @@ import {
   DownloadIcon,
   FileTextIcon,
   FilterIcon,
+  LockIcon,
   PencilIcon,
   PlusIcon,
   ScaleIcon,
+  SlidersHorizontalIcon,
   SparklesIcon,
   Trash2Icon,
   UserRoundIcon,
@@ -77,7 +79,10 @@ export function DealsList() {
   const [groupBy, setGroupBy] = useState("");
   const [preview, setPreview] = useState("data");
   const [railOpen, setRailOpen] = useState(true);
-  const [visible, setVisible] = useState(COLUMN_OPTIONS.map((c) => c.id).filter((id) => id !== "owner"));
+  // Low-priority columns start in the Columns menu so the default set fits 1440 without
+  // sideways scrolling; the grid still scrolls as a labelled region below that width.
+  const DEFAULT_VISIBLE = ["account", "status", "value", "discount", "actions"];
+  const [visible, setVisible] = useState(DEFAULT_VISIBLE);
   const [order, setOrder] = useState(COLUMN_OPTIONS.map((c) => c.id));
   const [risk, setRisk] = useState<Record<string, Deal["risk"]>>(() => Object.fromEntries(DEALS.map((d) => [d.id, d.risk])));
   const [peek, setPeek] = useState<Deal | null>(null);
@@ -112,7 +117,7 @@ export function DealsList() {
         id: "account",
         accessorKey: "account",
         header: "Deal",
-        meta: { width: 260, sticky: true },
+        meta: { width: 230, sticky: true },
         cell: ({ row }) => (
           <RecordCell
             leading={<CompanyLogo name={row.original.account} size={density === "compact" ? "xs" : "sm"} />}
@@ -133,21 +138,21 @@ export function DealsList() {
         id: "status",
         accessorKey: "status",
         header: "Status",
-        meta: { width: 190 },
+        meta: { width: 170 },
         cell: ({ row }) => <StatusBadge status={row.original.status} />,
       },
       {
         id: "value",
         accessorKey: "value",
         header: "Net value",
-        meta: { width: 140, align: "right", description: "latest revision", aggregate: (rs) => usd(rs.reduce((n, r) => n + r.original.value, 0)) },
+        meta: { width: 130, align: "right", description: "latest revision", aggregate: (rs) => usd(rs.reduce((n, r) => n + r.original.value, 0)) },
         cell: ({ row }) => <MoneyCell sub={density === "comfortable" ? `Revision ${row.original.revision}` : undefined} value={row.original.value} />,
       },
       {
         id: "discount",
         accessorKey: "discount",
         header: "Platform discount",
-        meta: { width: 180, description: "tick = 20% limit" },
+        meta: { width: 160, description: "tick = 20% limit" },
         cell: ({ row }) => <PercentBarCell label="Platform discount against the 20% limit" limit={20} max={40} value={row.original.discount} />,
       },
       {
@@ -198,7 +203,7 @@ export function DealsList() {
         id: "actions",
         header: "",
         enableSorting: false,
-        meta: { width: 150, align: "right", label: "Actions" },
+        meta: { width: 120, align: "right", label: "Actions" },
         cell: ({ row }) => (
           <ActionsCell
             label={`Actions for ${row.original.account}`}
@@ -224,45 +229,68 @@ export function DealsList() {
 
   return (
     <>
+      {/* This switcher belongs to the example, not the component: above the module, marked so
+          the All deals layout is judged on its own. */}
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-outline-variant bg-surface-container-low px-4 py-1.5 text-body-md text-on-surface-variant md:px-6">
+        <span className="inline-flex h-5 items-center rounded-full border border-outline-strong px-2 text-meta-strong">Example only</span>
+        <span>Preview state</span>
+        <Segmented
+          aria-label="Preview state"
+          className="w-auto"
+          onValueChange={setPreview}
+          options={[
+            { value: "data", label: "Data" },
+            { value: "loading", label: "Loading" },
+            { value: "empty", label: "Empty" },
+            { value: "error", label: "Error" },
+          ]}
+          size="sm"
+          value={preview}
+        />
+      </div>
       <ListLayout
         banners={
-          <>
-            {syncBanner && (
-              <Banner action={<a href="#">Reconnect Salesforce</a>} layout="strip" onDismiss={() => setSyncBanner(false)} tone="caution">
-                Salesforce sync paused 2 hours ago. Values may be out of date.
-              </Banner>
-            )}
-            <Banner layout="inset" tone="permission">
-              You can see deals for the Deal Desk team only. Ask an admin to change your access.
+          // One banner at a time (§7). The access note is not a banner: it sits under the header.
+          syncBanner && (
+            <Banner action={<a href="#">Reconnect Salesforce</a>} layout="strip" onDismiss={() => setSyncBanner(false)} tone="caution">
+              Salesforce sync paused 2 hours ago. Values may be out of date.
             </Banner>
-          </>
+          )
         }
         header={
-          <PageHeader
-            actions={
-              <>
-                <Button variant="secondary">
-                  <DownloadIcon /> Export
-                </Button>
-                <SplitButton icon={<PlusIcon />} sections={[{ items: [{ label: "Quote revision", icon: <FileTextIcon /> }, { label: "Pricing exception", icon: <ScaleIcon /> }, { label: "Ask ACE to draft", icon: <SparklesIcon /> }] }]}>
-                  New deal
-                </SplitButton>
-              </>
-            }
-            tabs={
-              <PageTabs
-                className="border-b-0"
-                label="Deal views"
-                tabs={[
-                  { label: "All deal work", href: "/examples/deals", current: true, count: DEALS.length },
-                  { label: "Quotes", href: "#", count: 12 },
-                  { label: "Approvals", href: "#", count: 5 },
-                  { label: "Renewals", href: "#", count: 4 },
-                ]}
-              />
-            }
-            title="All deals"
-          />
+          <>
+            <PageHeader
+              actions={
+                <>
+                  <Button variant="secondary">
+                    <DownloadIcon /> Export
+                  </Button>
+                  <SplitButton icon={<PlusIcon />} sections={[{ items: [{ label: "Quote revision", icon: <FileTextIcon /> }, { label: "Pricing exception", icon: <ScaleIcon /> }, { label: "Ask ACE to draft", icon: <SparklesIcon /> }] }]}>
+                    New deal
+                  </SplitButton>
+                </>
+              }
+              tabs={
+                <PageTabs
+                  className="border-b-0"
+                  label="Deal views"
+                  tabs={[
+                    { label: "All deal work", href: "/examples/deals", current: true, count: DEALS.length },
+                    { label: "Quotes", href: "#", count: 12 },
+                    { label: "Approvals", href: "#", count: 5 },
+                    { label: "Renewals", href: "#", count: 4 },
+                  ]}
+                />
+              }
+              title="All deals"
+            />
+            <p className="mt-3 flex items-start gap-2 text-sm text-on-surface-variant">
+              <LockIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+              <span>
+                You can see deals for the Deal Desk team only. <a className="focus-ring rounded-sm underline underline-offset-3 outline-none hover:text-on-surface" href="#">Ask an admin to change your access.</a>
+              </span>
+            </p>
+          </>
         }
         rail={
           railOpen && (
@@ -321,29 +349,33 @@ export function DealsList() {
         }
         toolbar={
           <>
-            <SavedViewMenu
-              onChange={setView}
-              onCreate={() => toast("View saved", { description: "“My renewals” is now in Created by me." })}
-              value={view}
-              views={[
-                { id: "all", name: "Default view", count: "24" },
-                { id: "renew", name: "Renewals this quarter", count: "4" },
-                { id: "risk", name: "Over discount limit", count: "3" },
-                { id: "team", name: "Deal desk queue", owner: "team", count: "8" },
-              ]}
-            />
-            <Button aria-pressed={railOpen} onClick={() => setRailOpen(!railOpen)} variant="ghost">
-              <FilterIcon /> {railOpen ? "Hide filters" : "Show filters"}
-            </Button>
-            <FilterSearch className="sm:w-56" label="Search deals" onValueChange={setQ} placeholder="Search deals" value={q} />
-            <FacetFilterMenu
-              facets={["Priya Raman", "Marcus Bell", "Avery Chen", "Dana Okafor"].map((o) => ({ value: o, label: o, count: DEALS.filter((d) => d.owner === o).length }))}
-              label="Owner"
-              onChange={setOwners}
-              value={owners}
-            />
-            <div className="ml-auto flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-2 text-sm text-on-surface-variant">
+            {/* One row at 1440: view · filters toggle · search · owner on the left. */}
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <SavedViewMenu
+                onChange={setView}
+                onCreate={() => toast("View saved", { description: "“My renewals” is now in Created by me." })}
+                value={view}
+                views={[
+                  { id: "all", name: "Default view", count: "24" },
+                  { id: "renew", name: "Renewals this quarter", count: "4" },
+                  { id: "risk", name: "Over discount limit", count: "3" },
+                  { id: "team", name: "Deal desk queue", owner: "team", count: "8" },
+                ]}
+              />
+              <Button aria-pressed={railOpen} onClick={() => setRailOpen(!railOpen)} variant="ghost">
+                <FilterIcon /> {railOpen ? "Hide filters" : "Show filters"}
+              </Button>
+              <FilterSearch className="min-w-48 flex-1 sm:max-w-56" label="Search deals" onValueChange={setQ} placeholder="Search deals" value={q} />
+              <FacetFilterMenu
+                facets={["Priya Raman", "Marcus Bell", "Avery Chen", "Dana Okafor"].map((o) => ({ value: o, label: o, count: DEALS.filter((d) => d.owner === o).length }))}
+                label="Owner"
+                onChange={setOwners}
+                value={owners}
+              />
+            </div>
+            {/* From xl up the view controls sit at the right of the same row. */}
+            <div className="ml-auto hidden items-center gap-2 xl:flex">
+              <label className="flex items-center gap-2 text-sm whitespace-nowrap text-on-surface-variant">
                 Group by
                 <NativeSelect onChange={(e) => setGroupBy(e.target.value)} size="sm" value={groupBy}>
                   <NativeSelectOption value="">None</NativeSelectOption>
@@ -372,24 +404,46 @@ export function DealsList() {
                 </PopoverContent>
               </Popover>
             </div>
+            {/* Below xl those three controls fold into one menu so the toolbar stays one line. */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button className="ml-auto xl:hidden" variant="ghost">
+                  <SlidersHorizontalIcon /> View options
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-3">
+                <div className="flex flex-col gap-3">
+                  <label className="flex items-center justify-between gap-2 text-sm text-on-surface-variant">
+                    Group by
+                    <NativeSelect onChange={(e) => setGroupBy(e.target.value)} size="sm" value={groupBy}>
+                      <NativeSelectOption value="">None</NativeSelectOption>
+                      <NativeSelectOption value="status">Status</NativeSelectOption>
+                      <NativeSelectOption value="type">Type</NativeSelectOption>
+                      <NativeSelectOption value="owner">Owner</NativeSelectOption>
+                    </NativeSelect>
+                  </label>
+                  <div className="flex items-center justify-between gap-2 text-sm text-on-surface-variant">
+                    <span>Row density</span>
+                    <Segmented
+                      aria-label="Row density"
+                      onValueChange={(v) => setDensity(v as typeof density)}
+                      options={[
+                        { value: "comfortable", label: "Comfortable" },
+                        { value: "compact", label: "Compact" },
+                      ]}
+                      value={density}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-label-lg text-on-surface">Columns</span>
+                    <ColumnsPanel columns={COLUMN_OPTIONS} onOrderChange={setOrder} onVisibleChange={setVisible} order={order} visible={visible} />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </>
         }
       >
-        <div className="flex items-center gap-2 border-b border-outline-variant px-4 py-1.5 text-body-md text-on-surface-variant md:px-6">
-          <span>Preview state</span>
-          <Segmented
-            aria-label="Preview state"
-            onValueChange={setPreview}
-            options={[
-              { value: "data", label: "Data" },
-              { value: "loading", label: "Loading" },
-              { value: "empty", label: "Empty" },
-              { value: "error", label: "Error" },
-            ]}
-            size="sm"
-            value={preview}
-          />
-        </div>
         <DataGrid
           bulkActions={(sel, clear) => (
             <>

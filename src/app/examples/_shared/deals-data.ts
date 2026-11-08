@@ -71,13 +71,14 @@ export const DEALS: Deal[] = ACCOUNTS.map((account, i) => {
   };
 });
 
-export const TYPE_TAG: Record<DealType, "info" | "teal" | "success" | "pink" | "warning" | "olive"> = {
-  "New deal request": "info",
-  Renewal: "teal",
-  Expansion: "success",
-  Counteroffer: "pink",
-  "Pricing exception": "warning",
-  "Order & billing": "olive",
+/** Deal type is descriptive, not status: every value is a neutral tag (§3.1, §3.5). */
+export const TYPE_TAG: Record<DealType, "default"> = {
+  "New deal request": "default",
+  Renewal: "default",
+  Expansion: "default",
+  Counteroffer: "default",
+  "Pricing exception": "default",
+  "Order & billing": "default",
 };
 
 export const usd = (n: number) => "$" + n.toLocaleString("en-US");

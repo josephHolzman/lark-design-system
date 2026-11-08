@@ -183,15 +183,24 @@ function DataGridInner<T>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrolls, setScrolls] = useState(false);
+  const [scrollsRight, setScrollsRight] = useState(false);
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const check = () => setScrolls(el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
+    const check = () => {
+      setScrolls(el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
+      // Only while there is more table to the right; the shadow is the visible affordance.
+      setScrollsRight(el.scrollWidth - el.clientWidth - el.scrollLeft > 2);
+    };
     const ro = new ResizeObserver(check);
     ro.observe(el);
     if (el.firstElementChild) ro.observe(el.firstElementChild);
+    el.addEventListener("scroll", check, { passive: true });
     check();
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("scroll", check);
+    };
   }, []);
   const [expanded, setExpanded] = useState<ExpandedState>(groupBy ? true : {});
   const [visibilityState, setVisibilityState] = useState<VisibilityState>({});
@@ -503,6 +512,12 @@ function DataGridInner<T>({
         </table>
       </div>
 
+      {/* A scroll region needs a visible edge affordance (§2.13, §17.4): the gradient says there
+          are more columns to the right, and disappears once they have all been seen. */}
+      {scrollsRight && (
+        <div aria-hidden="true" className={cn("pointer-events-none absolute right-0 z-[3] w-8 bg-gradient-to-l from-black/20 to-transparent dark:from-black/50", groupBy ? "inset-y-0" : "top-0 bottom-12")} data-slot="grid-scroll-shadow" />
+      )}
+
       {bulkActions && selected.length > 0 && (
         <div
           aria-label="Bulk actions"
@@ -523,8 +538,8 @@ function DataGridInner<T>({
 
       {!groupBy && (
         <div className="flex h-12 shrink-0 items-center gap-2 border-t border-outline-variant px-3 text-sm text-on-surface-variant" data-slot="data-grid-pager">
-          <label className="flex items-center gap-2">
-            <span className="sr-only">Page</span>
+          <label className="flex items-center gap-2 whitespace-nowrap">
+            <span>Page</span>
             <select
               className="focus-ring h-7 rounded-md border border-outline bg-surface-container-lowest pr-6 pl-2 text-sm text-on-surface outline-none"
               disabled={table.getPageCount() <= 1}
