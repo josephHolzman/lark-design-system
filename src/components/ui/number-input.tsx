@@ -24,6 +24,8 @@ function NumberInput({
   steppers = true,
   invalid,
   disabled,
+  commit = "blur",
+  "aria-label": ariaLabel,
   className,
   size = "default",
   ...props
@@ -41,6 +43,8 @@ function NumberInput({
   maximumFractionDigits?: number
   steppers?: boolean
   invalid?: boolean
+  /** "blur" (default): the value commits on blur or Enter. "change": each valid keystroke and the steppers commit. */
+  commit?: "blur" | "change"
   size?: "sm" | "default"
 }) {
   const format = React.useCallback(
@@ -79,6 +83,7 @@ function NumberInput({
       {prefix && <span className="pl-2.5 text-sm text-on-surface-variant" aria-hidden>{prefix}</span>}
       <input
         aria-invalid={invalid || undefined}
+        aria-label={ariaLabel}
         aria-valuemax={max}
         aria-valuemin={min}
         aria-valuenow={value}
@@ -95,6 +100,10 @@ function NumberInput({
         onChange={(e) => {
           setEditing(true)
           setDraft(e.target.value)
+          if (commit === "change") {
+            const n = parse(e.target.value)
+            if (n !== undefined) onValueChange(n)
+          }
         }}
         onFocus={() => {
           setEditing(true)
@@ -122,7 +131,7 @@ function NumberInput({
       {steppers && (
         <span className="flex h-full items-center gap-0.5 border-l border-outline-variant px-1">
           <button
-            aria-label="Decrease"
+            aria-label={ariaLabel ? `Decrease ${ariaLabel}` : "Decrease"}
             className="hit-area inline-flex size-6 items-center justify-center rounded-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:text-on-surface-tertiary disabled:hover:bg-transparent"
             disabled={disabled || (min !== undefined && (value ?? min) <= min)}
             onClick={() => nudge(-1)}
@@ -132,7 +141,7 @@ function NumberInput({
             <MinusIcon className="size-3.5" />
           </button>
           <button
-            aria-label="Increase"
+            aria-label={ariaLabel ? `Increase ${ariaLabel}` : "Increase"}
             className="hit-area inline-flex size-6 items-center justify-center rounded-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:text-on-surface-tertiary disabled:hover:bg-transparent"
             disabled={disabled || (max !== undefined && (value ?? max) >= max)}
             onClick={() => nudge(1)}
