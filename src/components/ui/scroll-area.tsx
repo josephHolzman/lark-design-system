@@ -18,6 +18,8 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
+        // A scroll region must be reachable by keyboard even when it holds nothing focusable.
+        tabIndex={0}
         className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-ring"
       >
         {children}
