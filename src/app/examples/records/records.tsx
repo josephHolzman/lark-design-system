@@ -154,7 +154,7 @@ export function Records() {
                     <ListItem
                       key={q.id}
                       headline={q.title}
-                      meta={q.value}
+                      meta={<span className="text-body-md tabular-nums">{q.value}</span>}
                       onClick={() => setSelected(q.id)}
                       selected={q.id === quote.id}
                       supporting={`${q.account} · ${q.status}`}
@@ -186,7 +186,7 @@ export function Records() {
           </div>
         </SectionCard>
 
-        <SectionCard description="Signals grouped by day with unread counts, All/Unread/Mentions, and an empty state that keeps its picture." title="Deal signals">
+        <SectionCard description="Signals grouped by day with unread counts, All/Unread/Mentions, and a text-only empty state for a narrow panel." title="Deal signals">
           <div className="flex flex-wrap items-center gap-2">
             <Button onClick={() => setSignals(true)} variant="secondary">
               <BellIcon /> Deal signals
@@ -254,7 +254,6 @@ export function Records() {
       </RecordDrawer>
 
       <NotificationsPanel
-        illustration={{ size: 140, src: "/illustrations/empty-approved.svg" }}
         items={items}
         now={NOW}
         onMarkAllRead={() => setItems((current) => current.map((item) => ({ ...item, unread: false })))}
@@ -263,7 +262,6 @@ export function Records() {
       />
 
       <NotificationsPanel
-        illustration={{ size: 140, src: "/illustrations/empty-approved.svg" }}
         items={[]}
         now={NOW}
         onOpenChange={setEmptySignals}

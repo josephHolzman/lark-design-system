@@ -52,10 +52,10 @@ describe("NotificationsPanel", () => {
     expect(screen.getByRole("button", { name: "Mark all as read" })).toHaveProperty("disabled", true);
   });
 
-  it("keeps an illustration in the empty state", async () => {
+  it("keeps the empty state text-only in a small panel", async () => {
     render(<NotificationsPanel illustration={{ size: 96, src: "/illustrations/empty-approved.svg" }} items={[]} now={NOW} onOpenChange={() => {}} open />);
     expect(screen.getByText("No signals yet")).toBeTruthy();
-    expect(document.querySelector("[data-slot=illustration]")).toBeTruthy();
+    expect(document.querySelector("[data-slot=illustration]")).toBeNull();
     expect(await axeViolations(document.body)).toEqual([]);
   });
 

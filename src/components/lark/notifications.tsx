@@ -16,7 +16,8 @@ import type { IllustrationSpec } from "./illustration";
   NotificationsPanel (v0.8): deal signals in a sheet from the top-bar bell. Items are grouped
   by day and carry a kind icon, a title, a clamped detail, a time, an unread dot with the word
   "Unread", and an optional action. The header counts what is unread and can mark all read;
-  the segmented filter counts All, Unread and Mentions. Empty states keep an illustration.
+  the segmented filter counts All, Unread and Mentions. The sheet is a small container, so an
+  empty state is text only and left-aligned.
 */
 
 export type NotificationKind = "approval" | "mention" | "quote" | "task" | "system";
@@ -49,7 +50,7 @@ export type NotificationsPanelProps = {
   onOpenChange: (open: boolean) => void;
   items: NotificationItem[];
   onMarkAllRead?: () => void;
-  /** The empty state's picture: a spec or your own node. */
+  /** Kept for 0.8 callers. A sheet is a small container, so its empty state is text only. */
   illustration?: ReactNode | IllustrationSpec;
   /** Fixed "now" for grouping and tests. */
   now?: Date;
