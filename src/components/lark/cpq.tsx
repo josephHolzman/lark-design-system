@@ -166,7 +166,7 @@ export function DealFigures({ items, money, className }: { items: DealFigure[]; 
   const fmt = (f: DealFigure) => (n: number) =>
     f.format === "money" ? formatMoney(n, money) : f.format === "percent" ? pct(n) : Math.round(n).toLocaleString(money?.locale ?? "en-US");
   return (
-    <dl className={cn("lark-stagger grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4", className)} data-slot="deal-figures">
+    <dl className={cn("@container/figures lark-stagger grid grid-cols-1 gap-x-6 gap-y-5 @[24rem]/figures:grid-cols-2 @[48rem]/figures:grid-cols-4", className)} data-slot="deal-figures">
       {items.map((f) => (
         <div className="flex min-w-0 flex-col gap-1" key={f.label}>
           <dt className="text-label-lg text-on-surface-variant">{f.label}</dt>
@@ -581,9 +581,9 @@ export function PriceWaterfall({
   ];
   const max = Math.max(start.value, end, ...ends);
   return (
-    <ol aria-label={`${start.label} to ${endLabel}`} className={cn("lark-stagger flex flex-col", className)} data-slot="price-waterfall">
+    <ol aria-label={`${start.label} to ${endLabel}`} className={cn("@container/waterfall lark-stagger flex flex-col", className)} data-slot="price-waterfall">
       {rows.map((r, i) => (
-        <li className="grid grid-cols-[minmax(8rem,14rem)_1fr_auto] items-center gap-3 border-b border-outline-faint py-2 last:border-0" key={i}>
+        <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-b border-outline-faint py-2 last:border-0 @[30rem]/waterfall:grid-cols-[minmax(8rem,14rem)_1fr_auto] @[30rem]/waterfall:gap-3" key={i}>
           <span className="flex min-w-0 flex-col">
             <span className={cn("text-sm", r.total ? "font-semibold text-on-surface" : "text-on-surface")}>{r.label}</span>
             {"detail" in r && r.detail && <span className="text-body-md text-on-surface-variant">{r.detail}</span>}
@@ -594,7 +594,7 @@ export function PriceWaterfall({
               </span>
             )}
           </span>
-          <span aria-hidden className="relative h-5 min-w-24">
+          <span aria-hidden className="relative order-3 col-span-2 h-2 min-w-0 @[30rem]/waterfall:order-none @[30rem]/waterfall:col-span-1 @[30rem]/waterfall:h-5 @[30rem]/waterfall:min-w-24">
             <span
               className={cn(
                 "lark-bar-grow absolute inset-y-0 rounded-[3px]",
@@ -603,7 +603,7 @@ export function PriceWaterfall({
               style={{ left: `${(r.from / max) * 100}%`, width: `${Math.max(0.5, ((r.to - r.from) / max) * 100)}%`, animationDelay: `${i * 80}ms` }}
             />
           </span>
-          <span className={cn("text-right text-sm tabular-nums", r.total ? "font-semibold" : r.value < 0 ? "text-on-warning-container" : "text-success")}>
+          <span className={cn("order-2 text-right text-sm tabular-nums @[30rem]/waterfall:order-none", r.total ? "font-semibold" : r.value < 0 ? "text-on-warning-container" : "text-success")}>
             {r.total ? m(r.value) : `${r.value > 0 ? "+" : ""}${m(r.value)}`}
           </span>
         </li>
