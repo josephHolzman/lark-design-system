@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshCwIcon } from "lucide-react";
+import { useState } from "react";
 
 import { type ActivityEntry, ActivityFeed, ActivityFeedSkeleton, SituationSummary } from "@/components/lark/activity";
 import { SectionCard } from "@/components/lark/cards";
@@ -23,13 +24,15 @@ const at = (daysAgo: number, h: number, m = 0) => {
 };
 
 const BASE: ActivityEntry[] = [
-  { id: "1", party: "customer", author: "Jordan Lee, Northwind Freight (example)", title: "Asked to keep the 22% discount for all three years", message: "We can sign this month if year two and three hold at 22%. Otherwise we need to take it back to procurement.", at: at(0, 10, 12), reference: "Re: Renewal terms" },
-  { id: "2", party: "seller", author: "Priya Raman", title: "Sent quote revision 4", message: "Attached R4 with the three-year ramp. Happy to walk through it tomorrow.", at: at(0, 11, 5), reference: "Quote R4" },
-  { id: "3", party: "internal", author: "Marcus Bell, Finance", title: "Asked for margin at net 60 before approving", message: "Need to see margin with net 60 terms before I can approve.", at: at(0, 9, 40), reference: "#deal-desk" },
-  { id: "4", party: "system", author: "Approval service", title: "Started pricing and finance review", at: at(1, 16, 20), reference: "Route v3" },
-  { id: "5", party: "customer", author: "Jordan Lee, Northwind Freight (example)", title: "Confirmed the start date", message: "January 1 works for us.", at: at(1, 14, 2), reference: "Re: Start date" },
-  { id: "6", party: "internal", author: "Dana Ito, Deal desk", title: "Approved the quote over $100k", at: at(4, 9, 12), reference: "Approval 1 of 6" },
-  { id: "7", party: "seller", author: "Priya Raman", title: "Logged a call with procurement", message: "Procurement will not accept net 30. Net 60 is their standard.", at: at(4, 8, 30), reference: "Call notes" },
+  { id: "1", party: "customer", author: "Jordan Lee, Northwind Freight (example)", object: "the Northwind renewal", title: "Asked to keep the 22% discount for all three years", message: "We can sign this month if year two and three hold at 22%. Otherwise we need to take it back to procurement.", at: at(0, 10, 12), reference: "Re: Renewal terms" },
+  { id: "2", party: "seller", author: "Priya Raman", object: "quote R4", title: "Sent revision 4", message: "Attached R4 with the three-year ramp. Happy to walk through it tomorrow.", at: at(0, 11, 5), reference: "Quote R4" },
+  { id: "3", party: "internal", author: "Marcus Bell, Finance", object: "the discount", title: "Asked for margin at net 60 before approving", message: "Need to see margin with net 60 terms before I can approve.", at: at(0, 9, 40), reference: "#deal-desk" },
+  { id: "8", party: "ace", author: "ACE", object: "quote R4", title: "Drafted a reply to Jordan Lee", message: "The draft holds 22% for years two and three and cites the ramp. It is not sent.", at: at(0, 8, 55), reference: "Draft in Outlook" },
+  { id: "9", party: "system", author: "Salesforce sync", object: "the opportunity", title: "updated 14 fields", noise: true, detail: "Amount, close date, stage and 11 other fields changed. The quote and approval route were not touched.", at: at(0, 8, 30), reference: "Sync 8841" },
+  { id: "4", party: "system", author: "Approval service", object: "the route", title: "Started pricing and finance review", at: at(1, 16, 20), reference: "Route v3" },
+  { id: "5", party: "customer", author: "Jordan Lee, Northwind Freight (example)", object: "the start date", title: "Confirmed it", message: "January 1 works for us.", at: at(1, 14, 2), reference: "Re: Start date" },
+  { id: "6", party: "internal", author: "Dana Ito, Deal desk", object: "quote R4", title: "Approved the quote over $100k", at: at(4, 9, 12), reference: "Approval 1 of 6" },
+  { id: "7", party: "seller", author: "Priya Raman", object: "the procurement call", title: "Logged the notes", message: "Procurement will not accept net 30. Net 60 is their standard.", at: at(4, 8, 30), reference: "Call notes" },
 ];
 
 function entriesFor(state: ExampleState): ActivityEntry[] {
@@ -69,6 +72,7 @@ function entriesFor(state: ExampleState): ActivityEntry[] {
 }
 
 function Body({ state }: { state: ExampleState }) {
+  const [extra, setExtra] = useState<ActivityEntry[]>([]);
   if (state === "loading") return <ActivityFeedSkeleton />;
   if (state === "error")
     return (
@@ -96,9 +100,32 @@ function Body({ state }: { state: ExampleState }) {
           Your role doesn&apos;t include customer email. Seller, internal and system activity is shown.
         </Callout>
       )}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-body-md text-on-surface-variant">New activity waits behind a count, so the feed does not move under the reader.</p>
+        <Button
+          onClick={() =>
+            setExtra((prev) => [
+              ...prev,
+              {
+                id: `new-${prev.length + 1}`,
+                party: "internal",
+                author: "Dana Ito, Deal desk",
+                object: "the exception",
+                title: "Asked Rui Tanaka to review the 22% discount",
+                at: at(0, 15, 0),
+                reference: "#deal-desk",
+              },
+            ])
+          }
+          size="xs"
+          variant="secondary"
+        >
+          Show how a new update arrives
+        </Button>
+      </div>
       <ActivityFeed
         empty={<StatePanel compact description="Emails, calls, approvals and quote changes show up here as they happen." kind="first-run" title="No activity on this deal yet" />}
-        entries={entriesFor(state)}
+        entries={[...entriesFor(state), ...extra]}
         now={NOW}
         provenance={
           <>
@@ -125,6 +152,7 @@ export function DealActivityExample() {
                 action={{ label: "Open approval" }}
                 next="Finance decides on net 60 margin; Priya sends the numbers today."
                 problem="The buyer won't sign until the 22% discount holds for all three years."
+                since="9:40 AM, when Finance asked for margin at net 60"
                 status={state === "conflict" ? "attention" : "blocked"}
                 statusLabel={state === "conflict" ? "Needs attention: sources disagree" : "Blocked on approval"}
               />

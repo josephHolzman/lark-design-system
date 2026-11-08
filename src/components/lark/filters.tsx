@@ -173,7 +173,7 @@ export function Segmented({ options, value, onValueChange, size = "sm", classNam
   return (
     // The outer box takes the width it's given (the track inside is only as wide as its items),
     // so what fits is measured against the space, not against what is already shown.
-    <div className={cn("relative flex w-full min-w-0", className)} data-slot="segmented" ref={containerRef as React.RefObject<HTMLDivElement>}>
+    <div className={cn("relative flex w-full min-w-0 overflow-x-clip", className)} data-slot="segmented" ref={containerRef as React.RefObject<HTMLDivElement>}>
     <div className={cn("inline-flex max-w-full min-w-0 items-stretch gap-0.5 rounded-md bg-surface-container-high p-0.5", size === "sm" ? "h-8" : "h-[34px]")}>
       <ToggleGroupPrimitive.Root
         aria-label={aria["aria-label"]}
