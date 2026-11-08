@@ -171,13 +171,36 @@ export function SettingsLayout({
 }
 
 /** Master–detail (Work inbox): a scrolling list and a scrolling detail. */
-export function SplitView({ list, detail, listWidth = 360, className }: { list: ReactNode; detail: ReactNode; listWidth?: number; className?: string }) {
+export function SplitView({
+  list,
+  detail,
+  listWidth = 360,
+  listLabel = "List",
+  detailLabel = "Details",
+  className,
+}: {
+  list: ReactNode;
+  detail: ReactNode;
+  listWidth?: number;
+  /** Names the list pane's focusable scroll region (WCAG 2.1.1, 4.1.2). */
+  listLabel?: string;
+  detailLabel?: string;
+  className?: string;
+}) {
   return (
     <div className={cn("flex min-h-0 flex-1", className)} data-slot="split-view">
-      <div className="hidden shrink-0 overflow-auto border-r border-outline-variant bg-surface md:block" style={{ width: listWidth }}>
+      <div
+        aria-label={listLabel}
+        className="hidden shrink-0 overflow-auto border-r border-outline-variant bg-surface focus-ring outline-none md:block"
+        role="region"
+        style={{ width: listWidth }}
+        tabIndex={0}
+      >
         {list}
       </div>
-      <div className="min-h-0 min-w-0 flex-1 overflow-auto bg-canvas">{detail}</div>
+      <div aria-label={detailLabel} className="min-h-0 min-w-0 flex-1 overflow-auto bg-canvas focus-ring outline-none" role="region" tabIndex={0}>
+        {detail}
+      </div>
     </div>
   );
 }
