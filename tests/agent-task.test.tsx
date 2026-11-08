@@ -48,7 +48,7 @@ describe("AgentTaskCard", () => {
 
   it("shows a progressbar with its step in words while running, and nothing once done", () => {
     const { rerender } = render(<AgentTaskCard {...TASK} />);
-    const bar = screen.getByRole("progressbar", { name: "Task progress" });
+    const bar = screen.getByRole("progressbar", { name: `Task progress: ${TASK.title}` });
     expect(bar.getAttribute("aria-valuenow")).toBe("2");
     expect(bar.getAttribute("aria-valuemax")).toBe("4");
     expect(bar.getAttribute("aria-valuetext")).toBe("Step 2 of 4 · Drafting the margin table");

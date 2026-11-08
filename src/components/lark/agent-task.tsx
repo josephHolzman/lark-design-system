@@ -125,8 +125,10 @@ function menuName(title: ReactNode, explicit?: string) {
  * The step in words over a sky progress bar: the counter at 12 (metadata), the step's name at
  * 14. `role="progressbar"` with `aria-valuenow` and a `aria-valuetext` that repeats the words.
  */
-function TaskProgress({ progress }: { progress: AgentTaskProgress }) {
-  const { value, max, step, label = "Task progress" } = progress;
+function TaskProgress({ progress, title }: { progress: AgentTaskProgress; title: ReactNode }) {
+  const { value, max, step } = progress;
+  // Each bar is named for its task, so several running tasks don't share one name.
+  const label = progress.label ?? (textOf(title) ? `Task progress: ${textOf(title)}` : "Task progress");
   const stepLabel = progress.stepLabel ?? (max != null ? `Step ${value} of ${max}` : `${Math.round((value / (max ?? 100)) * 100)}%`);
   const words = step ? `${textOf(stepLabel)} · ${textOf(step)}` : textOf(stepLabel);
   const pct = max != null && max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : Math.min(100, Math.max(0, value));
@@ -134,7 +136,14 @@ function TaskProgress({ progress }: { progress: AgentTaskProgress }) {
     <div className="flex min-w-0 flex-col gap-1.5" data-slot="agent-task-progress">
       <p className="flex min-w-0 flex-wrap items-baseline gap-x-1 gap-y-0.5" data-meta="progress">
         <span className="text-meta text-on-surface-variant tabular-nums">{stepLabel}</span>
-        {step && <span className="text-body-md text-on-surface">{step}</span>}
+        {step && (
+          <>
+            <span aria-hidden="true" className="text-meta text-on-surface-variant">
+              ·
+            </span>
+            <span className="text-body-md text-on-surface">{step}</span>
+          </>
+        )}
       </p>
       <div
         aria-label={label}
@@ -206,7 +215,7 @@ export function AgentTaskCard({
         </ClampText>
       )}
 
-      {running && progress && <TaskProgress progress={progress} />}
+      {running && progress && <TaskProgress progress={progress} title={title} />}
       {state === "queued" && startsWhen && (
         <p className="text-body-md text-on-surface-variant" data-slot="agent-task-starts-when">
           {startsWhen}
@@ -233,8 +242,13 @@ export function AgentTaskRow({ title, agent, state, time, byline, action, menu, 
       className={cn("group/row", className)}
       data-slot="agent-task-row"
       data-state={state}
-      headline={title}
+      headline={
+        <ClampText className="text-title-sm" lines={2}>
+          {title}
+        </ClampText>
+      }
       leading={<AgentMark agent={agent} size="sm" />}
+      wrap
       supporting={
         <span className="text-meta" data-meta="byline">
           {bylineText}
