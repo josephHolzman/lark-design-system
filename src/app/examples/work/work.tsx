@@ -134,7 +134,7 @@ export function Work() {
   const [status, setStatus] = useState<SaveState>("idle");
 
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader
         description="Agent tasks, the decision a seller makes, two versions of a quote, and what a save will change. Example data throughout."
         title="Work and decisions"

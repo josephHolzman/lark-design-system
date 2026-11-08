@@ -132,7 +132,7 @@ export function Records() {
   const unread = items.filter((item) => item.unread).length;
 
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader
         description="Facts about a record, a list beside the record it opens, a record over the page, and deal signals. Example data throughout."
         title="Record patterns"
@@ -149,7 +149,7 @@ export function Records() {
               detail={quoteDetail(quote)}
               detailLabel="Quote record"
               list={
-                <List>
+                <List dividers>
                   {QUOTES.map((q) => (
                     <ListItem
                       key={q.id}

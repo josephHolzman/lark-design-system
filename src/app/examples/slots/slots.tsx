@@ -54,7 +54,7 @@ export function Slots() {
   const [palette, setPalette] = useState(false);
 
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader
         description="Illustrations in empty modules, the company-logo fallback, number fields that commit as you type, tabs that fold into More, and the small fixes from the gap list. Example data throughout."
         title="Slots and fixes"
@@ -82,7 +82,11 @@ export function Slots() {
       </SectionCard>
 
       <div className="grid gap-module-gap lg:grid-cols-2">
-        <SectionCard description="A module with no content yet shows the picture above its empty body." illustration={{ src: "/illustrations/empty-approved.svg", size: 140 }} title="Nothing approved today" />
+        <SectionCard
+          description="Approvals appear here once Finance has decided."
+          illustration={{ src: "/illustrations/empty-approved.svg", size: 140 }}
+          title="Nothing approved today"
+        />
 
         <SectionCard title="Empty states, banners and promos">
           <div className="flex flex-col gap-item">
@@ -91,14 +95,11 @@ export function Slots() {
               illustration={{ src: "/illustrations/empty-draft.svg", size: 140 }}
               kind="first-run"
               title="No drafts yet"
+              titleAs="h3"
             />
             <Banner illustration={{ src: "/illustrations/empty-approved.svg", size: 48 }} tone="info">
-              No mailbox is linked, so replies stay in Draft.
+              Replies stay in Draft until someone connects the team mailbox.
             </Banner>
-            <div className="rounded-lg border border-edge bg-card p-3">
-              <p className="text-title-sm">Promo card with a picture</p>
-              <Illustration className="mt-2 max-w-40" src="/illustrations/empty-draft.svg" size={96} />
-            </div>
           </div>
         </SectionCard>
       </div>
@@ -316,12 +317,13 @@ export function Slots() {
       <PromoCard
         action={
           <Button size="sm" variant="secondary">
-            <InboxIcon /> Show an example
+            <InboxIcon /> Connect Outlook
           </Button>
         }
-        description="A promo card can carry a picture above its words; the picture is decorative unless it has alt text."
+        description="Replies sent from a quote are filed in your mailbox's Sent folder, so the deal record and the buyer's inbox agree."
         illustration={{ src: "/illustrations/empty-draft.svg", size: 96 }}
-        title="Promo card with an illustration"
+        onDismiss={() => {}}
+        title="Connect your mailbox"
       />
 
       <CommandDialog onOpenChange={setPalette} open={palette} title="Search">

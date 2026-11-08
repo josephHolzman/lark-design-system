@@ -275,7 +275,7 @@ function Frame({ width }: { width: number }) {
 
 export function WidthMatrix() {
   return (
-    <div className="flex flex-col gap-module-gap">
+    <div className="flex flex-col gap-module-gap p-4 md:p-6">
       <PageHeader description="One set of content at five widths. Nothing may overflow its frame; tabs and segmented controls never wrap." title="Width matrix" />
       <div className="flex items-start gap-6 overflow-x-auto pb-4" data-slot="width-matrix" role="region" aria-label="Frames" tabIndex={0}>
         {WIDTHS.map((w) => (

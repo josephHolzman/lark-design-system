@@ -94,7 +94,7 @@ export function ComponentCatalog() {
   const count = shown.reduce((n, entry) => n + entry.samples.length, 0);
 
   return (
-    <div className="flex min-w-0 flex-col gap-module-gap">
+    <div className="flex min-w-0 flex-col gap-module-gap p-4 md:p-6">
       <PageHeader
         description="Every exported component, grouped by the file it lives in and rendered with long, realistic fake data in frames at 280, 360, 480, 720 and 1080px. Nothing may overflow its frame; tabs and segmented controls never wrap; every target is at least 24 by 24."
         title="Component matrix"
