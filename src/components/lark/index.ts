@@ -38,3 +38,4 @@ export * from "./surfaces";
 export * from "./text";
 export * from "./theme";
 export * from "./transcript";
+export * from "./version-compare";
