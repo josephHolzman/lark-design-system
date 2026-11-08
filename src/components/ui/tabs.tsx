@@ -104,67 +104,64 @@ function TabsList({
   }
 
   return (
-    <TabsPrimitive.List
-      ref={containerRef as React.RefObject<HTMLDivElement>}
-      data-slot="tabs-list"
-      data-variant={variant}
-      data-overflow={overflow}
-      className={cn(
-        "group/tabs-list text-on-surface-variant inline-flex w-fit items-center justify-start",
-        variant === "underline" && "h-10 gap-5 border-b border-outline-variant",
-        variant === "segmented" &&
-          "h-[34px] max-w-full gap-0.5 rounded-md bg-surface-container-high p-0.5",
-        overflow === "menu" && "relative flex-nowrap overflow-x-hidden",
-        className
-      )}
-      {...props}
-    >
-      {split ? (
-        <>
-          {split.shown}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className={moreClass} type="button">
-                <MoreLabel count={split.hidden.length} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-44">
-              {split.hidden.map((item, i) => (
-                <DropdownMenuItem
-                  key={item.key ?? i}
-                  onSelect={() => {
-                    if (item.props.value !== undefined) ctx?.setValue(item.props.value)
-                    focusActive()
-                  }}
-                >
-                  {item.props.children}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* Hidden measuring row: every trigger at its selected width, then the More control. */}
-          <OverflowMeasure
-            measureRef={measureRef}
-            className={cn(variant === "underline" ? "gap-5" : "gap-0.5")}
-          >
-            {items.map((item, i) => (
-              <span
-                className={cn(triggerClass, "pointer-events-none")}
-                data-state="active"
-                key={item.key ?? i}
-              >
-                {item.props.children}
-              </span>
-            ))}
-            <span className={moreClass}>
-              <MoreLabel count={items.length} />
-            </span>
-          </OverflowMeasure>
-        </>
-      ) : (
-        children
-      )}
-    </TabsPrimitive.List>
+    // The frame takes the width it is given; the tab list itself hugs its triggers. Measuring
+    // the hugging list would always report "fits", so the overflow is measured on the frame,
+    // and the measuring row is always present (it is hidden and out of the tab order).
+    <div ref={containerRef as React.RefObject<HTMLDivElement>} className="relative min-w-0 w-full" data-slot="tabs-list-frame">
+      <TabsPrimitive.List
+        data-slot="tabs-list"
+        data-variant={variant}
+        data-overflow={overflow}
+        className={cn(
+          "group/tabs-list text-on-surface-variant inline-flex w-fit items-center justify-start",
+          variant === "underline" && "h-10 gap-5 border-b border-outline-variant",
+          variant === "segmented" &&
+            "h-[34px] max-w-full gap-0.5 rounded-md bg-surface-container-high p-0.5",
+          overflow === "menu" && "relative flex-nowrap overflow-x-hidden",
+          className
+        )}
+        {...props}
+      >
+        {split ? (
+          <>
+            {split.shown}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={moreClass} type="button">
+                  <MoreLabel count={split.hidden.length} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-44">
+                {split.hidden.map((item, i) => (
+                  <DropdownMenuItem
+                    key={item.key ?? i}
+                    onSelect={() => {
+                      if (item.props.value !== undefined) ctx?.setValue(item.props.value)
+                      focusActive()
+                    }}
+                  >
+                    {item.props.children}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : (
+          children
+        )}
+      </TabsPrimitive.List>
+      {/* Hidden measuring row: every trigger at its selected width, then the More control. */}
+      <OverflowMeasure measureRef={measureRef} className={cn(variant === "underline" ? "gap-5" : "gap-0.5")}>
+        {items.map((item, i) => (
+          <span className={cn(triggerClass, "pointer-events-none")} data-state="active" key={item.key ?? i}>
+            {item.props.children}
+          </span>
+        ))}
+        <span className={moreClass}>
+          <MoreLabel count={items.length} />
+        </span>
+      </OverflowMeasure>
+    </div>
   )
 }
 

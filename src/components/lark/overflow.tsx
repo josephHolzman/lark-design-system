@@ -27,7 +27,9 @@ export function useOverflow(count: number, pinned = -1, inset = 0) {
       if (!more) return;
       const gap = parseFloat(getComputedStyle(m).columnGap) || 0;
       const widths = kids.map((k) => k.getBoundingClientRect().width);
-      const avail = c.clientWidth - inset;
+      // A shrink-to-fit control (w-fit) reports its content width, so its own clientWidth can
+      // never overflow. Compare with the space its parent gives it as well.
+      const avail = Math.min(c.clientWidth, c.parentElement?.clientWidth ?? c.clientWidth) - inset;
       const total = widths.reduce((a, b) => a + b, 0) + gap * Math.max(0, widths.length - 1);
       if (total <= avail + 0.5) return setVisible(count);
       let used = more.getBoundingClientRect().width;
