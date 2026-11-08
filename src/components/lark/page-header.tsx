@@ -60,7 +60,7 @@ export function PageHeader({
           {leading && <div className="shrink-0 pt-0.5">{leading}</div>}
           <div className="flex min-w-0 flex-col gap-1">
             {back && (
-              <Link className="focus-ring mb-1 inline-flex w-fit items-center gap-1.5 rounded-sm text-sm text-on-surface-variant outline-none hover:text-on-surface" href={back.href}>
+              <Link className="focus-ring hit-area mb-1 inline-flex min-h-6 w-fit items-center gap-1.5 rounded-sm text-sm text-on-surface-variant outline-none hover:text-on-surface" href={back.href}>
                 <ArrowLeftIcon aria-hidden className="size-4" />
                 {back.label}
               </Link>
@@ -102,7 +102,7 @@ export function PageTabs({ tabs, label, className }: { tabs: PageTab[]; label: s
   const { containerRef, measureRef, visible } = useOverflow(tabs.length, pinned);
   const { shown, hidden } = splitOverflow(tabs, visible, pinned);
   return (
-    <nav aria-label={label} className={cn("relative -mb-px min-w-0 overflow-hidden border-b border-outline-variant", className)} ref={containerRef as React.RefObject<HTMLElement>}>
+    <nav aria-label={label} className={cn("relative -mb-px min-w-0 overflow-hidden border-b border-outline-variant", className)} data-slot="page-tabs" ref={containerRef as React.RefObject<HTMLElement>}>
       <ul className="flex items-stretch gap-5" role="list">
         {shown.map((t) => (
           <li className="flex" key={t.label}>
