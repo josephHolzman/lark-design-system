@@ -109,7 +109,8 @@ for (const theme of ["light", "dusk"] as const) {
     await page.addInitScript((value) => localStorage.setItem("lark-theme", value), theme);
     await page.goto("/examples/components");
     await page.locator("[data-group]").first().waitFor();
-    await page.waitForLoadState("networkidle");
+    // The catalog is static: the first group is the signal that it has rendered. `networkidle`
+    // after it is a no-op here (and can wait forever if the dev server's HMR socket is live).
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(500);
     await page.addScriptTag({ path: AXE });
