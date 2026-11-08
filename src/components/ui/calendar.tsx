@@ -6,7 +6,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react"
-import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
+import { DateLib, DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -18,6 +18,7 @@ function Calendar({
   captionLayout = "label",
   buttonVariant = "ghost",
   formatters,
+  labels,
   components,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
@@ -39,6 +40,18 @@ function Calendar({
         formatMonthDropdown: (date) =>
           date.toLocaleString("default", { month: "short" }),
         ...formatters,
+      }}
+      // WCAG 2.5.3: a day button's name contains the number it shows as a word. The default
+      // ("Sunday, November 1st, 2026") doesn't, so voice control can't say "click 1".
+      labels={{
+        labelDayButton: (date, modifiers, options, dateLib) => {
+          const day = (dateLib ?? new DateLib(options)).format(
+            date,
+            "EEEE, MMMM d, yyyy"
+          )
+          return `${modifiers.today ? "Today, " : ""}${day}${modifiers.selected ? ", selected" : ""}`
+        },
+        ...labels,
       }}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
