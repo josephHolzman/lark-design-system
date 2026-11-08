@@ -1,6 +1,6 @@
 "use client";
 
-import { type ComponentProps, useState } from "react";
+import { type ComponentProps, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -55,7 +55,14 @@ export type CompanyLogoProps = Omit<ComponentProps<"span">, "children"> & {
 export function CompanyLogo({ name, src, size = "md", decorative = true, className, ...props }: CompanyLogoProps) {
   // Remember which src failed: a new src gets a fresh try.
   const [failedSrc, setFailedSrc] = useState<string>();
+  const imageRef = useRef<HTMLImageElement>(null);
   const showImage = !!src && failedSrc !== src;
+  // A file that failed before React hydrated never fires onError for us, so check the image
+  // once it is in the document: a finished, zero-width image is a failed load.
+  useEffect(() => {
+    const image = imageRef.current;
+    if (image && image.complete && image.naturalWidth === 0) setFailedSrc(src);
+  }, [src]);
   return (
     <span
       aria-hidden={decorative || undefined}
@@ -74,8 +81,8 @@ export function CompanyLogo({ name, src, size = "md", decorative = true, classNa
       {...props}
     >
       {showImage ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img alt="" className="size-full object-contain" onError={() => setFailedSrc(src)} src={src} />
+        // eslint-disable-next-line @next/next/no-img-element -- a logo file, not a layout image
+        <img alt="" className="size-full object-contain" onError={() => setFailedSrc(src)} ref={imageRef} src={src} />
       ) : (
         initials(name)
       )}

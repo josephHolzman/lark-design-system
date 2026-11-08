@@ -108,8 +108,8 @@ export function Slots() {
         <SectionCard description="A missing or failed file becomes initials on a quiet inset tile, at the same size." title="Company logos">
           <div className="flex flex-wrap items-center gap-6">
             {[
-              { name: "Northwind Freight", src: "/illustrations/empty-draft.svg" },
-              { name: "Halvorsen Group", src: "/illustrations/does-not-exist.svg" },
+              { name: "Northwind Freight" },
+              { name: "Halvorsen Group", src: "/customers/halvorsen.svg" },
               { name: "Marlowe Logistics" },
             ].map((c) => (
               <div className="flex items-center gap-2" key={c.name}>

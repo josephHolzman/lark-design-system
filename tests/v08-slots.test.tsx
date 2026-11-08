@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -80,7 +80,7 @@ describe("Illustration", () => {
   });
 
   it("sizes a promo's media by the promo's own width, not the viewport", () => {
-    const { container } = render(<PromoCard media={<img alt="" height={48} src={JPEG} width={48} />} title="Try ACE" />);
+    const { container } = render(<PromoCard media={<span className="block size-12" />} title="Try ACE" />);
     const promo = container.querySelector("[data-slot=promo-card]") as HTMLElement;
     expect(promo.className).toContain("@container/promo");
     expect(promo.firstElementChild?.className).toContain("@[24rem]/promo:block");
@@ -101,6 +101,21 @@ describe("CompanyLogo fallback", () => {
   it("uses initials when src is missing", () => {
     render(<CompanyLogo decorative={false} name="Cedar & Field" />);
     expect(screen.getByRole("img", { name: "Cedar & Field" }).textContent).toBe("CF");
+  });
+
+  it("falls back when the image failed before hydration", async () => {
+    // A 404 that fires before React attaches onError: the mounted image is complete and empty.
+    const complete = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "complete");
+    const naturalWidth = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "naturalWidth");
+    Object.defineProperty(HTMLImageElement.prototype, "complete", { configurable: true, get: () => true });
+    Object.defineProperty(HTMLImageElement.prototype, "naturalWidth", { configurable: true, get: () => 0 });
+    try {
+      render(<CompanyLogo decorative={false} name="Northwind Freight" src="/customers/missing.svg" />);
+      await waitFor(() => expect(screen.getByRole("img", { name: "Northwind Freight" }).textContent).toBe("NF"));
+    } finally {
+      if (complete) Object.defineProperty(HTMLImageElement.prototype, "complete", complete);
+      if (naturalWidth) Object.defineProperty(HTMLImageElement.prototype, "naturalWidth", naturalWidth);
+    }
   });
 });
 
