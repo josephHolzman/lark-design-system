@@ -307,12 +307,15 @@ function NavGroupSection({ group }: { group: NavGroup }) {
 
 export function AppSidebar({
   workspace,
+  workspaces,
   scope,
   groups,
   footerItems,
   footer,
 }: {
   workspace: { name: string; subtitle: string; mark?: ReactNode };
+  /** The workspace switcher's entries. Defaults to this workspace and "All spaces". */
+  workspaces?: { name: string; href?: string; current?: boolean }[];
   /** Under the logo, usually a ScopePill. Hidden on the rail. */
   scope?: ReactNode;
   groups: NavGroup[];
@@ -320,6 +323,7 @@ export function AppSidebar({
   footerItems?: NavItem[];
   footer?: ReactNode;
 }) {
+  const workspaceMenu = workspaces ?? [{ name: workspace.name, current: true }, { name: "All spaces" }];
   return (
     <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader>
@@ -340,10 +344,17 @@ export function AppSidebar({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-60">
                 <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
-                <DropdownMenuItem>{workspace.name}</DropdownMenuItem>
-                <DropdownMenuItem>Northwind sandbox</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>All spaces</DropdownMenuItem>
+                {workspaceMenu.map((w) =>
+                  w.href ? (
+                    <DropdownMenuItem asChild key={w.name}>
+                      <Link aria-current={w.current ? "page" : undefined} href={w.href}>
+                        {w.name}
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem key={w.name}>{w.name}</DropdownMenuItem>
+                  )
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
@@ -506,10 +517,22 @@ export function SearchCommand({
           {groups.map((g) => (
             <CommandGroup heading={g.heading} key={g.heading}>
               {g.items.map((it) => (
-                <CommandItem key={it.label} onSelect={() => setOpen(false)}>
-                  {it.icon}
-                  <span>{it.label}</span>
-                  {it.hint && <span className="ml-auto text-meta text-on-surface-variant">{it.hint}</span>}
+                // A result goes somewhere, so with `href` it is a real link (open in a new tab);
+                // cmdk still owns the arrow keys and Enter.
+                <CommandItem asChild key={it.label} onSelect={() => setOpen(false)}>
+                  {it.href ? (
+                    <Link className="flex min-w-0 items-center gap-2" href={it.href}>
+                      {it.icon}
+                      <span>{it.label}</span>
+                      {it.hint && <span className="ml-auto text-meta text-on-surface-variant">{it.hint}</span>}
+                    </Link>
+                  ) : (
+                    <span className="flex min-w-0 items-center gap-2">
+                      {it.icon}
+                      <span>{it.label}</span>
+                      {it.hint && <span className="ml-auto text-meta text-on-surface-variant">{it.hint}</span>}
+                    </span>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -685,7 +708,9 @@ export function UserMenuItem({
   const body = (
     <>
       {icon}
-      <span className="min-w-0 flex-1 truncate">{children}</span>
+      <span className="min-w-0 flex-1 truncate" title={typeof children === "string" ? children : undefined}>
+        {children}
+      </span>
       {shortcut && <DropdownMenuShortcut className="tracking-normal">{shortcut}</DropdownMenuShortcut>}
     </>
   );

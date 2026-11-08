@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronDownIcon, EllipsisIcon, SearchIcon } from "lucide-react";
-import { type ReactNode, useMemo, useState } from "react";
+import { type KeyboardEvent, type ReactNode, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -181,14 +181,15 @@ export function SavedViewMenu({
             value={q}
           />
         </label>
-        <div className="flex gap-4 border-b border-outline-variant px-1" role="tablist">
+        {/* Two mutually exclusive filters over one list: a group of pressed buttons, not tabs
+            (there is no tabpanel, and tabs would owe arrow-key navigation). */}
+        <div aria-label="Show views" className="flex gap-4 border-b border-outline-variant px-1" role="group">
           {(["me", "team"] as const).map((t) => (
             <button
-              aria-selected={tab === t}
-              className="focus-ring relative h-8 text-sm text-on-surface-variant outline-none aria-selected:font-semibold aria-selected:text-on-surface aria-selected:after:absolute aria-selected:after:inset-x-0 aria-selected:after:-bottom-px aria-selected:after:h-0.5 aria-selected:after:bg-on-surface"
+              aria-pressed={tab === t}
+              className="focus-ring relative h-8 text-sm text-on-surface-variant outline-none aria-pressed:font-semibold aria-pressed:text-on-surface aria-pressed:after:absolute aria-pressed:after:inset-x-0 aria-pressed:after:-bottom-px aria-pressed:after:h-0.5 aria-pressed:after:bg-on-surface"
               key={t}
               onClick={() => setTab(t)}
-              role="tab"
               type="button"
             >
               {t === "me" ? "Created by me" : "Shared with team"}
@@ -308,6 +309,7 @@ export function FacetFilterMenu({
           {list.map((f) => (
             <label className="state-layer [--state-hover:0.05] flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm" key={f.value}>
               <Checkbox
+                aria-label={`${label}: ${f.label}`}
                 checked={draft.includes(f.value)}
                 onCheckedChange={(c) => setDraft((d) => (c ? [...d, f.value] : d.filter((x) => x !== f.value)))}
               />
@@ -401,7 +403,7 @@ export function ColumnsPanel({
                 {c.label}
                 {c.locked && <span className="text-on-surface-tertiary"> (always shown)</span>}
               </span>
-              <span className="flex opacity-0 group-hover/col:opacity-100 group-focus-within/col:opacity-100">
+              <span className="flex opacity-0 group-hover/col:opacity-100 group-focus-within/col:opacity-100 pointer-coarse:opacity-100">
                 <Button aria-label={`Move ${c.label} up`} disabled={i === 0} onClick={() => move(c.id, -1)} size="icon-xs" variant="ghost">
                   <ArrowUpIcon />
                 </Button>
@@ -420,13 +422,31 @@ export function ColumnsPanel({
 /* ================================================================ FacetList (filter rail) */
 
 /**
+ * Arrow keys move between the radios in a group and select as they go, as the radio pattern
+ * expects; Tab still leaves the group in one press (roving tab index at the caller).
+ */
+function radioKeyDown<T extends { value: string }>(e: KeyboardEvent<HTMLButtonElement>, items: T[], index: number, onChange: (v: string) => void) {
+  const keys = ["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft", "Home", "End"];
+  if (!keys.includes(e.key)) return;
+  e.preventDefault();
+  let next = index;
+  if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (index + 1) % items.length;
+  else if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = (index - 1 + items.length) % items.length;
+  else if (e.key === "End") next = items.length - 1;
+  else next = 0;
+  onChange(items[next].value);
+  const radios = e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="radio"]');
+  radios?.[next]?.focus();
+}
+
+/**
  * Apollo's filter-rail facet list (Emails → Status): one choice, the current row tinted
  * tan, counts right-aligned in mono. Radio semantics.
  */
 export function FacetList({ label, facets, value, onChange }: { label: string; facets: Facet[]; value: string; onChange: (v: string) => void }) {
   return (
     <div aria-label={label} className="flex flex-col gap-0.5" role="radiogroup">
-      {facets.map((f) => (
+      {facets.map((f, i) => (
         <button
           aria-checked={f.value === value}
           className={cn(
@@ -435,7 +455,9 @@ export function FacetList({ label, facets, value, onChange }: { label: string; f
           )}
           key={f.value}
           onClick={() => onChange(f.value)}
+          onKeyDown={(e) => radioKeyDown(e, facets, i, onChange)}
           role="radio"
+          tabIndex={f.value === value ? 0 : -1}
           type="button"
         >
           <span className="min-w-0 flex-1 truncate">{f.label}</span>
@@ -455,7 +477,7 @@ export function FacetList({ label, facets, value, onChange }: { label: string; f
 export function CountSegments({ label, items, value, onChange }: { label: string; items: { value: string; label: string; count: string }[]; value: string; onChange: (v: string) => void }) {
   return (
     <div aria-label={label} className="grid grid-flow-col gap-0.5 rounded-lg border border-outline-variant p-0.5" role="radiogroup">
-      {items.map((it) => (
+      {items.map((it, i) => (
         <button
           aria-checked={it.value === value}
           className={cn(
@@ -464,7 +486,9 @@ export function CountSegments({ label, items, value, onChange }: { label: string
           )}
           key={it.value}
           onClick={() => onChange(it.value)}
+          onKeyDown={(e) => radioKeyDown(e, items, i, onChange)}
           role="radio"
+          tabIndex={it.value === value ? 0 : -1}
           type="button"
         >
           <span className="text-label-lg">{it.label}</span>
