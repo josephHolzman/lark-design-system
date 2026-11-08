@@ -706,7 +706,7 @@ export function TableWidget({ columns, rows, caption }: Pick<TableSection, "colu
   const span = columns.length + (hasStatus ? 1 : 0);
   return (
     <div className="-mx-4 overflow-x-auto" data-slot="table-widget">
-      <Table density="compact">
+      <Table container={{ "aria-label": caption ?? "Table", role: "region", tabIndex: 0 }} density="compact">
         {caption && <caption className="sr-only">{caption}</caption>}
         <TableHeader>
           <TableRow className="hover:bg-transparent">
