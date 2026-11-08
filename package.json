@@ -15,6 +15,7 @@
     "smoke:lib": "node packages/lark/scripts/smoke.mjs",
     "lint:lark": "node packages/lark/scripts/lark-lint.mjs src/components/lark src/app/examples",
     "test:e2e": "playwright test",
+    "lark:shots": "node scripts/shots.mjs",
     "verify": "npm run lint && npm run lint:lark && npm run typecheck && npm test && npm run build:lib && npm run smoke:lib"
   },
   "dependencies": {
