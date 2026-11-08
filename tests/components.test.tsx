@@ -131,6 +131,34 @@ describe("behaviour", () => {
     expect(header.getAttribute("aria-sort")).not.toBe("none");
   });
 
+  it("DataGrid names each row's controls and accepts a trailing header", async () => {
+    render(
+      <DataGrid
+        caption="Deals"
+        columns={cols}
+        data={rows}
+        getRowId={(r) => r.id}
+        getRowLabel={(r) => `${r.name} deal`}
+        renderSubRow={() => <p>Quote lines</p>}
+        selectable
+        trailingHeader={<button type="button">Add column</button>}
+      />
+    );
+    expect(await screen.findByRole("checkbox", { name: "Select Northwind deal" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Show details for Northwind deal" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Add column" })).toBeTruthy();
+  });
+
+  it("DataGrid sorting can be controlled", async () => {
+    const user = userEvent.setup();
+    const onSortingChange = vi.fn();
+    render(<DataGrid caption="Deals" columns={cols} data={rows} getRowId={(r) => r.id} onSortingChange={onSortingChange} sorting={[{ id: "value", desc: true }]} />);
+    const header = await screen.findByRole("columnheader", { name: /Value/ });
+    expect(header.getAttribute("aria-sort")).toBe("descending");
+    await user.click(within(header).getByRole("button"));
+    expect(onSortingChange).toHaveBeenCalled();
+  });
+
   it("ClarifyQuestion keeps Answer disabled until a choice is made", async () => {
     const user = userEvent.setup();
     const onAnswer = vi.fn();

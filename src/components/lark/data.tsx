@@ -117,7 +117,9 @@ export function SourceChip({ label, index, kind, href, icon, className }: Source
       <span aria-hidden="true" className="text-on-surface-variant [&_svg]:size-3.5">
         {icon ?? <FileTextIcon />}
       </span>
-      <span className="truncate">{label}</span>
+      <span className="truncate" title={label}>
+        {label}
+      </span>
       {kind && <span className="text-on-surface-variant">· {kind}</span>}
       {href && <ExternalLinkIcon aria-hidden="true" className="size-3 text-on-surface-variant" />}
     </>

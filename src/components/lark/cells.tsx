@@ -18,22 +18,42 @@ import { LarkLink } from "./provider";
 */
 
 /** The record column: logo, the name as Beams' secondary underlined link, one meta line. */
-export function RecordCell({ leading, name, href, onOpen, meta }: { leading?: ReactNode; name: string; href?: string; onOpen?: () => void; meta?: ReactNode }) {
+export function RecordCell({
+  leading,
+  name,
+  href,
+  onOpen,
+  meta,
+  linkLabel,
+}: {
+  leading?: ReactNode;
+  name: string;
+  href?: string;
+  onOpen?: () => void;
+  meta?: ReactNode;
+  /** The link's accessible name when the visible name needs context ("Commercial proposal · Halvorsen"). */
+  linkLabel?: string;
+}) {
   const nameCls = "hit-area inline-flex min-h-6 items-center truncate text-on-surface-variant underline decoration-outline-strong underline-offset-3 hover:text-on-surface hover:decoration-on-surface-variant focus-ring rounded-sm outline-none";
+  const metaText = typeof meta === "string" ? meta : undefined;
   return (
     <span className="flex min-w-0 items-center gap-2.5">
       {leading}
       <span className="flex min-w-0 flex-col">
         {href ? (
-          <LarkLink className={nameCls} href={href} title={name}>
+          <LarkLink aria-label={linkLabel} className={nameCls} href={href} title={name}>
             {name}
           </LarkLink>
         ) : (
-          <button className={cn(nameCls, "text-left")} onClick={onOpen} title={name} type="button">
+          <button aria-label={linkLabel} className={cn(nameCls, "text-left")} onClick={onOpen} title={name} type="button">
             {name}
           </button>
         )}
-        {meta && <span className="truncate text-meta text-on-surface-tertiary">{meta}</span>}
+        {meta && (
+          <span className="truncate text-meta text-on-surface-tertiary" title={metaText}>
+            {meta}
+          </span>
+        )}
       </span>
     </span>
   );
@@ -41,10 +61,19 @@ export function RecordCell({ leading, name, href, onOpen, meta }: { leading?: Re
 
 /** Two-line text: a title and a muted preview (Apollo Emails: subject + body). */
 export function TextCell({ title, preview }: { title: ReactNode; preview?: ReactNode }) {
+  // A cell is one line each; the cut text stays readable as a native tooltip.
+  const titleText = typeof title === "string" ? title : undefined;
+  const previewText = typeof preview === "string" ? preview : undefined;
   return (
     <span className="flex min-w-0 flex-col">
-      <span className="truncate">{title}</span>
-      {preview && <span className="truncate text-meta text-on-surface-variant">{preview}</span>}
+      <span className="truncate" title={titleText}>
+        {title}
+      </span>
+      {preview && (
+        <span className="truncate text-meta text-on-surface-variant" title={previewText}>
+          {preview}
+        </span>
+      )}
     </span>
   );
 }
@@ -194,7 +223,14 @@ export function ActionsCell({ primary, sections, label }: { primary?: ReactNode;
   );
 }
 
-/** A cell that only shows content on row hover or focus (quick actions), always reachable by keyboard. */
+/**
+ * Quick actions that appear on row hover or focus. Always reachable by keyboard (focus-within)
+ * and always visible on touch, where there is no hover (WCAG 2.5.8).
+ */
 export function HoverActions({ children }: { children: ReactNode }) {
-  return <span className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/row:opacity-100 focus-within:opacity-100">{children}</span>;
+  return (
+    <span className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/row:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100">
+      {children}
+    </span>
+  );
 }

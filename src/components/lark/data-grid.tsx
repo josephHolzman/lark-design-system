@@ -85,6 +85,19 @@ export type DataGridProps<T> = {
   /** Max height of the scroll region (the header sticks inside it). Use "100%" inside a flex layout. */
   height?: number | string;
   initialSorting?: SortingState;
+  /**
+   * Controlled sorting. Pair with `onSortingChange` when a figure or a saved view drives the
+   * grid's sort (the grid no longer needs re-keying).
+   */
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
+  /**
+   * The row's name for its checkbox and details toggle ("Commercial proposal · Halvorsen").
+   * Without it every row's control shares one name (WCAG 2.4.6).
+   */
+  getRowLabel?: (row: T) => string;
+  /** An extra header cell at the end of the header row (an "Add column" button). */
+  trailingHeader?: ReactNode;
   columnVisibility?: VisibilityState;
   onColumnVisibilityChange?: (v: VisibilityState) => void;
   columnOrder?: ColumnOrderState;
@@ -150,13 +163,23 @@ function DataGridInner<T>({
   pageSizeOptions,
   height,
   initialSorting = [],
+  sorting: sortingProp,
+  onSortingChange,
+  getRowLabel,
+  trailingHeader,
   columnVisibility,
   onColumnVisibilityChange,
   columnOrder,
   footer,
   className,
 }: DataGridProps<T>) {
-  const [sorting, setSorting] = useState<SortingState>(initialSorting);
+  const [sortingState, setSortingState] = useState<SortingState>(initialSorting);
+  const sorting = sortingProp ?? sortingState;
+  const setSorting = (u: SortingState | ((old: SortingState) => SortingState)) => {
+    const next = typeof u === "function" ? u(sorting) : u;
+    setSortingState(next);
+    onSortingChange?.(next);
+  };
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrolls, setScrolls] = useState(false);
@@ -228,7 +251,7 @@ function DataGridInner<T>({
     }
   }
   const lastSticky = [...leafCols].reverse().find((c) => c.columnDef.meta?.sticky)?.id;
-  const colCount = leafCols.length + (selectable ? 1 : 0) + (renderSubRow ? 1 : 0);
+  const colCount = leafCols.length + (selectable ? 1 : 0) + (renderSubRow ? 1 : 0) + (trailingHeader ? 1 : 0);
   const rows = table.getRowModel().rows;
   const selected = table.getSelectedRowModel().flatRows.map((r) => r.original);
   const rowH = density === "compact" ? "h-10" : "h-[55px]";
@@ -262,7 +285,8 @@ function DataGridInner<T>({
           scroll it: the region becomes a named tab stop only while it overflows (WCAG 2.1.1). */}
       <div
         aria-label={scrolls ? caption : undefined}
-        className={cn("relative min-h-0 flex-1 overflow-auto", scrolls && "focus-ring outline-none")}
+        // scroll-pt keeps a focused row clear of the sticky header (WCAG 2.4.11).
+        className={cn("relative min-h-0 flex-1 scroll-pt-10 overflow-auto", scrolls && "focus-ring outline-none")}
         ref={scrollRef}
         role={scrolls ? "region" : undefined}
         style={{ maxHeight: height }}
@@ -336,6 +360,11 @@ function DataGridInner<T>({
                     </th>
                   );
                 })}
+                {trailingHeader && (
+                  <th className="sticky right-0 z-[1] h-10 border-b border-outline-variant bg-card px-3 py-1.5 text-right align-bottom" scope="col">
+                    {trailingHeader}
+                  </th>
+                )}
               </tr>
             ))}
           </thead>
@@ -415,12 +444,22 @@ function DataGridInner<T>({
                     >
                       {selectable && (
                         <td className={cn("sticky z-[1] border-b border-outline-variant bg-inherit pl-3", rowH)} style={leadSticky(0)}>
-                          <Checkbox aria-label={`Select row ${row.index + 1}`} checked={row.getIsSelected()} onCheckedChange={(v) => row.toggleSelected(!!v)} />
+                          <Checkbox
+                            aria-label={getRowLabel ? `Select ${getRowLabel(row.original)}` : `Select row ${row.index + 1}`}
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(v) => row.toggleSelected(!!v)}
+                          />
                         </td>
                       )}
                       {renderSubRow && (
                         <td className={cn("sticky z-[1] border-b border-outline-variant bg-inherit", rowH)} style={leadSticky(selectable ? CHECK_W : 0)}>
-                          <Button aria-expanded={row.getIsExpanded()} aria-label={row.getIsExpanded() ? "Hide details" : "Show details"} onClick={row.getToggleExpandedHandler()} size="icon-xs" variant="ghost">
+                          <Button
+                            aria-expanded={row.getIsExpanded()}
+                            aria-label={`${row.getIsExpanded() ? "Hide" : "Show"} details${getRowLabel ? ` for ${getRowLabel(row.original)}` : ""}`}
+                            onClick={row.getToggleExpandedHandler()}
+                            size="icon-xs"
+                            variant="ghost"
+                          >
                             <ChevronRightIcon className={cn("transition-transform", row.getIsExpanded() && "rotate-90")} />
                           </Button>
                         </td>
@@ -445,6 +484,7 @@ function DataGridInner<T>({
                           </td>
                         );
                       })}
+                      {trailingHeader && <td className={cn("border-b border-outline-variant", rowH)} />}
                     </tr>
                     {row.getIsExpanded() && renderSubRow && (
                       <tr>

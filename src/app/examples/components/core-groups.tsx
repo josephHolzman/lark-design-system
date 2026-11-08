@@ -366,7 +366,28 @@ export const CORE_GROUPS: Group[] = [
     file: "data-grid.tsx",
     title: "Data grid",
     note: "Header 40, rows 55, sticky record column; the grid scrolls inside its own region.",
-    samples: [{ name: "DataGrid", node: <div className="h-72 overflow-hidden rounded-lg border border-edge"><DataGrid caption="Deals at risk" columns={DEAL_COLUMNS} data={DEALS} getRowId={(row) => row.id} selectable /></div> }],
+    samples: [
+      {
+        name: "DataGrid",
+        node: (
+          <div className="h-72 overflow-hidden rounded-lg border border-edge">
+            <DataGrid
+              caption="Deals at risk"
+              columns={DEAL_COLUMNS}
+              data={DEALS}
+              getRowId={(row) => row.id}
+              getRowLabel={(row) => `${row.account} (${row.id})`}
+              selectable
+              trailingHeader={
+                <Button size="xs" variant="ghost">
+                  Add column
+                </Button>
+              }
+            />
+          </div>
+        ),
+      },
+    ],
   },
   {
     file: "decision-panel.tsx",

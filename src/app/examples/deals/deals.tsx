@@ -462,6 +462,7 @@ export function DealsList() {
             </tr>
           }
           getRowId={(d) => d.id}
+          getRowLabel={(d) => `${d.type} · ${d.account}`}
           getRowTint={(d) => (d.risk.state === "running" ? "ai" : d.discount > 20 ? "caution" : undefined)}
           groupBy={groupBy || undefined}
           height="100%"

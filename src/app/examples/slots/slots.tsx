@@ -279,8 +279,14 @@ export function Slots() {
           columns={GRID_COLUMNS}
           data={ROWS}
           getRowId={(r) => r.id}
+          getRowLabel={(r) => `Proposal for ${r.account}`}
           pageSize={5}
           pageSizeOptions={[5, 10, 25]}
+          trailingHeader={
+            <Button size="xs" variant="ghost">
+              Add column
+            </Button>
+          }
         />
       </SectionCard>
 
