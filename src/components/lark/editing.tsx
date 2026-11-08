@@ -165,7 +165,7 @@ export function ChangeReview({
   const pending = changes.filter((c) => !decisions[c.id]).length;
   const set = (id: string, d: "accepted" | "rejected" | undefined) => setDecisions((s) => ({ ...s, [id]: d }));
   return (
-    <section className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="change-review">
+    <section className={cn("@container/change flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="change-review">
       <header className="flex flex-wrap items-center gap-2 px-4 py-3">
         <h3 className="text-title-sm">{title}</h3>
         <span className="text-meta text-on-surface-variant">
@@ -178,7 +178,7 @@ export function ChangeReview({
           return (
             <li
               className={cn(
-                "grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[10rem_1fr_auto] sm:items-center",
+                "grid gap-x-4 gap-y-1 px-4 py-3 @[36rem]/change:grid-cols-[10rem_1fr_auto] @[36rem]/change:items-center",
                 d === "accepted" && "bg-success-container/40",
                 d === "rejected" && "bg-surface-container-low"
               )}
@@ -195,7 +195,7 @@ export function ChangeReview({
                   </span>
                 )}
               </span>
-              <span className="flex items-center gap-1 justify-self-start sm:justify-self-end">
+              <span className="flex items-center gap-1 justify-self-start @[36rem]/change:justify-self-end">
                 {d ? (
                   <>
                     <span className={cn("inline-flex items-center gap-1 text-label-lg", d === "accepted" ? "text-success" : "text-on-surface-variant")}>
