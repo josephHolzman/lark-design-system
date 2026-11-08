@@ -123,7 +123,12 @@ export function DecisionPanel({
             <div className="flex flex-col gap-1.5">
               <Label className="text-body-md" htmlFor={reasonId}>
                 {reason.label}
-                {reason.required && <span className="font-normal text-on-surface-variant">Required</span>}
+                {reason.required && (
+                  <>
+                    {" "}
+                    <span className="font-normal text-on-surface-variant">Required</span>
+                  </>
+                )}
               </Label>
               <Textarea
                 id={reasonId}
@@ -136,8 +141,9 @@ export function DecisionPanel({
           )}
         </div>
 
+        {/* Inside the sky module, elevation is a change of fill: no edge on the nested block. */}
         {aside && (
-          <aside className="relative min-w-0 self-start rounded-lg border border-edge bg-module p-3" data-slot="decision-panel-aside">
+          <aside className="relative min-w-0 self-start rounded-lg bg-module p-3" data-slot="decision-panel-aside">
             {aside}
           </aside>
         )}

@@ -50,6 +50,8 @@ describe("DecisionPanel", () => {
     expect(screen.getByText("The quote goes to the buyer at 22% for three years.")).toBeTruthy();
     expect(screen.getByText("Recommended")).toBeTruthy();
     expect(screen.getByText("Not available: Finance has not set a floor for this region.")).toBeTruthy();
+    // The required marker is words with a space, not "WhyRequired".
+    expect(screen.getByText("Why").closest("label")?.textContent).toBe("Why Required");
     expect((screen.getByRole("radio", { name: /Hold for Finance/ }) as HTMLButtonElement).disabled).toBe(true);
     expect(await axeViolations(container)).toEqual([]);
   });
