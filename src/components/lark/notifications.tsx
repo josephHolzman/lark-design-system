@@ -1,6 +1,6 @@
 "use client";
 
-import { AtSignIcon, BadgeCheckIcon, BellIcon, FileTextIcon, InfoIcon, ListChecksIcon } from "lucide-react";
+import { AtSignIcon, BadgeCheckIcon, BellIcon, CircleDotIcon, FileTextIcon, InfoIcon, ListChecksIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { IconChip } from "./cards";
 import { StatePanel } from "./feedback";
 import { Segmented } from "./filters";
 import type { IllustrationSpec } from "./illustration";
+import { StatusBadge } from "./status-badge";
 
 /*
   NotificationsPanel (v0.8): deal signals in a sheet from the top-bar bell. Items are grouped
@@ -178,9 +179,9 @@ export function NotificationsPanel({
                               <span className="min-w-0 flex-1 text-title-sm [overflow-wrap:break-word]">
                                 <span className="sr-only">{kind.label}: </span>
                                 <span>{item.title}</span>
-                                {item.unread && <span className="sr-only"> Unread</span>}
                               </span>
-                              {item.unread && <span aria-hidden="true" className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />}
+                              {/* Unread is a status, so it says its word: a dot alone is colour. */}
+                              {item.unread && <StatusBadge icon={CircleDotIcon} size="sm" status="Unread" tone="info" />}
                               <time className="shrink-0 text-meta whitespace-nowrap text-on-surface-variant tabular-nums" dateTime={at.toISOString()}>
                                 {at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                               </time>

@@ -24,7 +24,8 @@ describe("NotificationsPanel", () => {
     expect(headings).toHaveLength(3);
     expect(headings[0].textContent).toBe("Today");
     expect(headings[1].textContent).toBe("Yesterday");
-    expect(screen.getAllByText("Unread", { selector: ".sr-only" })).toHaveLength(2);
+    // Unread says its word (a badge), never a dot alone; the filter is also named Unread.
+    expect(screen.getAllByText("Unread", { selector: "[data-slot=status-badge]" })).toHaveLength(2);
     expect(screen.getByText("Finance approved R4")).toBeTruthy();
     expect(screen.getByText("Dana Ito approved the 22% discount.")).toBeTruthy();
     expect(document.querySelectorAll("time")).toHaveLength(4);
