@@ -13,6 +13,8 @@ export type Step = {
   state: StepState;
   /** A button or link for this step (usually only on the current one). */
   action?: ReactNode;
+  /** v0.8: makes the step's title a button (a working bench picks the step it shows). */
+  onSelect?: () => void;
 };
 
 export type StepListProps = Omit<ComponentProps<"ol">, "children"> & {
@@ -92,8 +94,22 @@ export function StepList({ steps, orientation = "vertical", numbered = true, cla
             <Marker n={i + 1} numbered={numbered} state={step.state} />
             <div className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5 sm:pt-0">
               <span className={cn("text-title-sm", step.state === "current" ? "text-on-surface" : step.state === "skipped" ? "text-on-surface-tertiary" : muted ? "text-on-surface-variant" : "text-on-surface")}>
-                {step.title}
-                <span className="sr-only">, {STEP_STATE_LABEL[step.state]}</span>
+                {step.onSelect ? (
+                  <button
+                    aria-current={step.state === "current" ? "step" : undefined}
+                    className="focus-ring rounded-sm text-left outline-none hover:underline"
+                    onClick={step.onSelect}
+                    type="button"
+                  >
+                    {step.title}
+                    <span className="sr-only">, {STEP_STATE_LABEL[step.state]}</span>
+                  </button>
+                ) : (
+                  <>
+                    {step.title}
+                    <span className="sr-only">, {STEP_STATE_LABEL[step.state]}</span>
+                  </>
+                )}
               </span>
               {step.description && (
                 <span className={cn("text-body-md", step.state === "blocked" ? "text-on-error-container" : "text-on-surface-variant")}>{step.description}</span>

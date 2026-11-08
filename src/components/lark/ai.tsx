@@ -7,6 +7,7 @@ import {
   CheckIcon,
   CircleIcon,
   LoaderCircleIcon,
+  MinusIcon,
   PauseIcon,
   PlayIcon,
   RotateCcwIcon,
@@ -249,13 +250,34 @@ export function PlanReview({ steps: initial, onApprove, onCancel, className }: {
 
 /* ================================================================ Run steps */
 
-export type RunStep = { id: string; title: string; state: "done" | "running" | "queued" | "failed"; detail?: ReactNode };
+export type RunStep = {
+  id: string;
+  title: string;
+  state: "done" | "running" | "queued" | "failed" | "skipped" | "idle";
+  detail?: ReactNode;
+  /** A step's own next action (Assign, Refresh, Open output). */
+  action?: ReactNode;
+};
 
-/** A run's progress, collapsed to "3 of 7 steps", expanding to each step. */
-export function RunSteps({ title, steps, className }: { title: ReactNode; steps: RunStep[]; className?: string }) {
+const RUN_STATE_WORD: Record<RunStep["state"], string> = {
+  done: "done",
+  running: "running",
+  queued: "not started",
+  failed: "failed",
+  skipped: "skipped",
+  idle: "not started",
+};
+
+/**
+ * A run's progress, collapsed to "3 of 7 steps", expanding to each step. `idle` (or every step
+ * queued or idle) shows no spinner: nothing is running yet, and a spinner would say ACE was
+ * working on work nobody started. Steps can carry their own action.
+ */
+export function RunSteps({ title, steps, idle, className }: { title: ReactNode; steps: RunStep[]; idle?: boolean; className?: string }) {
   const [open, setOpen] = useState(false);
   const done = steps.filter((s) => s.state === "done").length;
   const failed = steps.some((s) => s.state === "failed");
+  const isIdle = idle ?? steps.every((s) => s.state === "queued" || s.state === "idle");
   return (
     <div className={cn("rounded-lg border border-edge bg-card", className)} data-slot="run-steps">
       <button aria-expanded={open} className="state-layer [--state-hover:0.03] focus-ring flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left outline-none" onClick={() => setOpen(!open)} type="button">
@@ -263,6 +285,8 @@ export function RunSteps({ title, steps, className }: { title: ReactNode; steps:
           <AlertCircleIcon aria-hidden="true" className="size-4 text-error" />
         ) : done === steps.length ? (
           <CheckIcon aria-hidden="true" className="size-4 text-success" />
+        ) : isIdle ? (
+          <CircleIcon aria-hidden="true" className="size-4 text-on-surface-tertiary" />
         ) : (
           <LoaderCircleIcon aria-hidden="true" className="size-4 animate-spin text-tertiary motion-reduce:animate-none" />
         )}
@@ -279,16 +303,18 @@ export function RunSteps({ title, steps, className }: { title: ReactNode; steps:
               <span aria-hidden="true" className="mt-0.5">
                 {s.state === "done" && <CheckIcon className="size-3.5 text-success" />}
                 {s.state === "running" && <LoaderCircleIcon className="size-3.5 animate-spin text-tertiary motion-reduce:animate-none" />}
-                {s.state === "queued" && <CircleIcon className="size-3.5 text-on-surface-tertiary" />}
+                {(s.state === "queued" || s.state === "idle") && <CircleIcon className="size-3.5 text-on-surface-tertiary" />}
+                {s.state === "skipped" && <MinusIcon className="size-3.5 text-on-surface-tertiary" />}
                 {s.state === "failed" && <AlertCircleIcon className="size-3.5 text-error" />}
               </span>
               <span className="flex min-w-0 flex-col">
-                <span className={cn(s.state === "queued" && "text-on-surface-variant")}>
+                <span className={cn((s.state === "queued" || s.state === "idle" || s.state === "skipped") && "text-on-surface-variant")}>
                   {s.title}
-                  <span className="sr-only">, {s.state}</span>
+                  <span className="sr-only">, {RUN_STATE_WORD[s.state]}</span>
                 </span>
                 {s.detail && <span className="text-body-md text-on-surface-variant">{s.detail}</span>}
               </span>
+              {s.action && <span className="ml-auto shrink-0">{s.action}</span>}
             </li>
           ))}
         </ol>
