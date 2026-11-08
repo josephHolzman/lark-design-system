@@ -59,12 +59,25 @@ export type Evidence = { label: string; kind?: string; href?: string; quote?: Re
  * "Why?" on any AI-derived value: opens the sources behind it. This is Deepgrids' trust
  * mechanism, so every AI value in a table or card should offer it.
  */
-export function EvidencePopover({ evidence, summary, children, label = "Why?" }: { evidence: Evidence[]; summary?: ReactNode; children?: ReactNode; label?: string }) {
+export function EvidencePopover({
+  evidence,
+  summary,
+  children,
+  label = "Why?",
+  context,
+}: {
+  evidence: Evidence[];
+  summary?: ReactNode;
+  children?: ReactNode;
+  label?: string;
+  /** The value this explains ("Proposal value"): repeated "Why?" buttons need the item in their name. */
+  context?: string;
+}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
         {children ?? (
-          <button className="link-default hit-area rounded-sm text-body-md focus-ring outline-none" type="button">
+          <button aria-label={context ? `${label} ${context}` : undefined} className="link-default hit-area rounded-sm text-body-md focus-ring outline-none" type="button">
             {label}
           </button>
         )}
@@ -101,6 +114,7 @@ export function AiRunCell({
   evidence,
   onRun,
   runLabel = "Click to run",
+  itemLabel,
 }: {
   state: RunState;
   value?: ReactNode;
@@ -109,10 +123,12 @@ export function AiRunCell({
   evidence?: Evidence[];
   onRun?: () => void;
   runLabel?: string;
+  /** The row's name, so a column of Run and Retry controls doesn't share one name (WCAG 2.4.6). */
+  itemLabel?: string;
 }) {
   if (state === "idle")
     return (
-      <Button className="-ml-2 text-on-surface-variant" onClick={onRun} size="xs" variant="ghost">
+      <Button aria-label={itemLabel ? `${runLabel} for ${itemLabel}` : undefined} className="-ml-2 text-on-surface-variant" onClick={onRun} size="xs" variant="ghost">
         <PlayIcon /> {runLabel}
       </Button>
     );
@@ -133,7 +149,7 @@ export function AiRunCell({
       <span className="inline-flex min-w-0 items-center gap-1.5 text-body-md text-error">
         <AlertCircleIcon aria-hidden="true" className="size-3.5 shrink-0" />
         <span className="min-w-0">{error ?? "Failed"}</span>
-        <Button aria-label="Retry" className="text-error" onClick={onRun} size="icon-xs" variant="ghost">
+        <Button aria-label={itemLabel ? `Retry ${itemLabel}` : "Retry"} className="text-error" onClick={onRun} size="icon-xs" variant="ghost">
           <RotateCcwIcon />
         </Button>
       </span>

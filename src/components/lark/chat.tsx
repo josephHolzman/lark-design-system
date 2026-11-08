@@ -1460,7 +1460,8 @@ export function ProactiveTask({ title, reason, meta, action, onAction, tone = "d
       <p className="text-body-md text-on-surface-variant @max-[28rem]/welcome:line-clamp-2">{reason}</p>
       <div className="mt-auto flex items-center gap-2 pt-1">
         {meta && <span className="mr-auto text-meta text-on-surface-tertiary">{meta}</span>}
-        <Button className="ml-auto" onClick={onAction} size="sm" variant="secondary">
+        {/* The action repeats on every task's card: its name says which task. */}
+        <Button aria-label={`${action}: ${title}`} className="ml-auto" onClick={onAction} size="sm" variant="secondary">
           {action}
         </Button>
       </div>
