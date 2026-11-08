@@ -52,32 +52,49 @@ const BLOCKING: ApproverState[] = ["declined", "returned"];
 export type ApprovalSummary = {
   approved: number;
   total: number;
-  /** Roles still to decide, in route order (deduplicated). */
+  /** Roles waiting in the current stage, in route order (deduplicated). */
   waitingOn: string[];
+  /** The approvers in the current stage who still have to decide. */
+  waiting: Approver[];
+  /** The stage the route is waiting on now, if it isn't complete or blocked. */
+  currentStage?: ApprovalStep;
   /** The approvers stopping the route (declined or returned), if any. */
   blockedBy: Approver[];
   complete: boolean;
-  /** One sentence: the header's answer. */
+  /** One sentence: the header's answer, with who, since when and why. */
   sentence: string;
 };
 
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : xs.length === 2 ? `${xs[0]} and ${xs[1]}` : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
 
-/** The answer to "who still has to approve, and what's blocking?" */
+const person = (a: Approver) => `${a.name} (${a.role})`;
+
+/** "A and B" for up to two people, then "A and 2 others": the summary names the first people. */
+const people = (as: Approver[]) => (as.length <= 2 ? list(as.map(person)) : `${person(as[0])} and ${as.length - 1} others`);
+
+/** The answer to "who still has to approve, since when, and what's blocking?" */
 export function summarizeApprovals(stages: ApprovalStep[]): ApprovalSummary {
   const all = stages.flatMap((s) => s.approvers).filter((a) => a.state !== "skipped");
   const approved = all.filter((a) => a.state === "approved" || a.state === "conditional").length;
-  const waitingOn = [...new Set(all.filter((a) => !DONE.includes(a.state) && !BLOCKING.includes(a.state)).map((a) => a.role))];
   const blockedBy = all.filter((a) => BLOCKING.includes(a.state));
   const complete = all.length > 0 && approved === all.length;
+  // Who it waits on NOW: the first stage that still has someone to decide, not every later stage.
+  const currentStage = complete || blockedBy.length ? undefined : stages.find((s) => s.approvers.some((a) => a.state !== "skipped" && !DONE.includes(a.state)));
+  const waiting = currentStage?.approvers.filter((a) => a.state !== "skipped" && !DONE.includes(a.state) && !BLOCKING.includes(a.state)) ?? [];
+  const waitingOn = [...new Set(waiting.map((a) => a.role))];
   let sentence: string;
   if (all.length === 0) sentence = "No approvals needed";
   else if (complete) sentence = `All ${all.length} approved`;
   else if (blockedBy.length) {
     const b = blockedBy[0];
-    sentence = `Blocked: ${b.role} ${b.state === "declined" ? "declined" : "returned it"} · ${approved} of ${all.length} approved`;
-  } else sentence = `${approved} of ${all.length} approved · waiting on ${list(waitingOn)}`;
-  return { approved, total: all.length, waitingOn, blockedBy, complete, sentence };
+    const others = blockedBy.length > 1 ? ` and ${blockedBy.length - 1} others` : "";
+    sentence = `Blocked: ${person(b)}${others} ${b.state === "declined" ? "declined" : "returned it"} · ${approved} of ${all.length} approved`;
+  } else {
+    const since = waiting.find((a) => a.when)?.when;
+    const why = waiting.find((a) => a.reason)?.reason;
+    sentence = `${approved} of ${all.length} approved · Waiting on ${people(waiting)}${since ? ` · ${since}` : ""}${why ? ` · ${why}` : ""}`;
+  }
+  return { approved, total: all.length, waitingOn, waiting, currentStage, blockedBy, complete, sentence };
 }
 
 type StageState = "done" | "current" | "blocked" | "upcoming";
@@ -125,6 +142,7 @@ function ApproverRow({ a }: { a: Approver & { restricted?: boolean } }) {
         <span className="flex min-w-0 flex-1 flex-col @[48rem]/path:w-full">
           <span className="line-clamp-2 text-label-lg text-on-surface [overflow-wrap:break-word]">{name}</span>
           <span className="line-clamp-2 text-meta text-on-surface-variant [overflow-wrap:break-word]">{a.role}</span>
+          {a.delegation && <span className="text-meta text-on-surface-variant [overflow-wrap:break-word]">{a.delegation}</span>}
         </span>
         <StatusBadge icon={st.icon} status={a.stateLabel ?? st.word} tone={st.tone} />
       </span>
@@ -137,7 +155,7 @@ function ApproverRow({ a }: { a: Approver & { restricted?: boolean } }) {
         <button
           aria-controls={id}
           aria-expanded={open}
-          aria-label={`${name}, ${a.role}, ${a.stateLabel ?? st.word}. ${open ? "Hide" : "Show"} details`}
+          aria-label={`${name}, ${a.role}${a.delegation ? `, ${a.delegation}` : ""}, ${a.stateLabel ?? st.word}. ${open ? "Hide" : "Show"} details`}
           className="state-layer [--state-hover:0.04] focus-ring flex w-full min-w-0 items-start gap-2.5 rounded-md px-2 py-2 text-left outline-none"
           onClick={() => setOpen(!open)}
           type="button"
@@ -220,7 +238,7 @@ export function ApprovalPath({ stages, hideSummary, className }: ApprovalPathPro
           return (
             <li
               aria-label={`Stage ${i + 1} of ${stages.length}: ${s.label}, ${STAGE_WORD[state]}`}
-              className="relative grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 pb-4 last:pb-0 @[48rem]/path:flex @[48rem]/path:flex-col @[48rem]/path:gap-2 @[48rem]/path:pb-0"
+              className="relative @container/stage grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 pb-4 last:pb-0 @[48rem]/path:flex @[48rem]/path:flex-col @[48rem]/path:gap-2 @[48rem]/path:pb-0"
               data-stage-state={state}
               key={s.id}
             >
@@ -247,7 +265,14 @@ export function ApprovalPath({ stages, hideSummary, className }: ApprovalPathPro
                   <span className="line-clamp-2 text-title-sm text-on-surface [overflow-wrap:break-word]">{s.label}</span>
                   {parallel && <span className="text-meta text-on-surface-variant">{s.approvers.length} at the same time</span>}
                 </div>
-                <ul className={cn("-mx-2 mt-1 flex min-w-0 flex-col", parallel && "@[48rem]/path:rounded-lg @[48rem]/path:bg-inset @[48rem]/path:mx-0 @[48rem]/path:py-1")}>
+                <ul
+                  className={cn(
+                    "-mx-2 mt-1 flex min-w-0 flex-col",
+                    // Parallel approvers sit side by side within their step once the step is wide
+                    // enough; below that they stack, so a name never has to be cut.
+                    parallel && "@[26rem]/stage:grid @[26rem]/stage:grid-cols-2 @[26rem]/stage:items-start @[26rem]/stage:gap-x-2 @[48rem]/path:mx-0 @[48rem]/path:rounded-lg @[48rem]/path:bg-inset @[48rem]/path:py-1"
+                  )}
+                >
                   {s.approvers.map((a) => (
                     <ApproverRow a={a} key={a.name + a.role} />
                   ))}
@@ -261,11 +286,15 @@ export function ApprovalPath({ stages, hideSummary, className }: ApprovalPathPro
   );
 }
 
-export function ApprovalPathSkeleton({ stages = 3 }: { stages?: number }) {
+export function ApprovalPathSkeleton({ stages = 3, hideSummary }: { stages?: number; hideSummary?: boolean }) {
   return (
     <div aria-busy="true" aria-label="Loading approvals" className="@container/path flex flex-col gap-4" role="status">
-      <Skeleton className="h-6 w-3/5" />
-      <Skeleton className="h-1.5 w-full" />
+      {!hideSummary && (
+        <>
+          <Skeleton className="h-6 w-3/5" />
+          <Skeleton className="h-1.5 w-full" />
+        </>
+      )}
       <div className="flex flex-col gap-4 @[48rem]/path:grid @[48rem]/path:grid-flow-col @[48rem]/path:auto-cols-fr">
         {Array.from({ length: stages }, (_, i) => (
           <div className="flex gap-3" key={i}>

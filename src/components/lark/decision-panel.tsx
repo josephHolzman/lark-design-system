@@ -27,9 +27,26 @@ export type DecisionOption = {
   recommended?: boolean;
   /** Why this option can't be chosen. The words are shown; the radio is disabled. */
   disabled?: string;
+  /** This answer needs a reason before it can be sent ("What needs to change?", a rejection). */
+  requiresReason?: boolean;
 };
 
 export type DecisionResult = { optionId: string; reason?: string };
+
+/** An option's words: what it is, what it does, and anything that blocks or qualifies it. */
+function OptionText({ option }: { option: DecisionOption }) {
+  return (
+    <span className="flex min-w-0 flex-col gap-0.5">
+      <span className="flex flex-wrap items-center gap-2 text-title-sm">
+        {option.label}
+        {option.recommended && <Badge variant="success">Recommended</Badge>}
+      </span>
+      <span className="text-body-md text-on-surface-variant">{option.consequence}</span>
+      {option.disabled && <span className="text-body-md text-on-surface-variant">Not available: {option.disabled}</span>}
+      {option.requiresReason && <span className="text-meta text-on-surface-variant">A reason is required</span>}
+    </span>
+  );
+}
 
 export type DecisionPanelProps = {
   question: ReactNode;
@@ -46,6 +63,15 @@ export type DecisionPanelProps = {
   aside?: ReactNode;
   /** The question's heading level. */
   as?: "h2" | "h3";
+  /** Delegation, in words: the person the reader is deciding for ("Dana Lee"). */
+  actingFor?: ReactNode;
+  /**
+   * Whether the reader is a current approver. When false the panel shows the options as
+   * status (no inputs) and no decision buttons, and says who to ask (part 1, §4.7).
+   */
+  canDecide?: boolean;
+  /** Who to ask when `canDecide` is false: "Dana Lee (VP Sales)". */
+  ask?: ReactNode;
   className?: string;
 };
 
@@ -60,15 +86,23 @@ export function DecisionPanel({
   onRetry,
   aside,
   as: H = "h2",
+  actingFor,
+  canDecide = true,
+  ask,
   className,
 }: DecisionPanelProps) {
   const questionId = useId();
   const reasonId = useId();
   const [value, setValue] = useState("");
   const [note, setNote] = useState("");
-  const blocked = options.find((option) => option.id === value)?.disabled;
-  const reasonMissing = !!reason?.required && note.trim() === "";
-  const canDecide = value !== "" && !blocked && !reasonMissing;
+  const selected = options.find((option) => option.id === value);
+  const blocked = selected?.disabled;
+  // Approve takes an optional comment; request-changes and reject need a reason. That is a
+  // property of the answer chosen, not of the panel.
+  const reasonNeeded = !!reason && (!!reason.required || !!selected?.requiresReason);
+  const reasonMissing = reasonNeeded && note.trim() === "";
+  const ready = value !== "" && !blocked && !reasonMissing;
+  const reasonWord = reasonNeeded ? "Required" : !selected && options.some((option) => option.requiresReason) ? "Required for some answers" : "Optional";
 
   return (
     // The container is the wrapper: `.lark-module` already names its own container, so a
@@ -83,6 +117,11 @@ export function DecisionPanel({
           {question}
         </H>
         {summary && <p className="text-body-md text-on-surface-variant">{summary}</p>}
+        {actingFor && (
+          <p className="text-body-md text-on-surface-variant" data-slot="decision-panel-acting-for">
+            Approving for <span className="text-on-surface">{actingFor}</span>.
+          </p>
+        )}
       </div>
 
       <div
@@ -90,51 +129,51 @@ export function DecisionPanel({
         data-slot="decision-panel-grid"
       >
         <div className="flex min-w-0 flex-col gap-4">
-          <RadioGroupPrimitive.Root aria-labelledby={questionId} className="flex flex-col gap-2" onValueChange={setValue} value={value}>
-            {options.map((option) => (
-              <label
-                className={cn(
-                  "state-layer [--state-hover:0.03] flex cursor-pointer items-start gap-3 rounded-lg border bg-module p-3 text-on-surface has-[[data-state=checked]]:border-selected-border has-[[data-state=checked]]:bg-secondary-container",
-                  option.disabled ? "cursor-default bg-inset text-on-surface-variant" : "border-edge"
-                )}
-                data-disabled={option.disabled ? "" : undefined}
-                key={option.id}
-              >
-                <RadioGroupPrimitive.Item
-                  className="focus-ring mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-outline bg-surface-container-lowest data-[state=checked]:border-on-surface"
-                  disabled={!!option.disabled}
-                  value={option.id}
+          {canDecide ? (
+            <RadioGroupPrimitive.Root aria-labelledby={questionId} className="flex flex-col gap-2" onValueChange={setValue} value={value}>
+              {options.map((option) => (
+                <label
+                  className={cn(
+                    "state-layer [--state-hover:0.03] flex cursor-pointer items-start gap-3 rounded-lg border bg-module p-3 text-on-surface has-[[data-state=checked]]:border-selected-border has-[[data-state=checked]]:bg-secondary-container",
+                    option.disabled ? "cursor-default bg-inset text-on-surface-variant" : "border-edge"
+                  )}
+                  data-disabled={option.disabled ? "" : undefined}
+                  key={option.id}
                 >
-                  <RadioGroupPrimitive.Indicator className="size-2 rounded-full bg-on-surface" />
-                </RadioGroupPrimitive.Item>
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="flex flex-wrap items-center gap-2 text-title-sm">
-                    {option.label}
-                    {option.recommended && <Badge variant="success">Recommended</Badge>}
-                  </span>
-                  <span className="text-body-md text-on-surface-variant">{option.consequence}</span>
-                  {option.disabled && <span className="text-body-md text-on-surface-variant">Not available: {option.disabled}</span>}
-                </span>
-              </label>
-            ))}
-          </RadioGroupPrimitive.Root>
+                  <RadioGroupPrimitive.Item
+                    className="focus-ring mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-outline bg-surface-container-lowest data-[state=checked]:border-on-surface"
+                    disabled={!!option.disabled}
+                    value={option.id}
+                  >
+                    <RadioGroupPrimitive.Indicator className="size-2 rounded-full bg-on-surface" />
+                  </RadioGroupPrimitive.Item>
+                  <OptionText option={option} />
+                </label>
+              ))}
+            </RadioGroupPrimitive.Root>
+          ) : (
+            // Not the reader's decision: the same answers as status, with no controls that can
+            // be pressed and no disabled buttons to explain away (part 1, §4.7).
+            <ul aria-labelledby={questionId} className="flex flex-col gap-2" data-slot="decision-panel-options-read-only">
+              {options.map((option) => (
+                <li className={cn("flex items-start gap-3 rounded-lg border border-edge bg-module p-3 text-on-surface", option.disabled && "bg-inset text-on-surface-variant")} key={option.id}>
+                  <OptionText option={option} />
+                </li>
+              ))}
+            </ul>
+          )}
 
-          {reason && (
+          {canDecide && reason && (
             <div className="flex flex-col gap-1.5">
               <Label className="text-body-md" htmlFor={reasonId}>
-                {reason.label}
-                {reason.required && (
-                  <>
-                    {" "}
-                    <span className="font-normal text-on-surface-variant">Required</span>
-                  </>
-                )}
+                {reason.label} <span className="font-normal text-on-surface-variant">{reasonWord}</span>
               </Label>
               <Textarea
+                aria-required={reasonNeeded || undefined}
                 id={reasonId}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={reason.placeholder}
-                required={reason.required}
+                required={reasonNeeded}
                 value={note}
               />
             </div>
@@ -154,19 +193,27 @@ export function DecisionPanel({
         data-slot="decision-panel-actions"
       >
         <SaveStatus className="mr-auto" onRetry={onRetry} state={status} />
-        {secondary && (
-          <Button onClick={secondary.onClick} size="sm" type="button" variant="secondary">
-            {secondary.label}
-          </Button>
+        {!canDecide ? (
+          <p className="min-w-0 text-body-md text-on-surface-variant" data-slot="decision-panel-not-approver">
+            Only current approvers can decide. {ask ? <>Ask {ask} to review it.</> : "Ask the current approver to review it."}
+          </p>
+        ) : (
+          <>
+            {secondary && (
+              <Button onClick={secondary.onClick} size="sm" type="button" variant="secondary">
+                {secondary.label}
+              </Button>
+            )}
+            <Button
+              disabled={!ready}
+              onClick={() => primary.onSelect?.({ optionId: value, reason: note.trim() || undefined })}
+              size="sm"
+              type="button"
+            >
+              {primary.label}
+            </Button>
+          </>
         )}
-        <Button
-          disabled={!canDecide}
-          onClick={() => primary.onSelect?.({ optionId: value, reason: note.trim() || undefined })}
-          size="sm"
-          type="button"
-        >
-          {primary.label}
-        </Button>
       </div>
     </section>
     </div>

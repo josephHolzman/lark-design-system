@@ -1,11 +1,14 @@
 "use client";
 
 import { RefreshCwIcon } from "lucide-react";
+import { useState } from "react";
 
 import { ApprovalPath, ApprovalPathSkeleton, type ApprovalPathProps } from "@/components/lark/approvals";
 import { SectionCard } from "@/components/lark/cards";
 import { SourceLine } from "@/components/lark/cpq";
-import { Callout, StatePanel } from "@/components/lark/feedback";
+import { DecisionPanel } from "@/components/lark/decision-panel";
+import { FactGrid } from "@/components/lark/fact-grid";
+import { Callout, type SaveState, StatePanel } from "@/components/lark/feedback";
 import { PageHeader } from "@/components/lark/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,11 +34,11 @@ const BASE: Stages = [
     label: "Pricing and finance",
     mode: "parallel",
     approvers: [
-      { name: "Priya Raman", role: "Pricing", state: "pending", reason: "Discount 22% is above the 15% floor", channel: "ACE", when: "Waiting 6 hr" },
-      { name: "Marcus Bell", role: "Finance", state: "pending", reason: "Payment terms net 60", channel: "Slack", when: "Waiting 6 hr" },
+      { name: "Priya Raman", role: "Pricing", state: "pending", reason: "Discount 22% is above the 15% floor", channel: "ACE", when: "6 hr" },
+      { name: "Marcus Bell", role: "Finance", state: "pending", reason: "Payment terms net 60", channel: "Slack", when: "6 hr" },
     ],
   },
-  { id: "legal", label: "Legal", approvers: [{ name: "Ana Souza", role: "Legal", state: "waiting", reason: "Liability cap changed in clause 7" }] },
+  { id: "legal", label: "Legal", approvers: [{ name: "Ana Souza", role: "Legal", state: "waiting", reason: "Liability cap changed in clause 7", delegation: "Approving for Sam Whitfield" }] },
   { id: "vp", label: "VP sales", approvers: [{ name: "Tom Becker", role: "VP sales", state: "waiting", reason: "Annual value over $400k" }] },
 ];
 
@@ -124,6 +127,55 @@ function Body({ state }: { state: ExampleState }) {
   );
 }
 
+const DECISIONS = [
+  {
+    id: "approve",
+    label: "Approve",
+    consequence: "Records R4 at 22% and releases it to the buyer. The route closes and nothing else changes.",
+    recommended: true,
+  },
+  {
+    id: "changes",
+    label: "Request changes",
+    consequence: "Returns R4 to Priya with your note; the route pauses until she resubmits.",
+    requiresReason: true,
+  },
+  {
+    id: "reject",
+    label: "Reject",
+    consequence: "Closes the exception. R4 stays unsent and the platform line returns to list price.",
+    requiresReason: true,
+  },
+];
+
+const DECISION_FACTS = [
+  { hint: "36 months, 5 lines", term: "Quote", value: "Northwind renewal, R4" },
+  { hint: "Policy limit 15% for this region", term: "Discount", value: "22%" },
+  { hint: "Floor 65%", term: "Margin", value: "71.2%" },
+  { hint: "Annual recurring", term: "Net per year", value: "$333,903" },
+  { hint: "The platform line; 2 points", term: "Changed since R3", value: "22% → 24%" },
+  { hint: "Discount above 15% routes to Pricing and Finance", term: "Why routed here", value: "FY27 pricing policy, §2.1" },
+];
+
+function DecisionExample({ nonApprover }: { nonApprover?: boolean }) {
+  const [status, setStatus] = useState<SaveState>("idle");
+  return (
+    <DecisionPanel
+      actingFor={nonApprover ? undefined : "Dana Lee"}
+      aside={nonApprover ? undefined : <FactGrid items={DECISION_FACTS} />}
+      ask="Priya Raman (Pricing)"
+      canDecide={!nonApprover}
+      onRetry={() => setStatus("saved")}
+      options={DECISIONS}
+      primary={{ label: "Record decision", onSelect: () => setStatus("saved") }}
+      question="Approve the 22% discount on Northwind renewal, quote R4?"
+      reason={{ label: "Note", placeholder: "Add a comment, or say what needs to change" }}
+      status={status}
+      summary="Approving releases R4 to the buyer at 22% for three years. Requesting changes or rejecting needs a note Priya can act on."
+    />
+  );
+}
+
 export function ApprovalsExample() {
   return (
     <div className="flex flex-col gap-module-gap">
@@ -143,6 +195,14 @@ export function ApprovalsExample() {
           </SectionCard>
         )}
       </StateSwitcher>
+
+      <SectionCard description="What the current approver sees: the figures the rule turns on, what changed since the last revision, and the three decisions. Approve takes an optional note; requesting changes or rejecting needs one." title="The decision, as the current approver sees it">
+        <DecisionExample />
+      </SectionCard>
+
+      <SectionCard description="Everyone else sees the same facts as status, who to ask, and no buttons they cannot use." title="The same decision, for someone who is not the approver">
+        <DecisionExample nonApprover />
+      </SectionCard>
     </div>
   );
 }

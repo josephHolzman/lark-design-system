@@ -74,4 +74,43 @@ describe("DecisionPanel", () => {
     render(<Panel status="saved" />);
     expect(screen.getByRole("status").textContent).toContain("Saved");
   });
+
+  it("needs a reason only for the answers that ask for one", async () => {
+    const user = userEvent.setup();
+    render(
+      <DecisionPanel
+        options={[
+          { id: "approve", label: "Approve", consequence: "Releases the quote." },
+          { id: "changes", label: "Request changes", consequence: "Returns it with your note.", requiresReason: true },
+        ]}
+        primary={{ label: "Record decision" }}
+        question="Approve the discount?"
+        reason={{ label: "Note" }}
+      />
+    );
+    const primary = screen.getByRole("button", { name: "Record decision" }) as HTMLButtonElement;
+    await user.click(screen.getByRole("radio", { name: /Approve/ }));
+    expect(primary.disabled).toBe(false);
+    await user.click(screen.getByRole("radio", { name: /Request changes/ }));
+    expect(primary.disabled).toBe(true);
+    expect(screen.getByText("A reason is required")).toBeTruthy();
+    await user.type(screen.getByRole("textbox", { name: /Note/ }), "Move 2 points into the ramp.");
+    expect(primary.disabled).toBe(false);
+  });
+
+  it("gives a non-approver the status and who to ask, with no buttons to press", () => {
+    const { container } = render(
+      <DecisionPanel
+        ask="Priya Raman (Pricing)"
+        canDecide={false}
+        options={OPTIONS}
+        primary={{ label: "Record decision" }}
+        question="Approve the discount exception, or counter it?"
+      />
+    );
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Record decision" })).toBeNull();
+    expect(screen.getByText(/Only current approvers can decide\. Ask Priya Raman \(Pricing\) to review it\./)).toBeTruthy();
+    expect((container.querySelectorAll("button").length)).toBe(0);
+  });
 });
