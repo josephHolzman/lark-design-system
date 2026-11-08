@@ -164,10 +164,7 @@ export function NotificationsPanel({
                       const at = new Date(item.at);
                       return (
                         <li
-                          className={cn(
-                            "flex gap-3 border-b border-outline-faint px-4 py-3",
-                            item.unread ? "bg-secondary-container/40" : "bg-transparent"
-                          )}
+                          className="flex gap-3 border-b border-outline-faint px-4 py-3"
                           data-slot="notification"
                           data-unread={item.unread || undefined}
                           key={item.id}
