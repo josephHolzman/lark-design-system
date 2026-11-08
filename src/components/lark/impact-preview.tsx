@@ -30,6 +30,12 @@ export type ImpactPreviewProps = {
   items: ImpactItem[];
   /** One sentence saying what applying the change does. */
   summary?: ReactNode;
+  /** Where the change lands: "Salesforce CPQ · quote R4". */
+  target?: ReactNode;
+  /** How big it is: "12 quote lines · $48,200". */
+  size?: ReactNode;
+  /** Whether it can be undone. `false` says so in words; a node replaces the sentence. */
+  reversible?: boolean | ReactNode;
   /** The policy checks that explain the change (a PolicyChecks, a list of rules). */
   policyChecks?: ReactNode;
   className?: string;
@@ -63,10 +69,27 @@ function ImpactValue({ children, strong }: { children: ReactNode; strong?: boole
   );
 }
 
-export function ImpactPreview({ items, summary, policyChecks, className }: ImpactPreviewProps) {
+export function ImpactPreview({ items, summary, target, size, reversible, policyChecks, className }: ImpactPreviewProps) {
   return (
     <div className={cn("@container/impact flex min-w-0 flex-col gap-3", className)} data-slot="impact-preview">
       {summary && <p className="text-body-md text-on-surface">{summary}</p>}
+      {(target || size || reversible !== undefined) && (
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-md text-on-surface-variant" data-slot="impact-context">
+          {target && (
+            <span>
+              In <span className="text-on-surface">{target}</span>
+            </span>
+          )}
+          {target && (size || reversible !== undefined) && <span aria-hidden="true">·</span>}
+          {size && <span className="text-on-surface">{size}</span>}
+          {size && reversible !== undefined && <span aria-hidden="true">·</span>}
+          {reversible !== undefined && (
+            <span className={reversible === false ? "text-on-warning-container" : undefined}>
+              {typeof reversible === "boolean" ? (reversible ? "Can be undone" : "Can't be undone") : reversible}
+            </span>
+          )}
+        </p>
+      )}
       <ul className="flex min-w-0 flex-col divide-y divide-outline-faint rounded-lg border border-edge bg-card" data-slot="impact-list">
         {items.map((item, index) => {
           const tone = TONE[item.tone ?? "neutral"];

@@ -250,6 +250,11 @@ export function ChatStates() {
           <Group description="What people see before they've asked anything, and how they get to the right deal." id="start" title="Starting a conversation">
             <Frame id="welcome" title="New conversation" when="First open, or after New chat. Suggestions are real buttons; proactive tasks are work ACE already prepared.">
               <ChatWelcome
+                capabilities={{
+                  approval: "Sending a reply, updating a record, or any write to Salesforce, your mail or a customer.",
+                  cannot: "See records outside your access, sign as you, or decide an approval on someone else's behalf.",
+                  onOwn: "Read the deals, mail and policies you can see, draft replies and work out what a change would do.",
+                }}
                 description="ACE answers from the deals, mail and policies you can see, and shows its sources."
                 onSuggestion={(s) => toast(s)}
                 suggestions={["Why does Northwind need VP approval?", "Draft the renewal email", "What changed since R3?"]}

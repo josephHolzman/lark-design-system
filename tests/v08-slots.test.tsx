@@ -149,6 +149,22 @@ describe("NumberInput commit and stepper names", () => {
     expect(screen.getByRole("button", { name: "Decrease Discount" })).toBeTruthy();
     expect(screen.getByRole("spinbutton", { name: "Discount" }).className).toContain("text-right");
   });
+
+  it("gives the field's unit to screen readers, and keeps a caller description", () => {
+    const { container } = render(
+      <div>
+        <p id="hint">Net of the regional floor.</p>
+        <NumberInput aria-describedby="hint" aria-label="Discount" onValueChange={() => {}} suffix="%" value={20} />
+      </div>
+    );
+    const input = screen.getByRole("spinbutton", { name: "Discount" });
+    const ids = (input.getAttribute("aria-describedby") ?? "").split(" ");
+    expect(ids).toContain("hint");
+    const unitId = ids.find((id) => id !== "hint")!;
+    expect(document.getElementById(unitId)?.textContent).toBe("Unit: %");
+    expect(container.querySelector("[data-slot=number-input]")).toBeTruthy();
+    expect(input.getAttribute("aria-valuetext")).toBe("20 %");
+  });
 });
 
 describe("Tabs overflow", () => {
@@ -392,6 +408,23 @@ describe("§3 small fixes", () => {
     render(<ChatWelcome eyebrow="New chat" title="What do you need to prepare?" titleAs="h1" />);
     expect(screen.getByRole("heading", { level: 1, name: "What do you need to prepare?" })).toBeTruthy();
     expect(screen.queryByText("New chat")).toBeNull();
+  });
+
+  it("ChatWelcome says what ACE does on its own, what it asks before, and what it can't do", () => {
+    render(
+      <ChatWelcome
+        capabilities={{
+          approval: "Sending, or writing to Salesforce.",
+          cannot: "See records outside your access.",
+          onOwn: "Read the quote and draft replies.",
+        }}
+        title="What do you need to prepare?"
+      />
+    );
+    expect(screen.getByText("Works on its own")).toBeTruthy();
+    expect(screen.getByText("Read the quote and draft replies.")).toBeTruthy();
+    expect(screen.getByText("Asks before")).toBeTruthy();
+    expect(screen.getByText("Can't do")).toBeTruthy();
   });
 
   it("AnswerSources can open the saved record", () => {

@@ -1396,6 +1396,7 @@ export function ChatWelcome({
   suggestions,
   onSuggestion,
   tasks,
+  capabilities,
   illustration,
   titleAs: Title = "h2",
 }: {
@@ -1404,6 +1405,11 @@ export function ChatWelcome({
   suggestions?: string[];
   onSuggestion?: (s: string) => void;
   tasks?: ReactNode;
+  /**
+   * What ACE does here, said before the first request: what it runs on its own, what pauses
+   * for approval, and what it cannot do (part 2, §20.1). The same three lists belong in Settings.
+   */
+  capabilities?: { onOwn?: ReactNode; approval?: ReactNode; cannot?: ReactNode };
   /** v0.8: a picture above the welcome. Decorative unless `alt`. */
   illustration?: IllustrationSpec;
   /** The new chat's title is the page h1; inside a panel it stays h2. Default "h2". */
@@ -1422,6 +1428,33 @@ export function ChatWelcome({
         <Title className="text-title-md text-on-surface">{title}</Title>
         {description && <p className="mx-auto max-w-[52ch] text-sm text-on-surface-variant">{description}</p>}
       </div>
+      {capabilities && (capabilities.onOwn || capabilities.approval || capabilities.cannot) && (
+        <div className="@container/capabilities w-full max-w-[52ch]">
+          <dl
+            className="mx-auto grid w-full grid-cols-1 gap-y-2 text-left @[22rem]/capabilities:grid-cols-[auto_minmax(0,1fr)] @[22rem]/capabilities:gap-x-3 @[22rem]/capabilities:gap-y-1.5"
+            data-slot="chat-welcome-capabilities"
+          >
+            {capabilities.onOwn && (
+              <>
+                <dt className="text-meta-strong text-on-surface-variant">Works on its own</dt>
+                <dd className="min-w-0 text-body-md text-on-surface">{capabilities.onOwn}</dd>
+              </>
+            )}
+            {capabilities.approval && (
+              <>
+                <dt className="text-meta-strong text-on-surface-variant">Asks before</dt>
+                <dd className="min-w-0 text-body-md text-on-surface">{capabilities.approval}</dd>
+              </>
+            )}
+            {capabilities.cannot && (
+              <>
+                <dt className="text-meta-strong text-on-surface-variant">Can&apos;t do</dt>
+                <dd className="min-w-0 text-body-md text-on-surface">{capabilities.cannot}</dd>
+              </>
+            )}
+          </dl>
+        </div>
+      )}
       {suggestions && suggestions.length > 0 && (
         <ul aria-label="Suggested requests" className="flex flex-wrap justify-center gap-2">
           {suggestions.map((s) => (

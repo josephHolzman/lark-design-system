@@ -39,4 +39,11 @@ describe("ImpactPreview", () => {
     const { container } = render(<ImpactPreview items={[{ from: "", label: "Purchase order", to: "PO-88412" }]} />);
     expect(container.querySelector("[data-slot=impact-item]")?.textContent).toContain("Not set");
   });
+
+  it("names the target, the size and whether it can be undone", () => {
+    render(<ImpactPreview items={ITEMS} reversible={false} size="2 quote lines · $8,200" target="Salesforce CPQ · quote R4" />);
+    expect(screen.getByText("Salesforce CPQ · quote R4")).toBeTruthy();
+    expect(screen.getByText("2 quote lines · $8,200")).toBeTruthy();
+    expect(screen.getByText("Can't be undone")).toBeTruthy();
+  });
 });

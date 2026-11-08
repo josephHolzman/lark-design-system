@@ -1,13 +1,13 @@
 "use client";
 
-import { AlertTriangleIcon, CheckCircle2Icon, CircleDashedIcon, LoaderCircleIcon, XCircleIcon } from "lucide-react";
+import { AlertTriangleIcon, CheckCircle2Icon, CircleDashedIcon, LoaderCircleIcon, PauseIcon, XCircleIcon } from "lucide-react";
 import { isValidElement, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
 import { AceMark, PersonAvatar } from "./identity";
 import { List, ListItem } from "./lists";
-import { ActionMenu, type MenuSection } from "./menus";
+import { ActionMenu, type MenuAction, type MenuSection } from "./menus";
 import { StatusBadge, type StatusTone } from "./status-badge";
 import { ClampText } from "./text";
 
@@ -26,10 +26,11 @@ import { ClampText } from "./text";
   from 36rem, three from 60rem, and a List of rows below that.
 */
 
-export type AgentTaskState = "queued" | "running" | "needs-review" | "done" | "failed";
+export type AgentTaskState = "queued" | "paused" | "running" | "needs-review" | "done" | "failed";
 
 const TASK_STATE: Record<AgentTaskState, { label: string; tone: StatusTone; icon: typeof CheckCircle2Icon }> = {
   queued: { label: "Queued", tone: "neutral", icon: CircleDashedIcon },
+  paused: { label: "Paused", tone: "neutral", icon: PauseIcon },
   running: { label: "Running", tone: "progress", icon: LoaderCircleIcon },
   "needs-review": { label: "Needs review", tone: "warning", icon: AlertTriangleIcon },
   done: { label: "Done", tone: "success", icon: CheckCircle2Icon },
@@ -51,6 +52,10 @@ export type AgentTaskProgress = {
   step?: ReactNode;
   /** The counter; defaults to "Step <value> of <max>" when `max` is set. */
   stepLabel?: ReactNode;
+  /** What is already done: "Read quote R4, applied the FY27 policy". */
+  completed?: ReactNode;
+  /** What comes after this step: "Send the brief for review". */
+  next?: ReactNode;
   /** The progressbar's accessible name. Default "Task progress". */
   label?: string;
 };
@@ -80,8 +85,17 @@ export type AgentTaskCardProps = {
   menu?: MenuSection[];
   /** The menu button's name. Default "More actions for <title>". */
   menuLabel?: string;
-  /** The progressbar while running, with its step said in words. */
+  /** The progressbar while running or paused, with its step said in words. */
   progress?: AgentTaskProgress;
+  /**
+   * Pause or resume the task. While running or paused, this is one item in the ⋯ menu, so
+   * every running task can be paused in one action without a second visible button.
+   */
+  onPause?: () => void;
+  /** Stop the task. While running or paused, this is the ⋯ menu's last, destructive item. */
+  onStop?: () => void;
+  /** When failed: the one thing that unblocks it ("the pricing service to come back"). */
+  needs?: ReactNode;
   className?: string;
 };
 
@@ -122,11 +136,29 @@ function menuName(title: ReactNode, explicit?: string) {
 }
 
 /**
+ * The ⋯ menu with the task's own controls: pause/resume and stop are always there while a task
+ * runs, so no running task is uncontrollable (industry-conventions-2 §20.6).
+ */
+function taskMenu(
+  menu: MenuSection[] | undefined,
+  state: AgentTaskState,
+  onPause?: () => void,
+  onStop?: () => void
+): MenuSection[] | undefined {
+  const live = state === "running" || state === "paused";
+  const controls: MenuAction[] = [];
+  if (live && onPause) controls.push({ label: state === "paused" ? "Resume task" : "Pause task", onSelect: onPause });
+  const sections: MenuSection[] = controls.length ? [{ items: controls }, ...(menu ?? [])] : [...(menu ?? [])];
+  if (live && onStop) sections.push({ items: [{ destructive: true, label: "Stop task", onSelect: onStop }] });
+  return sections.length ? sections : undefined;
+}
+
+/**
  * The step in words over a sky progress bar: the counter at 12 (metadata), the step's name at
  * 14. `role="progressbar"` with `aria-valuenow` and a `aria-valuetext` that repeats the words.
  */
 function TaskProgress({ progress, title }: { progress: AgentTaskProgress; title: ReactNode }) {
-  const { value, max, step } = progress;
+  const { value, max, step, completed, next } = progress;
   // Each bar is named for its task, so several running tasks don't share one name.
   const label = progress.label ?? (textOf(title) ? `Task progress: ${textOf(title)}` : "Task progress");
   const stepLabel = progress.stepLabel ?? (max != null ? `Step ${value} of ${max}` : `${Math.round((value / (max ?? 100)) * 100)}%`);
@@ -157,6 +189,22 @@ function TaskProgress({ progress, title }: { progress: AgentTaskProgress; title:
       >
         <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
       </div>
+      {(completed || next) && (
+        <div className="flex flex-col gap-0.5 text-body-md" data-slot="agent-task-steps">
+          {completed && (
+            <p className="text-on-surface-variant">
+              <span className="text-on-surface">Done: </span>
+              {completed}
+            </p>
+          )}
+          {next && (
+            <p className="text-on-surface-variant">
+              <span className="text-on-surface">Next: </span>
+              {next}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -176,12 +224,17 @@ export function AgentTaskCard({
   byline,
   startsWhen,
   action,
-  menu,
+  menu: menuProp,
   menuLabel,
   progress,
+  onPause,
+  onStop,
+  needs,
   className,
 }: AgentTaskCardProps) {
   const running = state === "running";
+  const live = running || state === "paused";
+  const menu = taskMenu(menuProp, state, onPause, onStop);
   const body = description ?? context;
   const bylineText = bylineFor(agent, time, byline);
   return (
@@ -215,10 +268,19 @@ export function AgentTaskCard({
         </ClampText>
       )}
 
-      {running && progress && <TaskProgress progress={progress} title={title} />}
+      {live && progress && <TaskProgress progress={progress} title={title} />}
       {state === "queued" && startsWhen && (
         <p className="text-body-md text-on-surface-variant" data-slot="agent-task-starts-when">
           {startsWhen}
+        </p>
+      )}
+      {state === "failed" && needs && (
+        <p className="flex items-start gap-1.5 text-body-md text-on-warning-container" data-slot="agent-task-needs">
+          <AlertTriangleIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <span>
+            <span className="font-medium">Needs: </span>
+            {needs}
+          </span>
         </p>
       )}
 
@@ -235,8 +297,9 @@ export function AgentTaskCard({
  * byline · the state badge · its one action · the ⋯ menu. The menu is always visible, so touch
  * users never need hover to reach it.
  */
-export function AgentTaskRow({ title, agent, state, time, byline, action, menu, menuLabel, className }: AgentTaskCardProps) {
+export function AgentTaskRow({ title, agent, state, time, byline, action, menu: menuProp, menuLabel, onPause, onStop, needs, className }: AgentTaskCardProps) {
   const bylineText = bylineFor(agent, time, byline);
+  const menu = taskMenu(menuProp, state, onPause, onStop);
   return (
     <ListItem
       className={cn("group/row", className)}
@@ -250,8 +313,11 @@ export function AgentTaskRow({ title, agent, state, time, byline, action, menu, 
       leading={<AgentMark agent={agent} size="sm" />}
       wrap
       supporting={
-        <span className="text-meta" data-meta="byline">
-          {bylineText}
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-meta" data-meta="byline">
+            {bylineText}
+          </span>
+          {state === "failed" && needs && <span className="text-body-md text-on-warning-container">Needs: {needs}</span>}
         </span>
       }
       trailing={

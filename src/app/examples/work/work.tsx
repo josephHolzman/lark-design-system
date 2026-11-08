@@ -29,17 +29,30 @@ const TASKS: (AgentTaskCardProps & { id: string })[] = [
     menu: [
       {
         items: [
-          { label: "Pause while it runs" },
           { label: "Reassign to Dana Ito" },
           { disabledReason: "The brief is still being written.", label: "Copy a link" },
         ],
       },
       { items: [{ destructive: true, label: "Dismiss task" }] },
     ],
-    progress: { max: 4, step: "Drafting the margin table", value: 2 },
+    onPause: () => {},
+    onStop: () => {},
+    progress: { completed: "Read quote R4 and the FY27 policy", max: 4, next: "Send the brief to Finance", step: "Drafting the margin table", value: 2 },
     state: "running",
     time: "started 4 min ago",
     title: "Prepare the approval brief for Northwind renewal revision 4",
+  },
+  {
+    agent: { ai: true, name: "ACE" },
+    description: "Waiting to check the Halvorsen quote against the regional floor; the policy is still in review.",
+    id: "t7",
+    menu: [{ items: [{ label: "Reassign to Priya Raman" }, { label: "Dismiss task" }] }],
+    onPause: () => {},
+    onStop: () => {},
+    progress: { completed: "Read the quote and the current floor", max: 3, next: "Recheck when the 2027 policy is published", step: "Waiting for the 2027 policy", value: 1 },
+    state: "paused",
+    time: "paused 20 min ago",
+    title: "Check the Halvorsen quote against the 2027 regional floors",
   },
   {
     action: (
@@ -89,6 +102,7 @@ const TASKS: (AgentTaskCardProps & { id: string })[] = [
     description: "The pricing service timed out after the third attempt; nothing was written to the quote.",
     id: "t5",
     menu: [{ items: [{ label: "Retry later" }, { label: "View the error log" }, { label: "Dismiss task" }] }],
+    needs: "the pricing service to answer, or Marcus Bell to price it by hand",
     state: "failed",
     time: "failed 8 min ago",
     title: "Recalculate the net price after the term change",
@@ -187,7 +201,10 @@ export function Work() {
             { from: "Deal desk", id: "route", label: "Approval route", to: "Deal desk and Legal", tone: "warning" },
           ]}
           policyChecks={<PolicyChecks checks={CHECKS} />}
+          reversible={false}
+          size="2 quote lines · $8,200"
           summary="Saving re-prices the renewal and adds Legal to the approval route before anything is sent to the buyer."
+          target="Salesforce CPQ · quote R4"
         />
       </SectionCard>
     </div>

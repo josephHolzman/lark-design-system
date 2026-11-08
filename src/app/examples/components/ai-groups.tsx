@@ -198,7 +198,21 @@ export const AI_GROUPS: Group[] = [
       { name: "ScreenSessionNotice", node: <ScreenSessionNotice onPause={noop} onStop={noop} site="salesforce.com" state="reading" /> },
       { name: "JumpToLatest", node: <JumpToLatest count={3} /> },
       { name: "ConversationListItem", node: <div className="flex flex-col gap-1"><ConversationListItem current meta="Northwind Freight" status="running" time="9:41 AM" title="Renewal discount exception and the approval route" unread /><ConversationListItem meta="Halvorsen Group" status="needs-you" title="Term change for the expansion" /></div> },
-      { name: "ChatWelcome", node: <ChatWelcome description="Ask about a deal, a quote or a policy. ACE uses the records you can already open." suggestions={["What needs my attention?", "Draft the renewal note"]} tasks={<><ProactiveTask action="Prepare" reason="Finance asked for the margin breakdown before the 3 PM review." title="Prepare the approval brief" tone="urgent" /><ProactiveTask action="Draft" reason="The buyer asked twice about the price book change." title="Draft a reply to the buyer" /></>} /> },
+      {
+        name: "ChatWelcome",
+        node: (
+          <ChatWelcome
+            capabilities={{
+              approval: "Sending, changing a record, or anything that writes to Salesforce or your mail.",
+              cannot: "See records you don't have access to, sign as you, or change an approval someone else owns.",
+              onOwn: "Read the quote, policy and mail you can see, draft replies and calculate the effect of a change.",
+            }}
+            description="Ask about a deal, a quote or a policy. ACE uses the records you can already open."
+            suggestions={["What needs my attention?", "Draft the renewal note"]}
+            tasks={<><ProactiveTask action="Prepare" reason="Finance asked for the margin breakdown before the 3 PM review." title="Prepare the approval brief" tone="urgent" /><ProactiveTask action="Draft" reason="The buyer asked twice about the price book change." title="Draft a reply to the buyer" /></>}
+          />
+        ),
+      },
       { name: "ProactiveTask", node: <ProactiveTask action="Open" meta="Due today" reason="Finance asked for the margin breakdown before the review." title="Prepare the approval brief" /> },
     ],
   },

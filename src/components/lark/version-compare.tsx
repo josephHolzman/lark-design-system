@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
+import { AceMark } from "./identity";
 import { NoBreak } from "./text";
 
 /*
@@ -23,6 +24,8 @@ export type VersionSide = {
   version: ReactNode;
   author?: ReactNode;
   time?: Date | ReactNode;
+  /** This revision was prepared by ACE: the mark sits beside its name, once per side. */
+  ai?: boolean;
 };
 
 export type VersionRow = {
@@ -98,7 +101,11 @@ function SideHeader({ side, heading }: { side: VersionSide; heading: string }) {
       <p className="text-meta text-on-surface-variant" data-meta="column-head">
         {heading}
       </p>
-      <p className="mt-0.5 text-title-sm text-on-surface">{side.version}</p>
+      <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-title-sm text-on-surface">
+        {side.ai && <AceMark size="xs" />}
+        {side.ai && <span className="sr-only">Prepared by ACE. </span>}
+        <span className="min-w-0">{side.version}</span>
+      </p>
       {side.author && (
         <p className="text-meta text-on-surface-variant" data-meta="byline">
           {side.author}
@@ -111,6 +118,8 @@ function SideHeader({ side, heading }: { side: VersionSide; heading: string }) {
               {side.time.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} ·{" "}
               {side.time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
             </time>
+          ) : typeof side.time === "string" ? (
+            <span title={side.time}>{side.time}</span>
           ) : (
             side.time
           )}

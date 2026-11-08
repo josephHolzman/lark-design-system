@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { AgentTaskCard, AgentTaskGrid, AgentTaskRow, type AgentTaskState } from "@/components/lark/agent-task";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ describe("AgentTaskCard", () => {
   it("names every state for the reader", () => {
     const states: [AgentTaskState, string][] = [
       ["queued", "Queued"],
+      ["paused", "Paused"],
       ["running", "Running"],
       ["needs-review", "Needs review"],
       ["done", "Done"],
@@ -84,6 +86,46 @@ describe("AgentTaskCard", () => {
       expect(within(container).getByText(word)).toBeTruthy();
       unmount();
     }
+  });
+
+  it("gives every running task pause and stop in one action", async () => {
+    const user = userEvent.setup();
+    const onPause = vi.fn();
+    const onStop = vi.fn();
+    render(<AgentTaskCard {...TASK} onPause={onPause} onStop={onStop} />);
+    const more = screen.getByRole("button", { name: `More actions for ${TASK.title}` });
+    await user.click(more);
+    await user.click(screen.getByRole("menuitem", { name: "Pause task" }));
+    expect(onPause).toHaveBeenCalled();
+    await user.click(more);
+    await user.click(screen.getByRole("menuitem", { name: "Stop task" }));
+    expect(onStop).toHaveBeenCalled();
+  });
+
+  it("says resume when paused and keeps the step in words", async () => {
+    const user = userEvent.setup();
+    render(<AgentTaskCard {...TASK} onPause={() => {}} state="paused" />);
+    expect(screen.getByText("Paused")).toBeTruthy();
+    expect(screen.getByRole("progressbar", { name: `Task progress: ${TASK.title}` })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: `More actions for ${TASK.title}` }));
+    expect(screen.getByRole("menuitem", { name: "Resume task" })).toBeTruthy();
+  });
+
+  it("names what a failed task needs, and what is done and next while it runs", () => {
+    const { rerender } = render(<AgentTaskCard {...TASK} needs="the pricing service to answer" state="failed" />);
+    expect(screen.getByText("Needs:")).toBeTruthy();
+    expect(screen.getByText("the pricing service to answer")).toBeTruthy();
+    rerender(
+      <AgentTaskCard
+        {...TASK}
+        progress={{ completed: "Read R4 and the FY27 policy", max: 4, next: "Send the brief to Finance", step: "Drafting the margin table", value: 2 }}
+        state="running"
+      />
+    );
+    expect(screen.getByText("Done:")).toBeTruthy();
+    expect(screen.getByText("Next:")).toBeTruthy();
+    expect(screen.getByText("Read R4 and the FY27 policy")).toBeTruthy();
+    expect(screen.getByText("Send the brief to Finance")).toBeTruthy();
   });
 });
 

@@ -117,13 +117,15 @@ const FACT_ITEMS = [
 ];
 
 const ACTIVITY = [
-  { id: "1", party: "customer" as const, author: `Jordan Lee, ${LONG_ACCOUNT}`, title: "Asked to hold 22% for three years", message: "We can sign this month if years two and three hold at 22%.", at: "2026-11-07T10:12:00", reference: "Re: Re: FW: Renewal terms, pricing exhibit B, revision 11" },
-  { id: "2", party: "internal" as const, author: "Marcus Bell", title: "Returned the approval", at: "2026-11-06T09:40:00", reference: "#deal-desk" },
+  { id: "1", party: "customer" as const, author: `Jordan Lee, ${LONG_ACCOUNT}`, object: "the renewal", title: "Asked to hold 22% for three years", message: "We can sign this month if years two and three hold at 22%.", at: "2026-11-07T10:12:00", reference: "Re: Re: FW: Renewal terms, pricing exhibit B, revision 11" },
+  { id: "2", party: "ace" as const, author: "ACE", object: "quote R4", title: "Drafted a reply that cites the ramp", at: "2026-11-07T09:55:00" },
+  { id: "3", party: "system" as const, author: "Salesforce sync", object: "the opportunity", title: "updated 14 fields", noise: true, detail: "Amount, close date, stage and 11 other fields changed.", at: "2026-11-07T09:30:00", reference: "Sync 8841" },
+  { id: "4", party: "internal" as const, author: "Marcus Bell", object: "the approval", title: "Returned it", at: "2026-11-06T09:40:00", reference: "#deal-desk" },
 ];
 
 const STAGES = [
   { id: "a", label: "Deal desk", mode: "parallel" as const, approvers: [{ name: "Dana Ito", role: "Deal desk", state: "approved" as const }, { name: LONG_ACCOUNT, role: "Regional vice president, enterprise sales", state: "approved" as const, reason: "Over $12,480,000.00" }] },
-  { id: "b", label: "Pricing and finance", mode: "parallel" as const, approvers: [{ name: "Priya Raman", role: "Pricing", state: "pending" as const }, { name: "Marcus Bell", role: "Finance", state: "returned" as const, note: "Needs margin at net 60" }] },
+  { id: "b", label: "Pricing and finance", mode: "parallel" as const, approvers: [{ name: "Priya Raman", role: "Pricing", state: "pending" as const, delegation: "Approving for Dana Lee" }, { name: "Marcus Bell", role: "Finance", state: "returned" as const, note: "Needs margin at net 60" }] },
   { id: "c", label: "Legal", approvers: [{ name: "Ana Souza", role: "Legal", state: "waiting" as const }] },
 ];
 
@@ -270,8 +272,8 @@ export const CORE_GROUPS: Group[] = [
     title: "Agent work",
     note: "One agent task, its state in words, and the grid that becomes a list by its own width.",
     samples: [
-      { name: "AgentTaskCard", node: <AgentTaskCard agent={{ ai: true, name: "ACE" }} description="Finance asked for the margin breakdown before the review, with every policy check cited." menu={[{ items: [{ label: "Pause while it runs" }, { label: "Reassign to Dana Ito" }, { label: "Dismiss task" }] }]} progress={{ max: 4, step: "Drafting the margin table", value: 2 }} state="running" time="started 4 min ago" title={`Prepare ${LONG_TITLE} approval brief`} /> },
-      { name: "AgentTaskRow", node: <ul className="flex flex-col"><AgentTaskRow agent={{ name: "Priya Raman" }} menu={[{ items: [{ label: "Regenerate the draft" }, { label: "Dismiss task" }] }]} state="needs-review" time="drafted 12 min ago" title="Draft a reply about extension pricing for years two and three" /></ul> },
+      { name: "AgentTaskCard", node: <AgentTaskCard agent={{ ai: true, name: "ACE" }} description="Finance asked for the margin breakdown before the review, with every policy check cited." menu={[{ items: [{ label: "Reassign to Dana Ito" }, { label: "Dismiss task" }] }]} onPause={noop} onStop={noop} progress={{ completed: "Read R4 and the FY27 policy", max: 4, next: "Send the brief to Finance", step: "Drafting the margin table", value: 2 }} state="running" time="started 4 min ago" title={`Prepare ${LONG_TITLE} approval brief`} /> },
+      { name: "AgentTaskRow", node: <ul className="flex flex-col"><AgentTaskRow agent={{ name: "Priya Raman" }} menu={[{ items: [{ label: "Regenerate the draft" }, { label: "Dismiss task" }] }]} needs="the pricing service to answer" state="failed" time="failed 12 min ago" title="Draft a reply about extension pricing for years two and three" /></ul> },
       { name: "AgentTaskGrid", node: <AgentTaskGrid label="Agent work" tasks={TASKS} /> },
     ],
   },
@@ -398,17 +400,17 @@ export const CORE_GROUPS: Group[] = [
         name: "DecisionPanel",
         node: (
           <DecisionPanel
+            actingFor="Dana Lee"
             aside={<FactGrid items={FACT_ITEMS} />}
             options={[
-              { consequence: "The quote goes to the buyer at 22% for three years.", id: "approve", label: "Approve the exception" },
-              { consequence: "Stays within the regional floor; the buyer decides again.", id: "counter", label: "Counter at 20%", recommended: true },
-              { consequence: "Nothing is sent until Finance reviews the margin.", disabled: "Finance has not set a floor for this region.", id: "hold", label: "Hold for Finance" },
+              { consequence: "Releases R4 to the buyer at 22% for three years.", id: "approve", label: "Approve", recommended: true },
+              { consequence: "Returns R4 to Priya with your note; the route pauses.", id: "changes", label: "Request changes", requiresReason: true },
+              { consequence: "Closes the exception; R4 stays unsent.", id: "reject", label: "Reject", requiresReason: true },
             ]}
-            primary={{ label: "Send decision" }}
-            question="Approve the discount exception, or counter it?"
-            reason={{ label: "Why", required: true }}
-            secondary={{ label: "Save for later" }}
-            summary="The buyer asked to hold 22% for three years; the regional floor is 15%."
+            primary={{ label: "Record decision" }}
+            question="Approve the 22% discount on Northwind renewal, quote R4?"
+            reason={{ label: "Note", placeholder: "Add a comment, or say what needs to change" }}
+            summary="Approving releases R4 to the buyer. Requesting changes or rejecting needs a note Priya can act on."
           />
         ),
       },
@@ -504,7 +506,7 @@ export const CORE_GROUPS: Group[] = [
     title: "Impact preview",
     note: "What a change does before it is applied; direction is an icon and a word.",
     samples: [
-      { name: "ImpactPreview", node: <ImpactPreview items={[{ from: "22.5%", id: "discount", label: "Discount", to: "25.0%", tone: "increase" }, { from: "$412,800.00", id: "price", label: "Net price", to: "$421,000.00", tone: "increase" }, { from: "Deal desk", id: "route", label: "Approval route", to: "Deal desk and Legal", tone: "warning" }]} summary="Saving re-prices the renewal and adds Legal to the approval route." /> },
+      { name: "ImpactPreview", node: <ImpactPreview items={[{ from: "22.5%", id: "discount", label: "Discount", to: "25.0%", tone: "increase" }, { from: "$412,800.00", id: "price", label: "Net price", to: "$421,000.00", tone: "increase" }, { from: "Deal desk", id: "route", label: "Approval route", to: "Deal desk and Legal", tone: "warning" }]} reversible={false} size="2 quote lines · $8,200" summary="Saving re-prices the renewal and adds Legal to the approval route." target="Salesforce CPQ · quote R4" /> },
     ],
   },
   {
@@ -677,7 +679,7 @@ export const CORE_GROUPS: Group[] = [
     title: "Version compare",
     note: "Two columns wide, before then after per row narrow; change is an icon and a word.",
     samples: [
-      { name: "VersionCompare", node: <VersionCompare left={{ author: "Priya Raman", time: new Date("2026-11-06T15:20:00Z"), version: "Revision 3" }} right={{ author: "Dana Ito", time: new Date("2026-11-07T11:15:00Z"), version: "Revision 4" }} rows={VERSION_ROWS} /> },
+      { name: "VersionCompare", node: <VersionCompare left={{ author: "Priya Raman", time: new Date("2026-11-06T15:20:00Z"), version: "Revision 3" }} right={{ ai: true, author: "ACE", time: new Date("2026-11-07T11:15:00Z"), version: "Revision 4, drafted by ACE" }} rows={VERSION_ROWS} /> },
     ],
   },
 ];

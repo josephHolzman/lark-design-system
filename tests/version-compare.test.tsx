@@ -62,4 +62,10 @@ describe("VersionCompare", () => {
     render(<VersionCompare defaultOnlyChanges left={{ version: "R1" }} right={{ version: "R2" }} rows={[{ after: "Same", before: "Same", label: "Owner" }]} />);
     expect(screen.getByText("No changes between these versions.")).toBeTruthy();
   });
+
+  it("marks a revision ACE prepared, once", () => {
+    const { container } = render(<VersionCompare left={{ version: "R3" }} right={{ ai: true, author: "ACE", version: "R4" }} rows={ROWS} />);
+    expect(container.querySelectorAll("[data-slot=ace-mark]")).toHaveLength(1);
+    expect(screen.getByText("Prepared by ACE.")).toBeTruthy();
+  });
 });
