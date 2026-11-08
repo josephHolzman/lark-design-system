@@ -198,8 +198,21 @@ export function DealFigures({ items, money, className }: { items: DealFigure[]; 
 
 export type CpqStage = "configure" | "price" | "approve" | "order" | "done";
 
-/** Configure → Price → Approve → Order, with what is happening in each. */
-export function CpqStages({ current, details, className }: { current: CpqStage; details?: Partial<Record<Exclude<CpqStage, "done">, string>>; className?: string }) {
+/**
+ * Configure → Price → Approve → Order, with what is happening in each. `labels` lets a record
+ * keep its own step names (a deal record's "Understand request", "Prepare changes"…).
+ */
+export function CpqStages({
+  current,
+  details,
+  labels,
+  className,
+}: {
+  current: CpqStage;
+  details?: Partial<Record<Exclude<CpqStage, "done">, string>>;
+  labels?: Partial<Record<Exclude<CpqStage, "done">, string>>;
+  className?: string;
+}) {
   const order: Exclude<CpqStage, "done">[] = ["configure", "price", "approve", "order"];
   const label = { configure: "Configure", price: "Price and quote", approve: "Approve", order: "Order" };
   return (
@@ -207,7 +220,7 @@ export function CpqStages({ current, details, className }: { current: CpqStage; 
       aria-label="Deal progress"
       className={className}
       current={current === "done" ? 4 : order.indexOf(current)}
-      stages={order.map((s) => ({ label: label[s], description: details?.[s] }))}
+      stages={order.map((s) => ({ label: labels?.[s] ?? label[s], description: details?.[s] }))}
     />
   );
 }
@@ -608,6 +621,8 @@ export type PolicyCheck = {
   detail?: ReactNode;
   approver?: string;
   source?: { service: string; record?: string };
+  /** The record's own status words ("Ready for review", "Waiting"), when they differ. */
+  statusLabel?: string;
 };
 
 const POLICY: Record<PolicyCheck["status"], { word: string; icon: typeof CheckIcon; cls: string }> = {
@@ -642,7 +657,7 @@ export function PolicyChecks({ checks, className }: { checks: PolicyCheck[]; cla
                 {c.source && <SourceLine record={c.source.record} service={c.source.service} />}
               </div>
               <div className="flex flex-col items-end gap-0.5 text-right">
-                <span className={cn("text-body-md", p.cls)}>{p.word}</span>
+                <span className={cn("text-body-md", p.cls)}>{c.statusLabel ?? p.word}</span>
                 {c.approver && <span className="text-body-md text-on-surface-variant">{c.approver}</span>}
               </div>
             </li>
@@ -669,6 +684,8 @@ export type Approver = {
   when?: string;
   /** Conditions, the reason for return or decline, or who is covering. */
   note?: string;
+  /** The record's own status words, when they differ from Lark's defaults ("Ready for review"). */
+  stateLabel?: string;
 };
 
 const APPROVER: Record<ApproverState, { word: string; icon: typeof CheckIcon; cls: string; ring: string }> = {
@@ -727,7 +744,7 @@ export function ApprovalRoute({ steps, className }: { steps: ApprovalStep[]; cla
                     <p className={cn("inline-flex items-center gap-1.5 text-body-md", st.cls)}>
                       <st.icon aria-hidden className="size-3.5" />
                       <span>
-                        {st.word}
+                        {a.stateLabel ?? st.word}
                         {a.when && <span className="text-on-surface-variant">, {a.when}</span>}
                       </span>
                     </p>

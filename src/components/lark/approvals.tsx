@@ -126,7 +126,7 @@ function ApproverRow({ a }: { a: Approver & { restricted?: boolean } }) {
           <span className="line-clamp-2 text-label-lg text-on-surface [overflow-wrap:break-word]">{name}</span>
           <span className="line-clamp-2 text-meta text-on-surface-variant [overflow-wrap:break-word]">{a.role}</span>
         </span>
-        <StatusBadge icon={st.icon} status={st.word} tone={st.tone} />
+        <StatusBadge icon={st.icon} status={a.stateLabel ?? st.word} tone={st.tone} />
       </span>
       {hasDetail && <ChevronDownIcon aria-hidden="true" className={cn("mt-1.5 size-4 shrink-0 text-on-surface-variant transition-transform", open && "rotate-180")} />}
     </>
@@ -137,7 +137,7 @@ function ApproverRow({ a }: { a: Approver & { restricted?: boolean } }) {
         <button
           aria-controls={id}
           aria-expanded={open}
-          aria-label={`${name}, ${a.role}, ${st.word}. ${open ? "Hide" : "Show"} details`}
+          aria-label={`${name}, ${a.role}, ${a.stateLabel ?? st.word}. ${open ? "Hide" : "Show"} details`}
           className="state-layer [--state-hover:0.04] focus-ring flex w-full min-w-0 items-start gap-2.5 rounded-md px-2 py-2 text-left outline-none"
           onClick={() => setOpen(!open)}
           type="button"
