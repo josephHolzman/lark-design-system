@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { Illustration, type IllustrationSpec } from "./illustration";
 import { LarkLink as Link } from "./provider";
 
 /* ================================================================ SectionCard */
@@ -58,6 +59,8 @@ export type SectionCardProps = Omit<ComponentProps<"section">, "title"> & {
   tone?: "iris" | "sky" | "warning" | "error" | "success" | "info";
   /** v0.7: an icon in a 32px tile before the title. Status modules default to their status icon. */
   icon?: ReactNode;
+  /** v0.8: a picture above the body when the module has no content yet. Decorative unless `alt`. */
+  illustration?: IllustrationSpec;
 };
 
 const MODULE_TONE = {
@@ -95,6 +98,7 @@ export function SectionCard({
   variant = "default",
   tone,
   icon,
+  illustration,
   className,
   children,
   ...props
@@ -160,7 +164,10 @@ export function SectionCard({
   const body = (
     <>
       {tabs && <div className="border-b border-outline-variant px-module">{tabs}</div>}
-      <div className={cn("flex min-w-0 flex-1 flex-col", !flush && "px-module pb-module", (tabs || strip) && !flush && "pt-module")}>{children}</div>
+      <div className={cn("flex min-w-0 flex-1 flex-col", !flush && "px-module pb-module", (tabs || strip) && !flush && "pt-module")}>
+        {illustration && !children && <Illustration {...illustration} className="mb-4" />}
+        {children}
+      </div>
       {(footer || link) && (
         <footer className="flex min-h-12 flex-wrap items-center gap-2 border-t border-outline-variant px-module py-3 text-body-md text-on-surface-variant">
           {footer}
@@ -292,7 +299,7 @@ export function ActionCard({ icon, tone = "primary", title, description, meta, a
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="text-title-sm">
             {href ? (
-              <Link className="outline-none after:absolute after:inset-0 after:content-['']" href={href}>
+              <Link className="outline-none after:absolute after:inset-0 after:content-['']" data-slot="action-card-link" href={href}>
                 {title}
               </Link>
             ) : (
@@ -556,6 +563,7 @@ export function PromoCard({
   description,
   action,
   media,
+  illustration,
   onDismiss,
   dismissLabel,
   titleAs: T = "span",
@@ -566,6 +574,8 @@ export function PromoCard({
   description?: ReactNode;
   action?: ReactNode;
   media?: ReactNode;
+  /** v0.8: a picture above the card's words. Decorative unless `alt`. */
+  illustration?: IllustrationSpec;
   onDismiss?: () => void;
   /** The dismiss button's name. Default "Dismiss <title>" when the title is text. */
   dismissLabel?: string;
@@ -585,6 +595,7 @@ export function PromoCard({
     >
       {media && <div className="hidden shrink-0 overflow-hidden rounded-md sm:block">{media}</div>}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {illustration && <Illustration {...illustration} className="mb-1" />}
         <T className="text-title-sm">{title}</T>
         {description && <span className="text-body-md text-on-surface-variant">{description}</span>}
         {action && <div className="mt-1">{action}</div>}
