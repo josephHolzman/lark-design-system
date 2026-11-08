@@ -3,6 +3,7 @@
 import {
   ChevronRightIcon,
   ChevronsUpDownIcon,
+  LoaderCircleIcon,
   MoonIcon,
   SearchIcon,
   SunIcon,
@@ -84,6 +85,7 @@ export function AppShell({
   children,
   defaultOpen = true,
   compactBelow = 1280,
+  onOpenChange,
 }: {
   sidebar: ReactNode;
   topbar?: ReactNode;
@@ -95,6 +97,8 @@ export function AppShell({
    * Pass 0 to turn this off.
    */
   compactBelow?: number;
+  /** The rail's state changed (a toggle, Ctrl/⌘ B, the phone sheet). Apps that remember it can hear it. */
+  onOpenChange?: (open: boolean) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   useEffect(() => {
@@ -106,13 +110,22 @@ export function AppShell({
     return () => mql.removeEventListener("change", apply);
   }, [compactBelow, defaultOpen]);
   return (
-    <SidebarProvider onOpenChange={setOpen} open={open}>
+    <SidebarProvider
+      onOpenChange={(next) => {
+        setOpen(next);
+        onOpenChange?.(next);
+      }}
+      open={open}
+    >
       {sidebar}
       {/* Beams: the shell is exactly the viewport; the document never scrolls. Each page
-          layout decides which region scrolls (see layouts.tsx). */}
-      <SidebarInset className="h-svh min-w-0 overflow-hidden">
-        {topbar}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">{children}</div>
+          layout decides which region scrolls (see layouts.tsx). The page content, not the
+          whole inset, is the main landmark, so the top bar's header stays a banner. */}
+      <SidebarInset asChild className="h-svh min-w-0 overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {topbar}
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">{children}</main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
@@ -521,12 +534,42 @@ export function SearchCommand({
 
 /* ---------------------------------------------------------------- Actions */
 
-/** Ask ACE (v0.7): the primary action, so sky (Lark's colour for the primary action), not reversed. */
-export function AskAceButton({ onClick, label = "Ask ACE" }: { onClick?: () => void; label?: string }) {
+/**
+ * Ask ACE (v0.7): the primary action, so sky (Lark's colour for the primary action), not reversed.
+ * v0.8: `busy` while a request is in flight (the button says so and cannot be pressed twice);
+ * `expanded` and `controls` announce the dock it opens or closes (WCAG 4.1.2).
+ */
+export function AskAceButton({
+  onClick,
+  label = "Ask ACE",
+  busy,
+  disabled,
+  expanded,
+  controls,
+}: {
+  onClick?: () => void;
+  label?: string;
+  /** A request is in flight: a spinner replaces the mark and the button is disabled. */
+  busy?: boolean;
+  disabled?: boolean;
+  /** Whether the dock this opens is open. */
+  expanded?: boolean;
+  /** The id of the dock this controls. */
+  controls?: string;
+}) {
+  const text = busy ? "Asking…" : label;
   return (
-    <Button className="gap-1.5 pl-1.5" onClick={onClick} variant="default">
-      <AceMark size="sm" />
-      {label}
+    <Button
+      aria-busy={busy || undefined}
+      aria-controls={controls}
+      aria-expanded={expanded}
+      className="gap-1.5 pl-1.5"
+      disabled={disabled || busy}
+      onClick={onClick}
+      variant="default"
+    >
+      {busy ? <LoaderCircleIcon aria-hidden className="animate-spin motion-reduce:animate-none" /> : <AceMark size="sm" />}
+      {text}
     </Button>
   );
 }
@@ -555,6 +598,7 @@ export function UserMenu({
   email,
   avatar,
   children,
+  modal = true,
   className,
 }: {
   name: string;
@@ -565,10 +609,15 @@ export function UserMenu({
   /** Replaces the initials avatar in the trigger. */
   avatar?: ReactNode;
   children?: ReactNode;
+  /**
+   * v0.8: `false` for a non-modal menu. A modal menu sets aria-hidden on the page without making
+   * it inert (axe aria-hidden-focus); a non-modal one leaves the page reachable.
+   */
+  modal?: boolean;
   className?: string;
 }) {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={modal}>
       <DropdownMenuTrigger asChild>
         <button
           aria-label={`Account: ${name}`}
