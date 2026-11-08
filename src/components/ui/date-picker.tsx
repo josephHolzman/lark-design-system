@@ -52,7 +52,8 @@ function DatePicker({
         <button
           aria-describedby={describedBy}
           data-invalid={invalid || undefined}
-          aria-label={ariaLabel ? `${ariaLabel}${value ? `, ${fmt(value, locale)}` : ""}` : undefined}
+          // The name contains the visible placeholder while empty (WCAG 2.5.3).
+          aria-label={ariaLabel ? `${ariaLabel}, ${value ? fmt(value, locale) : placeholder}` : undefined}
           className={cn(triggerCls, className)}
           data-slot="date-picker"
           disabled={disabled}
@@ -139,7 +140,7 @@ function DateRangePicker({
         <button
           aria-describedby={describedBy}
           data-invalid={invalid || undefined}
-          aria-label={ariaLabel ? `${ariaLabel}${label ? `, ${label}` : ""}` : undefined}
+          aria-label={ariaLabel ? `${ariaLabel}, ${label ?? placeholder}` : undefined}
           className={cn(triggerCls, className)}
           data-slot="date-range-picker"
           disabled={disabled}
