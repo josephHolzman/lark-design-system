@@ -361,7 +361,7 @@ function DataGridInner<T>({
                   );
                 })}
                 {trailingHeader && (
-                  <th className="sticky right-0 z-[1] h-10 border-b border-outline-variant bg-card px-3 py-1.5 text-right align-bottom" scope="col">
+                  <th className="h-10 border-b border-outline-variant bg-card px-3 py-1.5 text-right align-bottom" scope="col">
                     {trailingHeader}
                   </th>
                 )}

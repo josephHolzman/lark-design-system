@@ -5,7 +5,35 @@ change component APIs (each is listed here).
 
 ## Unreleased
 
-The card anatomy review of the 0.8 components.
+### The convention review of the components that predate 0.8
+
+**Changed**
+
+- **`DataGrid`** takes `getRowLabel` (each row's checkbox and details toggle is named
+  "Select <label>" / "Show details for <label>"), controlled `sorting` + `onSortingChange`, and
+  `trailingHeader` for an "Add column" control in the last header cell. The scroll region has
+  `scroll-padding` so a focused row is not hidden under the sticky header.
+- **`PageHeader`** no longer renders `eyebrow` above the title (a title has no eyebrow, §1/§5);
+  the prop is kept and its value moves into the meta line. **`HeroBand`** shows `eyebrow` as a
+  badge beside the title.
+- **`ActionCard`** pins its one action to the card's footer (and keeps `h-full`), so actions line
+  up across a row. **`ObjectCard`**'s star is named "Star/Unstar <title>" and has a tooltip;
+  its description and the EntityCard's name and facts show their full text when cut.
+- **`SectionCard`** titles clamp to two lines with the full title one hover or Tab away;
+  checklist and tray titles use the module/item steps.
+- **`UnsavedChangesBar`** keeps Save focusable while a save is in flight (`aria-disabled` plus a
+  guard) instead of disabling it and dropping keyboard focus.
+- **`ChangeReview`** names Accept, Reject and Undo with the field they change; **`Banner`** takes
+  `dismissLabel`; **`TurnActions`** takes the answer's `context`; **`AiRunCell`** takes
+  `itemLabel`; **`EvidencePopover`** takes `context`; **`RecordCell`** takes `linkLabel`.
+- **`AppSidebar`** takes `workspaces` instead of hard-coding "Northwind sandbox"; **`SavedViewMenu`**
+  uses pressed filters rather than tabs without panels; **`FacetList`** and **`CountSegments`**
+  answer arrow keys with a roving tab index; **`FacetFilterMenu`** names its checkboxes.
+- **`ProactiveTask`**'s action names its task; the chat controls were checked.
+- Timelines, activity lines, notifications and compared versions carry the exact timestamp on
+  hover; an activity row clears its sticky day heading on focus.
+
+### The card anatomy review of the 0.8 components
 
 **Changed**
 
