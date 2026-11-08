@@ -416,6 +416,39 @@ violations (checked Nov 6, 2026).
 Each type is also its own component (`StatsWidget`, `CompareWidget`, `ChartWidget`, …) for use
 outside an answer, inside `AnswerSurface`.
 
+## v0.8: records, work and decisions
+
+Live examples: `/examples/records`, `/examples/work` and `/examples/components` (every exported
+component at the five widths). The rules are unchanged; these components make the redesign's
+record, agent-work and decision screens out of them.
+
+| Component | Use it when |
+|---|---|
+| `Illustration`, the `illustration` slot | An empty module, state or promo has a picture; the box is reserved before it loads. Decorative unless `alt`. |
+| `FactGrid` | Facts about a record: term 14, value 16, `dl`; columns follow its own width (1 → 2 → 3 → 4 at 24/40/56rem). Missing values say "Not set"; `copy` names its button "Copy <term>". |
+| `MasterDetail` | A list beside the record it opens: 22rem + detail from 48rem of the component's width; below, one pane with "Back to <listLabel>". |
+| `RecordDrawer`, `RecordPeek` | A record over the page. Drawer 32/44/60rem, full screen under 640; focus trapped and returned to the opener. |
+| `NotificationsPanel` | Deal signals grouped by day, with kind icons, "Unread" in words, a counted Segmented filter and an illustrated empty state. |
+| `AgentTaskCard` / `AgentTaskRow` / `AgentTaskGrid` | One agent task or a set: cards 2-up from 36rem and 3-up from 60rem of their own width, a list of rows below. State in words, one action, hover actions. |
+| `DecisionPanel` | The decision the reader makes: sky feature module, option cards with consequences, a required reason where needed, actions sticky at the bottom. Options and facts side by side from 40rem. |
+| `VersionCompare` | Before and after: two columns from 40rem, before then after per row below; each change is an icon and a word. |
+| `ImpactPreview` | What a save will change: compact from → to rows with a spoken tone; label and change side by side from 28rem. |
+| `CompanyLogo` fallback, `NumberInput` `commit`, `TabsList overflow="menu"` | Missing logos show initials; steppers commit per keystroke when asked; tabs never wrap or scroll. |
+
+**The component matrix.** `/examples/components` groups every exported product component by file,
+searchable, and renders each with deliberately long fake data in frames at 280, 360, 480, 720 and
+1080px. `tests/e2e/components.spec.ts` fails if anything is wider than its frame, if page tabs or
+segmented controls take a second line, if a pointer target is under 24×24, or if axe finds an
+accessibility violation with contrast in light or dusk. Fix the component, not the test.
+
+**Narrow rules for these components.** By the component's own width, never the viewport:
+`FactGrid` 1/2/3/4 at 24/40/56rem · `MasterDetail` one pane under 48rem · `RecordDrawer` full
+screen under 640 · `AgentTaskGrid` list under 36rem, 2 cards to 60rem, 3 above · `DecisionPanel`
+options and facts stacked under 40rem · `VersionCompare` one value column under 40rem ·
+`ImpactPreview` stacked under 28rem · `DealFigures` one column under 24rem and four from 48rem ·
+`PriceWaterfall` label/amount above a full-width bar under 30rem · `ChangeReview` three columns
+from 36rem · `Topbar` hides breadcrumbs under 32rem and shows search as an icon under 30rem.
+
 ## Rules (v0.7)
 
 Seven rules, checked where a machine can check them.

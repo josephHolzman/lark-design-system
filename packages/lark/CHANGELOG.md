@@ -3,6 +3,65 @@
 All notable changes to Lark (`@josephholzman/lark`, imported as `@deepgrids/lark`). Versions follow semver; until 1.0, minor versions may
 change component APIs (each is listed here).
 
+## 0.8.0 (2026-11-07)
+
+The Deepgrids redesign's second half: record patterns, agent work and decisions, and a
+machine-checked width matrix for every exported component.
+
+**New components**
+
+- **`Illustration`** (`lark/illustration`): a picture that reserves its box (48, 96, 140, 200 or
+  `wide`), decorative by default, with a `brief` kept for authors. The same `illustration` slot on
+  `StatePanel`, `ChatWelcome`, `Banner`, `PromoCard` and `SectionCard`. `CompanyLogo` falls back
+  to initials when its image is missing or fails. `NumberInput` gains `commit="change"` and named
+  steppers; `TabsList overflow="menu"` moves items that don't fit into a More menu.
+- **`FactGrid`**: record facts as a `dl`; auto columns 1 → 2 → 3 → 4 at 24, 40 and 56rem of its
+  own width, with hints, links, copy buttons and "Not set" in words.
+- **`MasterDetail`**: 22rem list and a detail pane from 48rem of its own width; below, one pane
+  with "Back to <listLabel>", focus moving to the detail heading and back to the row.
+- **`RecordDrawer`**: a record over the page at 32, 44 or 60rem, full screen under 640, with
+  overflow tabs, a scrolling body, a footer and focus returned to its opener.
+- **`NotificationsPanel`**: deal signals in a sheet, grouped by day, with kind icons, unread
+  words, a Segmented filter with counts and an illustrated empty state.
+- **`AgentTaskCard` / `AgentTaskRow` / `AgentTaskGrid`**: one agent task (agent, title, state,
+  context, one action, hover actions, a meter while running); the grid is 2-up from 36rem of its
+  own width, 3-up from 60rem, and a list of rows below 36rem.
+- **`DecisionPanel`**: a sky feature module for the decision a reader makes: options with
+  consequences and disabled reasons, an optional required note, a sticky action row, facts beside
+  the options from 40rem, and the result announced through `SaveStatus`.
+- **`VersionCompare`**: two version headers and before/after rows; the change is an icon and a
+  word, two columns from 40rem and before-then-after per row below, with an "Only changes" switch.
+- **`ImpactPreview`**: a sentence summary and compact from → to rows with a tone icon and a
+  spoken word; label and change sit side by side from 28rem.
+
+**Fixes found by the component matrix**
+
+- Every interactive target is at least 24×24: `TagsCell`'s "+N", `RecordCell`'s name, the page
+  back link, breadcrumb links, `Claim` and `ScopePill` use `hit-area`/`min-h-6`; the Sidebar rail
+  is 24px wide.
+- **`SplitView` panes** are named, focusable regions (`listLabel`, `detailLabel`); `AppShell`'s
+  `<main>` is focusable so a scrolling page with nothing focusable in it can still be scrolled by
+  keyboard; `TableWidget` gives its scroll region a name and a tab stop.
+- **`DealFigures` and `PriceWaterfall`** lay out by their own width (one column and a stacked
+  waterfall row when narrow) instead of two columns/three tracks from the viewport.
+- **`ChangeReview`** moves to a container query for its three-column row.
+- **`Topbar`** hides breadcrumbs and collapses search to an icon by its own width, not the
+  window's; `PageTabs` gains `data-slot="page-tabs"`.
+
+**Visual and API changes worth knowing**
+
+- `NativeSelect` puts `className` on the `<select>`; use `wrapperClassName` for the wrapper.
+- `AppShell` wraps its children in `<main>` (top bars are banners again); `SplitView` panes are
+  `role="region"` and take `listLabel`/`detailLabel`; `TableWidget`'s table wrapper is a named
+  focusable region.
+
+**Examples and checks**
+
+- `/examples/components`: every exported product component, grouped by file, searchable, with
+  realistic long content in frames at 280, 360, 480, 720 and 1080px. `tests/e2e/components.spec.ts`
+  checks overflow, one-line tabs and segmented controls, 24px targets and axe with contrast in
+  light and dusk; `tests/components-catalog.test.tsx` fails when an export has no sample.
+
 ## 0.7.0 (2026-11-07)
 
 The redesign rules (one job per module, a real type ladder, three surfaces, room, narrow

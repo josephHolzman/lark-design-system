@@ -17,7 +17,8 @@ Tailwind CSS v4. Entry points:
 | `@deepgrids/lark/tokens/*.tokens.json` | W3C design tokens (DTCG) for Figma and other tools | — |
 
 Spec and rules: `design/LARK.md` in the repo. Living examples: `/examples/patterns`,
-`/examples/quote`, `/examples/chat-states`, `/examples/deals`, `/examples/record`, `/examples/settings`.
+`/examples/quote`, `/examples/chat-states`, `/examples/deals`, `/examples/record`, `/examples/settings`,
+and `/examples/components` (every exported component at 280, 360, 480, 720 and 1080px).
 
 ## Install
 
@@ -41,7 +42,7 @@ the package to a Deepgrids org later changes nothing in app code.
 2. **Install under the alias:**
 
    ```bash
-   npm install @deepgrids/lark@npm:@josephholzman/lark@^0.6.0 react react-dom lucide-react tailwindcss@4 tw-animate-css
+   npm install @deepgrids/lark@npm:@josephholzman/lark@^0.8.0 react react-dom lucide-react tailwindcss@4 tw-animate-css
    ```
 
 3. **Using `/ai` as well?** Install its peers (optional, so apps that don't use AI Elements stay small):

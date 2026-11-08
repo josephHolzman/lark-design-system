@@ -7,6 +7,7 @@ Gap list: `deepgrids/apps/enterprise-workspace/docs/lark/lark-gaps.md` §1.
 - [x] K8a
 - [x] K8b
 - [x] K8c
+- [x] K8d
 
 ## K1 (2026-11-05)
 
@@ -126,3 +127,25 @@ Open:
 - `VersionCompare` infers Added/Removed/Changed from the two values when `kind` is absent; a row whose text matches is unchanged. Passing `kind` on an equal pair would still mark it changed.
 - A running `AgentTaskCard` shows no meter unless `progress` is passed; the example passes it for one task.
 - `ImpactPreview` tone words ("changes", "increases", "decreases", "needs attention") are screen-reader only; confirm the four names.
+
+## K8d (2026-11-07)
+
+Plan:
+1. `/examples/components`: a searchable catalog grouped by component file; every exported component gets a realistic, deliberately long-data sample.
+2. Each file group renders in frames at 280, 360, 480, 720 and 1080px (the rule's five widths), with the group and sample names exposed for search.
+3. `tests/e2e/components.spec.ts`: no element overflows its frame (clipped ancestors allowed), tabs and segmented controls stay one line, every interactive target is at least 24x24, axe with contrast in light and dusk.
+4. Fix every component the matrix finds; list any failure that needs a design decision in the handoff.
+5. Add the page to the shell gallery and the axe page list; keep the existing width-matrix for record compositions.
+6. Version 0.8.0: CHANGELOG, `design/LARK.md` "v0.8" section, README install line; run verify and test:e2e last.
+
+Handoff:
+- Built `/examples/components`: every runtime component export of the main entry (plus `graph`), grouped by file and searchable by component/file/note. Each group renders its samples in 280/360/480/720/1080 frames with long fake data; `tests/components-catalog.test.tsx` fails when an export has no sample.
+- `tests/e2e/components.spec.ts` (serial): no element wider than its frame (clipped ancestors allowed), page tabs/segmented one line, all pointer targets 24×24 (`hit-area` pseudo counts), and axe with contrast in light and dusk. The page is also in the main axe page list.
+- Fixes the matrix found: `TagsCell` +N, `RecordCell` name, page back link, breadcrumbs and `Claim` targets; Sidebar rail 24 wide; `SplitView` named focusable panes; `AppShell` focusable `<main>`; `TableWidget` named focusable scroll region; `DealFigures` and `PriceWaterfall` container layout; `ChangeReview` container row; `Topbar` container breadcrumbs/search; `PageTabs` `data-slot`.
+- Release prep: packages/lark 0.8.0, CHANGELOG 0.8.0 (new components, fixes, API notes), README install `^0.8.0` and examples line, LARK.md "v0.8" section with the narrow rules. Not pushed or tagged.
+- Checks: lint 0 errors (32 old warnings), lint:lark ok, typecheck, vitest 136, verify (build:lib + smoke:lib), Playwright 3 new + 58 existing.
+Open:
+- The matrix renders overlay components (RecordDrawer, RecordPeek, CreateDrawer, NotificationsPanel) closed; their open behaviour stays in width-matrix.spec.
+- AppShell's sample is inside a transform so its fixed sidebar stays in the frame; `AppShell` now has a focusable `<main>` (an extra Tab stop on pages with no focusable content).
+- `TableWidget`'s scroll wrapper is always a named tab stop (it cannot know when it will overflow); `PriceWaterfall` stacks its bar under the label and amount under 30rem — confirm that reads right.
+- K8d changed `NativeSelect` (className on the select; `wrapperClassName` for the wrapper), `SplitView` (regions + labels) and `Topbar` (container breadcrumbs/search); callers should check.
