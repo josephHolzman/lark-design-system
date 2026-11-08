@@ -10,6 +10,7 @@ Gap list: `deepgrids/apps/enterprise-workspace/docs/lark/lark-gaps.md` §1.
 - [x] K8d
 - [x] K8e
 - [x] K8f
+- [x] K8g
 
 ## K1 (2026-11-05)
 
@@ -415,3 +416,88 @@ Open:
 - **`HoverActions`** becomes visible under `pointer: coarse`; jsdom cannot evaluate that media query, so only the Playwright matrix exercises it.
 - **Sticky bars and focused controls:** the grid gets `scroll-padding-top` and activity rows get `scroll-mt`, but `UnsavedChangesBar` (sticky to the bottom) can still cover a focused control in the page behind it. A page-level `scroll-padding-bottom` is the caller's layout decision; say if Lark should own it.
 - **`SectionCard` `action`** still accepts text actions even though §5 says controls only; the prop is typed `ReactNode` and the examples pass icon menus. Enforce it with a type or leave it documented?
+
+## K8g
+
+Plan:
+1. Read part 2 §18–21, the standards, part 1 and the K8e/K8f handoffs; inventory every component part 2 governs and its example.
+2. §19: summarizeApprovals names the current waiters with role, since when and why; ApprovalPath puts parallel approvers side by side, shows delegation, and DecisionPanel takes per-decision reasons, an acting-for line and a non-approver view with no controls.
+3. §21: ActivityFeed marks ACE apart from people and systems, reads actor · action · object · relative time with the exact time on focus, collapses routine sync noise, holds "N new updates" until asked, and describes its empty state; SituationSummary gains "since".
+4. §20: agent tasks gain pause/resume and stop in one action, a paused state, completed/next steps and a failed "Needs" line; ChatWelcome gains capability boundaries; ImpactPreview gains target, size and reversibility; VersionCompare marks an ACE version.
+5. §18: NumberInput announces its unit; QuoteLines says "Discount (%)", counts exceptions with links, pins its summary and shows "Recalculating…"; one edit model per screen.
+6. Update the examples with invented Deepgrids content; look at each at 1440 and 390 in Playwright screenshots.
+7. Run each check in its own call; one commit per group; handoff with the conformance tables, "Needed for 0.9" and Open.
+
+Handoff:
+- Audited the part-2 components file by file against §18–21 and fixed the component, then the examples. Looked at `/examples/approvals`, `/examples/deal-activity`, `/examples/work`, `/examples/quote` and `/examples/chat-states` at 1440 and 390 in Playwright screenshots (the full page through the app's scroll container), plus the component matrix at 280–1080 through its e2e checks. All names, accounts and amounts are invented (Northwind, Halvorsen, Cedar & Field).
+- §19: `ApprovalPath`'s summary now names the current stage's people, their role, how long and why ("Waiting on Priya Raman (Pricing) and Marcus Bell (Finance) · 6 hr · Discount 22% is above the 15% floor") instead of listing every later stage; delegation is visible under the name and in the row's accessible name; parallel approvers sit side by side only when their stage is at least 26rem of its own width, so they stack at 390. `DecisionPanel` takes a reason per answer (Approve optional; Request changes and Reject required), an `actingFor` line for delegation, and a `canDecide={false}` view that shows the answers as status, no inputs and no buttons, and names who to ask. `ApprovalPathSkeleton` can hide the summary.
+- §21: `ActivityFeed` adds the ACE party (the ACE mark, not a generic sparkle), an object slot, relative times with the full timestamp on hover and keyboard focus, `noise`/`detail` for routine automation (one quiet line with Show; the audit detail stays), and holds entries added after mount behind "N new updates" with a polite announcement; a fresh record starts a fresh feed. The default empty copy says what will appear. `SituationSummary` gains `since`.
+- §20: `AgentTaskCard`/`AgentTaskRow` add a paused state, pause/resume and stop as one ⋯ action while running or paused, Done/Next steps in words, and a failed "Needs: …" line. `AgentTaskGrid` passes all of it through. `ChatWelcome` gains the three capability lists; `ImpactPreview` names the target, the size and whether it can be undone; `VersionCompare` marks an ACE-prepared side once.
+- §18: `NumberInput` describes its unit to screen readers and keeps a caller's `aria-describedby`. `QuoteLines` says "Discount (%)", counts exceptions above the lines with a link to each line (separate anchors per instance), pins its summary at the bottom in both layouts, says "Recalculating…" instead of showing a stale total, edits quantity and discount on phones too, keeps the quantity unit visible, and shows a lock banner with the reason, the person waited on and Recall. The quote page now shows the read-only, editable and locked line sets.
+- The `Segmented` filter painted its items outside its box before the overflow measurement ran; its root is now `overflow-x-clip`.
+
+### §19–21 / §18 conformance (component | sections | violations | fixed? | API change)
+
+| Component | Sections | Violations found | Fixed? | API change |
+|---|---|---|---|---|
+| `ApprovalPath` (approvals) | 19 | Summary listed every later stage, not who waits now; no since-when or why; parallel approvers always stacked inside their step; delegation only in the disclosure | Yes | — (`Approver.delegation` added) |
+| `summarizeApprovals` | 19 | Sentence named roles only, omitted names, since-when and reason; `waitingOn` included later stages | Yes | `waitingOn` now means current-stage roles; adds `waiting`, `currentStage`; sentence reworded |
+| `ApprovalPathSkeleton` | 19, 11 | Could not hide the summary when its module already said it | Yes | additive `hideSummary` |
+| `DecisionPanel` | 19 | One reason required for every answer, so Approve required a comment; no delegation; no non-approver view with no controls | Yes | additive `DecisionOption.requiresReason`, `actingFor`, `canDecide`, `ask`; the reason requirement follows the answer |
+| `ActivityFeed` (activity) | 21 | Exact time only on hover; no relative time; no ACE party; routine syncs looked like normal system events; new entries moved the list; empty copy named nothing; no object slot | Yes | `ActivityParty` adds `ace`; `ActivityEntry` adds `object`, `noise`, `detail`; later entries held behind "N new updates" |
+| `ActivityFeedSkeleton` | 11, 21 | No day-heading shape | Yes | — |
+| `SituationSummary` | 21 | No "since" line | Yes | additive `since` |
+| `AgentTaskCard` | 20 | A running task had no pause/stop the component owned; no paused state; failed tasks named no need; progress lacked done/next | Yes | `AgentTaskState` adds `paused`; additive `onPause`, `onStop`, `needs`, `AgentTaskProgress.completed/next` |
+| `AgentTaskRow` | 20 | Same controls and failure context were missing in the row | Yes | same additive props |
+| `AgentTaskGrid` | 20, 17 | None (passes the new props through) | — | — |
+| `ChatWelcome` | 20 | Said nothing about what ACE does alone, asks about, or cannot do | Yes | additive `capabilities` |
+| `ImpactPreview` | 20 | Named the change but not the target, its size or reversibility | Yes | additive `target`, `size`, `reversible` |
+| `VersionCompare` | 20 | An ACE-prepared revision carried no ACE mark | Yes | additive `VersionSide.ai` |
+| `NumberInput` | 18, 6 | The visible unit was aria-hidden, so an empty field never said what it counted | Yes | `aria-describedby` now includes an sr-only unit; caller's value kept |
+| `QuoteLines` (cpq) | 18 | Header said "Discount", not "Discount (%)"; exceptions were not counted or linked above the table; the summary scrolled away; no "Recalculating…"; phones could not edit; a submitted quote had no lock/recall; the quantity plus unit cut "180,000"; error wording differed between cell and summary | Yes | additive `recalculating`, `locked`; phone cards are editable; summary sticky; error word "Can't be priced"; row anchors are per instance |
+| Editable data grid | 18.9 | `DataGrid` is not a spreadsheet (one tab stop, arrows, Enter/F2) | No — Needed for 0.9 | — |
+| `Segmented` (supporting) | 21 | Items painted outside the control before the fold measured | Yes | root `overflow-x-clip` (visual) |
+
+### Breaking or deprecated
+
+- **`summarizeApprovals`**: `waitingOn` is now the current stage's roles, not every later stage; `sentence` now reads "Waiting on <name> (<role>) · <since> · <why>" (or "Blocked: <name> (<role>) returned it…"). Any exact-string test needs the new wording. `waiting` and `currentStage` are additive.
+- **`AgentTaskState`** gains `"paused"`: an exhaustive `switch` over the state in a caller needs a case. `ActivityParty` gains `"ace"` for the same reason.
+- **`ActivityFeed`** holds entries added after mount behind "N new updates" (one click to release). A caller that expects a streamed list to move immediately should account for the banner.
+- **`QuoteLines`**: the discount header is now "Discount (%)"; the summary is `sticky bottom-0`; the phone cards are editable when `editable`; a locked quote stops editing even when `editable` is set; the validation word is "Can't be priced"; two QuoteLines on one page no longer share row ids.
+- **`NumberInput`**: the field's `aria-describedby` now includes an sr-only "Unit: %" (a caller's existing value is kept). A strict accessible-description test will see the extra description.
+- **`Segmented`**: its root clips horizontally (no visual change when it folds; it stops pre-hydration spill).
+- Deprecated: none.
+
+### Needed for 0.9
+
+| Pattern | Section | Why |
+|---|---|---|
+| **ApprovalCard for ACE actions** | 20.4 | The exact payload (email text or the fields with before → after), the target system, the size ("12 quote lines · $48,200"), whether it can be undone, and Approve / Edit / Reject. `ActionReview` has two actions and no edit slot; `DecisionPanel` is a decision form; `ImpactPreview` previews the change but cannot approve it. |
+| **EditableDataGrid** | 18.9 | The spreadsheet keyboard model (one tab stop, arrows, Enter/F2, Esc, no wrapping at the ends) and a per-cell edit/validation model. `QuoteLines` is an ordinary table whose editable cells are inputs in tab order; `DataGrid` is not editable. |
+| **CapabilityBoundaries** | 20.1 | The same three lists `ChatWelcome` now shows ("Works on its own", "Asks before", "Can't do") as a component the Settings page can use. |
+| **Activity filters by actor and date** | 21.4 | `ActivityFeed` filters by party only. Long feeds need an actor picker and a date range; today the caller must filter the entries before passing them. |
+| **Approval queue** | 19.7 | The "Waiting for you" list (item, submitter, amount, reason routed, age, oldest first, count, next item after deciding) can be composed from `DataGrid`/`List`; a dedicated preset would keep the wording and ordering consistent. |
+
+### Examples
+
+- `/examples/approvals`: the summary names Priya and Marcus with "6 hr" and the reason; the stages show delegation; two new sections show the decision as the current approver sees it (Approve/Request changes/Reject, per-answer reason, facts, acting for Dana Lee) and the non-approver view (status, who to ask, no buttons). Read at 1440 and 390; parallel approvers stack at 390.
+- `/examples/deal-activity`: ACE and system marks, object phrases, relative times, a collapsed "Salesforce sync updated 14 fields · Show", a "Show how a new update arrives" button, and a `since` line. Read at 1440 and 390.
+- `/examples/work`: a running task with Done/Next and pause/stop in the ⋯ menu, a paused task, a failed task with "Needs: …", and target/size/reversibility on the impact preview. Read at 1440 and 390 (the grid becomes rows).
+- `/examples/quote`: three line sets — read-only, editable (inputs on both layouts, exceptions linked above, pinned summary, "Recalculating…" on a change) and locked (reason, waiter, Recall). Read at 1440 and 390.
+- `/examples/chat-states`: the welcome now shows the three capability lists, stacked under 22rem. Read at 1440 and 390.
+- `/examples/components`: samples updated for every new prop; the matrix checks at 280–1080 pass.
+
+Checks: `npm run lint` 0 errors (32 existing warnings) · `npm run lint:lark` ok · `npm run typecheck` ok · `npm test` 162 · `npm run verify` ok (build:lib + smoke:lib) · `npx playwright test` 65 passed.
+
+Open:
+- **Activity timestamps are now tab stops.** The exact time is on a focusable `<time>` (one per entry) so keyboard users get what hover users get, per §21.2. Confirm that extra tab stop per row, or move the exact time into a button/tooltip pattern shared with `Freshness`.
+- **"N new updates" uses the entry ids at mount.** If a parent replaces the list but keeps one of the old ids, the other entries are treated as new and held. Confirm the workspace's data shape (a per-record feed should replace all ids).
+- **`DecisionPanel` still has one primary ("Record decision").** The three answers are radio options; if the product wants Approve / Request changes / Reject as three buttons with their own disabled rules, that is the ApprovalCard in Needed for 0.9.
+- **Routine noise is opt-in.** A sync entry is collapsed only when the caller sets `noise`; an unmarked sync shows as a normal system event. Confirm the app marks routine syncs.
+- **`ChatWelcome` capability lists** are new copy on the welcome. The Settings page must show the same three lists (Needed for 0.9) so the promise matches the controls.
+- **The sticky quote summary** can cover a focused input at 390; the page needs `scroll-padding-bottom` (the same note as K8f's sticky bar). `QuoteLines` adds `scroll-mb-28` to its rows but cannot set the page's scroll padding.
+- **`AgentTaskCard` cannot invent pause/stop.** The ⋯ menu offers them only when the caller passes `onPause`/`onStop`. Should `state="running"` require them at the type level?
+- **`VersionCompare` marks an ACE side only with `ai`.** The app must set `ai` when ACE prepared the revision; otherwise the revision looks human-made.
+- **`Segmented` clips horizontally before the fold runs.** At a cold hydration the last filter option can be clipped for a moment before it moves into More. The final layout is correct.
+- **Approval summary length.** With several current approvers, "Waiting on A (role) and N others · since · reason" is one sentence; confirm it still reads in five seconds at 390.
+- **`QuoteLines` locked banner is rendered in both layouts** (one hidden by CSS). This matches the existing summary duplication; screen readers see one because the other is `display:none`.
