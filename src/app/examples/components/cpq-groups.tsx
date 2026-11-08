@@ -54,7 +54,22 @@ export const CPQ_GROUPS: Group[] = [
       },
       { name: "CpqStages", node: <CpqStages current="approve" details={{ approve: "Finance and Legal", configure: "Understand the request", order: "After approval", price: "Revision 4" }} /> },
       { name: "DiscountMeter", node: <div className="flex flex-wrap gap-4"><DiscountMeter limit={20} value={22.5} /><DiscountMeter limit={20} value={12} /></div> },
-      { name: "QuoteLines", node: <QuoteLines discountLimit={20} lines={LINES} /> },
+      {
+        name: "QuoteLines",
+        node: (
+          <div className="flex flex-col gap-6">
+            <QuoteLines caption="Quote lines" discountLimit={20} lines={LINES} />
+            <QuoteLines caption="Quote lines, editing" discountLimit={20} editable lines={LINES} onChange={noop} />
+            <QuoteLines
+              caption="Quote lines, locked"
+              discountLimit={20}
+              editable
+              lines={LINES}
+              locked={{ onRecall: noop, reason: "Quote R4 was submitted for approval.", waitingOn: "Rui Tanaka (VP Finance), 6 hr" }}
+            />
+          </div>
+        ),
+      },
       { name: "PriceWaterfall", node: <PriceWaterfall start={{ label: "List price", value: 512000 }} steps={[{ detail: "Regional renewal discount", kind: "discount", label: "Discount", source: "Deal desk", value: -99200 }]} /> },
       {
         name: "PolicyChecks",

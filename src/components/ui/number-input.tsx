@@ -26,6 +26,7 @@ function NumberInput({
   disabled,
   commit = "blur",
   "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedBy,
   className,
   size = "default",
   ...props
@@ -55,6 +56,11 @@ function NumberInput({
   const [draft, setDraft] = React.useState(format(value))
   const [editing, setEditing] = React.useState(false)
   const shown = editing ? draft : format(value)
+  // The unit is visible beside the field; give it to screen readers as a description too, so
+  // an empty field still says what it counts (money, percent, months).
+  const unitId = React.useId()
+  const unit = typeof suffix === "string" ? suffix : typeof prefix === "string" ? prefix : undefined
+  const describedBy = [ariaDescribedBy, unit ? unitId : undefined].filter(Boolean).join(" ") || undefined
 
   const clamp = (n: number) => Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n))
   const parse = (s: string) => {
@@ -82,6 +88,7 @@ function NumberInput({
     >
       {prefix && <span className="pl-2.5 text-sm text-on-surface-variant" aria-hidden>{prefix}</span>}
       <input
+        aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
         aria-label={ariaLabel}
         aria-valuemax={max}
@@ -128,6 +135,11 @@ function NumberInput({
         {...props}
       />
       {suffix && <span className="pr-2 text-sm whitespace-nowrap text-on-surface-variant" aria-hidden>{suffix}</span>}
+      {unit && (
+        <span className="sr-only" id={unitId}>
+          Unit: {unit}
+        </span>
+      )}
       {steppers && (
         <span className="flex h-full items-center gap-0.5 border-l border-outline-variant px-1">
           <button

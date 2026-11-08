@@ -1,7 +1,7 @@
 "use client";
 
 import { SendIcon, SparklesIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -56,6 +56,17 @@ const SOURCES: ChatSource[] = [
 export function QuoteWorkbench() {
   const [chosen, setChosen] = useState<string>();
   const [submit, setSubmit] = useState<"pending" | "approved" | "declined">("pending");
+  // The live-recalculation edit model: one model for this screen, no draft values kept beside it.
+  const [editorLines, setEditorLines] = useState<QuoteLine[]>(() => LINES.map((l) => ({ ...l })));
+  const [recalculating, setRecalculating] = useState(false);
+  const recalcTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(recalcTimer.current), []);
+  const onLineChange = (id: string, patch: Partial<Pick<QuoteLine, "quantity" | "discount">>) => {
+    setEditorLines((lines) => lines.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+    setRecalculating(true);
+    clearTimeout(recalcTimer.current);
+    recalcTimer.current = setTimeout(() => setRecalculating(false), 600);
+  };
 
   return (
     <RecordLayout
@@ -187,6 +198,20 @@ export function QuoteWorkbench() {
 
           <SectionCard description="Proposed changes show old → new until someone applies them. The tick on each bar is the policy limit." flush title="Quote lines">
             <QuoteLines caption="Quote R4 lines" discountLimit={20} lines={LINES} />
+          </SectionCard>
+
+          <SectionCard description="Quantity and discount are the only editable cells; list price and net are calculated and read-only. A change recalculates the summary, and exceptions are counted above the lines with a link to each." title="Quote lines, editable">
+            <QuoteLines caption="Quote R4 lines, editing" discountLimit={20} editable lines={editorLines} onChange={onLineChange} recalculating={recalculating} />
+          </SectionCard>
+
+          <SectionCard description="Submitted at 9:12 AM to Rui Tanaka. Editing stops, the reason and who it waits on are said above the lines, and Recall is offered to the submitter." title="Quote lines, locked for approval">
+            <QuoteLines
+              caption="Quote R4 lines, locked"
+              discountLimit={20}
+              editable
+              lines={LINES}
+              locked={{ onRecall: () => toast("Recalled to draft"), reason: "Quote R4 was submitted for approval.", waitingOn: "Rui Tanaka (VP Finance), 6 hr" }}
+            />
           </SectionCard>
 
           <SectionCard description="From list price to what Northwind pays in year one." title="Price waterfall">

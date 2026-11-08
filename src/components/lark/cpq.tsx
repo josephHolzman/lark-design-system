@@ -256,7 +256,7 @@ const LINE_STATUS: Record<QuoteLineStatus, { word: string; icon: typeof CheckIco
   ok: { word: "Within policy", icon: CheckIcon, cls: "text-on-surface-variant" },
   "above-limit": { word: "Above limit", icon: AlertTriangleIcon, cls: "text-on-warning-container" },
   validating: { word: "Checking", icon: LoaderCircleIcon, cls: "text-tertiary", spin: true },
-  error: { word: "Can't price", icon: XCircleIcon, cls: "text-error" },
+  error: { word: "Can't be priced", icon: XCircleIcon, cls: "text-error" },
   locked: { word: "Protected price", icon: LockIcon, cls: "text-on-surface-variant" },
 };
 
@@ -292,6 +292,8 @@ export function QuoteLines({
   editable,
   onChange,
   money,
+  recalculating,
+  locked,
   className,
 }: {
   lines: QuoteLine[];
@@ -300,9 +302,22 @@ export function QuoteLines({
   editable?: boolean;
   onChange?: (id: string, patch: Partial<Pick<QuoteLine, "quantity" | "discount">>) => void;
   money?: MoneyFormat;
+  /**
+   * The live-recalculation model (industry-conventions-2 §18.3): while a change is being
+   * recalculated the totals say "Recalculating…" instead of a stale figure. Leave it off for
+   * the draft-and-save model, where the summary follows the draft values.
+   */
+  recalculating?: boolean;
+  /**
+   * A quote submitted for approval is locked (industry-conventions-2 §18.11): the reason and
+   * who it waits on are said at the top, editing stops, and Recall shows when allowed.
+   */
+  locked?: { reason: ReactNode; waitingOn?: ReactNode; onRecall?: () => void };
   className?: string;
 }) {
   const m = (n: number) => formatMoney(n, money);
+  // Two quote tables can share a page; each instance's row anchors are its own.
+  const rowPrefix = `quote-line-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const isOneTime = (l: QuoteLine) => l.charge === "one-time";
   const proposedOf = (l: QuoteLine) => (l.proposed ? { ...l, quantity: l.proposed.quantity ?? l.quantity, discount: l.proposed.discount ?? l.discount } : l);
   const sum = (ls: QuoteLine[], f: (l: QuoteLine) => number) => ls.reduce((acc, l) => acc + f(l), 0);
@@ -318,13 +333,68 @@ export function QuoteLines({
   const effective = listTotal ? (discountTotal / listTotal) * 100 : 0;
   const families = [...new Set(lines.map((l) => l.family ?? ""))];
   const statusOf = (l: QuoteLine) => LINE_STATUS[l.status ?? (discountLimit !== undefined && l.discount > discountLimit ? "above-limit" : "ok")];
+  const overLimit = lines.filter((l) => statusOf(l) === LINE_STATUS["above-limit"]);
+  const badLines = lines.filter((l) => statusOf(l) === LINE_STATUS.error);
+  const canEdit = editable && !locked;
+  const lockBanner = locked ? (
+    <div className="flex flex-wrap items-start gap-2 rounded-lg border border-edge bg-inset px-3 py-2 text-body-md" data-slot="quote-locked" role="status">
+      <LockIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-on-surface-variant" />
+      <span className="min-w-0 flex-1 text-on-surface">
+        <span className="font-medium">Locked for approval.</span> {locked.reason}
+        {locked.waitingOn && <> Waiting on {locked.waitingOn}.</>}
+      </span>
+      {locked.onRecall && (
+        <Button onClick={locked.onRecall} size="xs" variant="secondary">
+          Recall
+        </Button>
+      )}
+    </div>
+  ) : null;
 
   const th = "px-3 py-2 text-left align-bottom text-meta-strong font-normal text-on-surface-variant";
   const sub = "block text-meta text-on-surface-tertiary";
   const td = "border-t border-outline-faint px-3 py-3 align-top";
   const proposedLine = "mt-1 flex items-center justify-end gap-1 text-meta font-semibold text-on-tertiary-container";
 
-  const summary = (
+  // Exceptions are said at the top with a count and a link to each line, not left for the
+  // reader to spot in the status column (industry-conventions-2 §18.5).
+  const exceptionsFor = (mobile: boolean) => {
+    if (!overLimit.length && !badLines.length) return null;
+    const href = (l: QuoteLine) => `#${rowPrefix}-${mobile ? "mobile-" : ""}${l.id}`;
+    const links = (ls: QuoteLine[]) =>
+      ls.map((l, i) => (
+        <span key={l.id}>
+          {i > 0 && ", "}
+          <a className="focus-ring rounded-sm font-medium underline decoration-current/40 underline-offset-2" href={href(l)}>
+            {l.product}
+          </a>
+        </span>
+      ));
+    return (
+      <p className="flex min-w-0 items-start gap-1.5 text-body-md text-on-warning-container" data-slot="quote-exceptions">
+        <AlertTriangleIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
+        <span className="min-w-0">
+          {overLimit.length > 0 && (
+            <>
+              {overLimit.length} {overLimit.length === 1 ? "line is" : "lines are"} above {discountLimit !== undefined ? `the ${discountLimit}% limit` : "a policy limit"} and {overLimit.length === 1 ? "needs" : "need"} approval: {links(overLimit)}.
+            </>
+          )}
+          {overLimit.length > 0 && badLines.length > 0 && " "}
+          {badLines.length > 0 && (
+            <>
+              {badLines.length} {badLines.length === 1 ? "line" : "lines"} can&apos;t be priced: {links(badLines)}.
+            </>
+          )}
+        </span>
+      </p>
+    );
+  };
+
+  const summary = recalculating ? (
+    <p aria-live="polite" className="text-body-md text-tertiary" data-slot="quote-totals" role="status">
+      Recalculating…
+    </p>
+  ) : (
     <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1.5 text-sm sm:min-w-72" data-slot="quote-totals">
       <dt className="text-on-surface-variant">List price</dt>
       <dd className="text-right tabular-nums">{m(listTotal)}</dd>
@@ -358,13 +428,16 @@ export function QuoteLines({
     <>
       {/* Phones: one card per line (ACE "Small-screen task surface"); the table needs the width. */}
       <div aria-label={caption} className={cn("flex flex-col gap-2 md:hidden", className)} data-slot="quote-lines-compact" role="group">
+        {lockBanner}
+        {exceptionsFor(true)}
         {lines.map((l) => {
           const st = statusOf(l);
           const p = l.proposed;
           return (
             <article
               aria-label={l.product}
-              className={cn("flex flex-col gap-2 rounded-lg border border-edge bg-card p-3 text-sm", p && "border-ai-border bg-[color-mix(in_oklch,var(--tertiary-container)_35%,var(--card))]")}
+              className={cn("scroll-mb-28 flex flex-col gap-2 rounded-lg border border-edge bg-card p-3 text-sm", p && "border-ai-border bg-[color-mix(in_oklch,var(--tertiary-container)_35%,var(--card))]")}
+              id={`${rowPrefix}-mobile-${l.id}`}
               key={l.id}
             >
               <div className="flex items-start justify-between gap-3">
@@ -379,14 +452,49 @@ export function QuoteLines({
               </div>
               <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-body-md">
                 <dt className="text-on-surface-variant">Quantity</dt>
-                <dd className="tabular-nums">
-                  {l.quantity.toLocaleString()}
-                  {l.unit ? ` ${l.unit}` : ""} at {m(l.listPrice)}
-                  {l.unit ? ` per ${l.unit}` : ""}
+                <dd className="flex min-w-0 flex-col items-start gap-1 tabular-nums">
+                  {canEdit && l.status !== "locked" ? (
+                    <span className="flex flex-wrap items-center gap-2">
+                      <NumberInput
+                        aria-label={`Quantity for ${l.product}${l.unit ? ` in ${l.unit}` : ""}`}
+                        className="w-24"
+                        min={0}
+                        onValueChange={(v) => onChange?.(l.id, { quantity: v ?? 0 })}
+                        size="sm"
+                        steppers={false}
+                        value={l.quantity}
+                      />
+                      <span className="text-body-md text-on-surface-variant">
+                        {l.unit && `${l.unit} `}at {m(l.listPrice)}
+                        {l.unit ? ` per ${l.unit}` : ""}
+                      </span>
+                    </span>
+                  ) : (
+                    <span>
+                      {l.quantity.toLocaleString()}
+                      {l.unit ? ` ${l.unit}` : ""} at {m(l.listPrice)}
+                      {l.unit ? ` per ${l.unit}` : ""}
+                    </span>
+                  )}
+                  {p?.quantity !== undefined && <span className="text-meta font-semibold text-on-tertiary-container">Proposed {p.quantity.toLocaleString()}</span>}
                 </dd>
                 <dt className="text-on-surface-variant">Discount</dt>
                 <dd className="flex flex-col gap-0.5">
-                  <DiscountMeter limit={discountLimit} value={l.discount} />
+                  {canEdit && l.status !== "locked" ? (
+                    <NumberInput
+                      aria-label={`Discount for ${l.product}`}
+                      className="w-24"
+                      max={100}
+                      min={0}
+                      onValueChange={(v) => onChange?.(l.id, { discount: v ?? 0 })}
+                      size="sm"
+                      steppers={false}
+                      suffix="%"
+                      value={l.discount}
+                    />
+                  ) : (
+                    <DiscountMeter limit={discountLimit} value={l.discount} />
+                  )}
                   {p?.discount !== undefined && <span className="font-semibold text-on-tertiary-container">Proposed {pct(p.discount)}</span>}
                 </dd>
               </dl>
@@ -407,10 +515,14 @@ export function QuoteLines({
             </article>
           );
         })}
-        <div className="rounded-lg bg-inset px-3 py-2.5">{summary}</div>
+        <div className="sticky bottom-0 z-10 rounded-lg border-t border-outline-variant bg-inset px-3 py-2.5 shadow-[0_-1px_0_var(--outline-variant)]" data-slot="quote-totals-bar">
+          {summary}
+        </div>
       </div>
 
       <div className={cn("flex flex-col max-md:hidden", className)} data-slot="quote-lines">
+        {lockBanner}
+        {exceptionsFor(false)}
         <div aria-label={caption} className="overflow-x-auto" role="region" tabIndex={0}>
           <table className="w-full min-w-[640px] border-separate border-spacing-0 text-sm">
             <caption className="sr-only">{caption}</caption>
@@ -433,8 +545,8 @@ export function QuoteLines({
                   List price
                   <span className={sub}>per unit, per year</span>
                 </th>
-                <th className={th} scope="col">
-                  Discount
+                <th className={cn(th, "text-right")} scope="col">
+                  Discount (%)
                   {discountLimit !== undefined && <span className={sub}>limit {discountLimit}%</span>}
                 </th>
                 <th className={cn(th, "text-right")} scope="col">
@@ -460,7 +572,7 @@ export function QuoteLines({
                     const pl = proposedOf(l);
                     const tint = p ? "bg-[color-mix(in_oklch,var(--tertiary-container)_30%,var(--card))]" : l.status === "error" ? "bg-[color-mix(in_oklch,var(--error-container)_30%,var(--card))]" : "bg-card";
                     return (
-                      <tr className={tint} data-status={l.status} key={l.id}>
+                      <tr className={cn(tint, "scroll-mb-28")} data-status={l.status} id={`${rowPrefix}-${l.id}`} key={l.id}>
                         <th className={cn(td, "sticky left-0 z-[1] text-left font-normal", tint, p && "shadow-[inset_3px_0_0_var(--tertiary)]")} scope="row">
                           <span className="flex flex-col gap-0.5">
                             <span className="text-on-surface">{l.product}</span>
@@ -487,8 +599,20 @@ export function QuoteLines({
                           </span>
                         </th>
                         <td className={cn(td, "text-right tabular-nums")}>
-                          {editable && l.status !== "locked" ? (
-                            <NumberInput aria-label={`Quantity, ${l.product}`} className="ml-auto w-24" min={0} onValueChange={(v) => onChange?.(l.id, { quantity: v ?? 0 })} size="sm" steppers={false} value={l.quantity} />
+                          {canEdit && l.status !== "locked" ? (
+                            <span className="flex flex-col items-end gap-1">
+                              <NumberInput
+                                aria-label={`Quantity for ${l.product}${l.unit ? ` in ${l.unit}` : ""}`}
+                                className="ml-auto w-24"
+                                min={0}
+                                onValueChange={(v) => onChange?.(l.id, { quantity: v ?? 0 })}
+                                size="sm"
+                                steppers={false}
+                                value={l.quantity}
+                              />
+                              {l.unit && <span className="text-meta text-on-surface-variant">{l.unit}</span>}
+                              {p?.quantity !== undefined && <span className={proposedLine}>Proposed {p.quantity.toLocaleString()}</span>}
+                            </span>
                           ) : (
                             <>
                               {l.quantity.toLocaleString()}
@@ -501,14 +625,27 @@ export function QuoteLines({
                           {m(l.listPrice)}
                           {l.unit && <span className="block text-meta text-on-surface-variant">per {l.unit}</span>}
                         </td>
-                        <td className={td}>
-                          {editable && l.status !== "locked" ? (
-                            <NumberInput aria-label={`Discount, ${l.product}`} className="w-28" max={100} min={0} onValueChange={(v) => onChange?.(l.id, { discount: v ?? 0 })} size="sm" steppers={false} suffix="%" value={l.discount} />
+                        <td className={cn(td, "text-right")}>
+                          {canEdit && l.status !== "locked" ? (
+                            <span className="flex flex-col items-end gap-1">
+                              <NumberInput
+                                aria-label={`Discount for ${l.product}`}
+                                className="w-28"
+                                max={100}
+                                min={0}
+                                onValueChange={(v) => onChange?.(l.id, { discount: v ?? 0 })}
+                                size="sm"
+                                steppers={false}
+                                suffix="%"
+                                value={l.discount}
+                              />
+                              {p?.discount !== undefined && <span className={proposedLine}>Proposed {pct(p.discount)}</span>}
+                            </span>
                           ) : (
-                            <>
+                            <span className="flex flex-col items-end">
                               <DiscountMeter limit={discountLimit} value={l.discount} />
-                              {p?.discount !== undefined && <span className={cn(proposedLine, "justify-start")}>Proposed {pct(p.discount)}</span>}
-                            </>
+                              {p?.discount !== undefined && <span className={proposedLine}>Proposed {pct(p.discount)}</span>}
+                            </span>
                           )}
                         </td>
                         <td className={cn(td, "text-right tabular-nums")}>
@@ -523,7 +660,9 @@ export function QuoteLines({
             ))}
           </table>
         </div>
-        <div className="flex justify-end border-t border-outline-variant bg-surface-container-low px-4 py-3">{summary}</div>
+        <div className="sticky bottom-0 z-10 flex justify-end border-t border-outline-variant bg-surface-container-low px-4 py-3" data-slot="quote-totals-bar">
+          {summary}
+        </div>
       </div>
     </>
   );
@@ -686,6 +825,8 @@ export type Approver = {
   note?: string;
   /** The record's own status words, when they differ from Lark's defaults ("Ready for review"). */
   stateLabel?: string;
+  /** Delegation, shown in words: "Approving for Dana Lee", "Reassigned by Sam Ortiz from Dana Lee". */
+  delegation?: string;
 };
 
 const APPROVER: Record<ApproverState, { word: string; icon: typeof CheckIcon; cls: string; ring: string }> = {

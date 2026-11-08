@@ -41,6 +41,59 @@ describe("CPQ components", () => {
     expect(screen.getAllByText(/With proposed changes/).length).toBeGreaterThan(0);
   });
 
+  it("names the discount unit, counts exceptions with links and pins the summary", () => {
+    const { container } = render(
+      <QuoteLines
+        discountLimit={20}
+        lines={[
+          { id: "a", product: "Platform", quantity: 2, listPrice: 1000, discount: 24 },
+          { id: "b", product: "Support", quantity: 1, listPrice: 500, discount: 0, status: "error", note: "Missing list price" },
+          { id: "c", product: "Analytics", quantity: 10, listPrice: 50, discount: 5 },
+        ]}
+      />
+    );
+    expect(screen.getByRole("columnheader", { name: /Discount \(%\)/ })).toBeTruthy();
+    // Both layouts are in the DOM; each gets its own count and links to its own rows.
+    expect(screen.getAllByText(/1 line is above the 20% limit and needs approval/).length).toBe(2);
+    expect(screen.getAllByText(/1 line can't be priced/).length).toBe(2);
+    expect(screen.getAllByRole("link", { name: "Platform" }).length).toBeGreaterThan(0);
+    const bars = container.querySelectorAll("[data-slot=quote-totals-bar]");
+    expect(bars).toHaveLength(2);
+    bars.forEach((bar) => expect(bar.className).toContain("sticky"));
+  });
+
+  it("makes quantity and discount editable in both layouts, with their units", () => {
+    render(
+      <QuoteLines
+        discountLimit={20}
+        editable
+        lines={[{ id: "a", product: "Platform", quantity: 1, unit: "seats", listPrice: 100, discount: 10 }]}
+        onChange={() => {}}
+      />
+    );
+    expect(screen.getAllByRole("spinbutton", { name: "Quantity for Platform in seats" })).toHaveLength(2);
+    expect(screen.getAllByRole("spinbutton", { name: "Discount for Platform" })).toHaveLength(2);
+    expect(screen.getByRole("columnheader", { name: /Discount \(%\)/ })).toBeTruthy();
+  });
+
+  it("says Recalculating instead of a stale total, and locks a submitted quote", () => {
+    const { rerender } = render(<QuoteLines discountLimit={20} lines={[{ id: "a", product: "Platform", quantity: 2, listPrice: 1000, discount: 24 }]} recalculating />);
+    expect(screen.getAllByText("Recalculating…").length).toBe(2);
+    expect(screen.queryByText("$2,000")).toBeNull();
+    rerender(
+      <QuoteLines
+        discountLimit={20}
+        editable
+        lines={[{ id: "a", product: "Platform", quantity: 2, listPrice: 1000, discount: 24 }]}
+        locked={{ onRecall: () => {}, reason: "Quote R4 was submitted for approval.", waitingOn: "Rui Tanaka (VP Finance)" }}
+      />
+    );
+    expect(screen.getAllByText(/Locked for approval/).length).toBe(2);
+    expect(screen.getAllByRole("button", { name: "Recall" }).length).toBe(2);
+    // A locked quote is not editable even when the caller asks for the editor.
+    expect(screen.queryByRole("spinbutton")).toBeNull();
+  });
+
   it("says whether the invoice schedule balances", () => {
     render(<InvoiceSchedule contractTotal={300} rows={[{ id: "1", period: "Y1", due: "Feb", amount: 100 }, { id: "2", period: "Y2", due: "Feb", amount: 150 }]} />);
     expect(screen.getByText(/\$50 less than the contract value/)).toBeTruthy();
