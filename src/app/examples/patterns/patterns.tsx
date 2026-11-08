@@ -687,7 +687,7 @@ export function Patterns() {
       </Group>
 
       <Group id="leads" title="Page leads" use="How a home or entry page opens: one tinted HeroBand, then the work. Entry pages offer a few big choices as IllustratedChoiceCards. Tints come from five tones; illustrations are decorative unless they carry information.">
-        <Spec name="Hero band" when="A role's home: eyebrow, title, one line, one or two actions (at most one brand button) and an illustration. Stacks under 640 with the illustration first; never sticky.">
+        <Spec name="Hero band" when="A role's home: a role badge beside the title, one line, one or two actions (at most one brand button) and an illustration. Stacks under 640 with the illustration first; never sticky.">
           <HeroBand
             actions={
               <>

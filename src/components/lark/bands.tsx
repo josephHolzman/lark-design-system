@@ -23,7 +23,10 @@ export const BAND_TONE: Record<BandTone, { fill: string; strong: string }> = {
 /* ================================================================ HeroBand */
 
 export type HeroBandProps = Omit<ComponentProps<"section">, "title"> & {
-  /** One short line above the title ("Seller"). */
+  /**
+   * A short role word ("Seller") shown as a badge beside the title. Lark has no eyebrow over a
+   * title (§1, §5); the word stays in the band as metadata rather than above the heading.
+   */
   eyebrow?: ReactNode;
   title: ReactNode;
   /** One line of lead text, body-lg. */
@@ -55,10 +58,16 @@ export function HeroBand({ eyebrow, title, description, actions, media, mediaAlt
       {...props}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        {eyebrow && <p data-meta="eyebrow" className="text-meta-strong text-on-surface-variant">{eyebrow}</p>}
-        <Heading className="text-title-lg text-balance" id={titleId}>
-          {title}
-        </Heading>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+          <Heading className="text-title-lg text-balance" id={titleId}>
+            {title}
+          </Heading>
+          {eyebrow && (
+            <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-outline-strong/40 bg-surface/60 px-2 text-meta-strong text-on-surface-variant">
+              {eyebrow}
+            </span>
+          )}
+        </div>
         {description && <p className="max-w-[60ch] text-body-lg text-on-surface-variant">{description}</p>}
         {actions && <div className="mt-2 flex flex-wrap items-center gap-2">{actions}</div>}
       </div>

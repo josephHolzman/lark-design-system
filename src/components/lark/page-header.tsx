@@ -13,8 +13,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export type PageHeaderProps = Omit<ComponentProps<"header">, "title"> & {
   /**
-   * Deprecated in 0.6: the shell's breadcrumb already says where the page sits. Use `back` on
-   * pages reached from a list or flow. Still renders, for 0.5 code.
+   * Deprecated: the shell's breadcrumb already says where the page sits, and Lark has no
+   * eyebrow over a title (§1, §5). Any value is folded into the meta line under the title, so
+   * 0.5 callers keep their words without the eyebrow.
    */
   eyebrow?: ReactNode;
   /** v0.6: "← Back to deals" above the title, for pages reached from a list or a flow. */
@@ -65,14 +66,14 @@ export function PageHeader({
                 {back.label}
               </Link>
             )}
-            {eyebrow && <div className="text-meta-strong text-on-surface-variant">{eyebrow}</div>}
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
               <h1 className="text-title-md text-on-surface md:text-title-lg">{title}</h1>
               {status}
             </div>
             {description && <p className="max-w-[68ch] text-sm text-on-surface-variant">{description}</p>}
-            {meta && (
+            {(meta || eyebrow) && (
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-meta text-on-surface-variant [&>*:not(:last-child)]:after:ml-1.5 [&>*:not(:last-child)]:after:content-['·']">
+                {eyebrow}
                 {meta}
               </div>
             )}
