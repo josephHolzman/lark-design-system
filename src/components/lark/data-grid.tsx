@@ -80,6 +80,8 @@ export type DataGridProps<T> = {
   /** Shown in a sticky bar while rows are selected. */
   bulkActions?: (rows: T[], clear: () => void) => ReactNode;
   pageSize?: number;
+  /** v0.8: the rows-per-page choices shown in the pager. Omit to keep a fixed size. */
+  pageSizeOptions?: number[];
   /** Max height of the scroll region (the header sticks inside it). Use "100%" inside a flex layout. */
   height?: number | string;
   initialSorting?: SortingState;
@@ -145,6 +147,7 @@ function DataGridInner<T>({
   empty,
   bulkActions,
   pageSize = 25,
+  pageSizeOptions,
   height,
   initialSorting = [],
   columnVisibility,
@@ -249,9 +252,9 @@ function DataGridInner<T>({
   };
 
   const total = data.length;
-  const { pageIndex } = table.getState().pagination;
-  const from = total === 0 ? 0 : pageIndex * pageSize + 1;
-  const to = groupBy ? total : Math.min(total, (pageIndex + 1) * pageSize);
+  const { pageIndex, pageSize: currentPageSize } = table.getState().pagination;
+  const from = total === 0 ? 0 : pageIndex * currentPageSize + 1;
+  const to = groupBy ? total : Math.min(total, (pageIndex + 1) * currentPageSize);
 
   return (
     <div className={cn("relative flex min-h-0 min-w-0 flex-col", className)} data-density={density} data-slot="data-grid">
@@ -504,6 +507,23 @@ function DataGridInner<T>({
           <span aria-live="polite" className="whitespace-nowrap tabular-nums">
             {from} – {to} of {total.toLocaleString("en-US")}
           </span>
+          {pageSizeOptions && pageSizeOptions.length > 0 && (
+            <label className="ml-auto flex items-center gap-2 whitespace-nowrap">
+              <span>Rows per page</span>
+              <select
+                aria-label="Rows per page"
+                className="focus-ring h-7 rounded-md border border-outline bg-surface-container-lowest pr-6 pl-2 text-sm text-on-surface outline-none"
+                onChange={(e) => table.setPageSize(Number(e.target.value))}
+                value={currentPageSize}
+              >
+                {pageSizeOptions.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
       )}
     </div>
