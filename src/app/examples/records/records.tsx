@@ -142,7 +142,7 @@ export function Records() {
         <FactGrid items={factsFor(quote)} />
       </SectionCard>
 
-      <div className="grid gap-module-gap lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid gap-module-gap lg:grid-cols-[minmax(0,1fr)_16rem]">
         <SectionCard description="22rem of list beside the record it opens, both scrolling on their own. Narrow the card: one pane at a time, with Back to above the record." title="Quotes and the open quote">
           <div className="h-[30rem] overflow-hidden rounded-lg border border-edge">
             <MasterDetail
@@ -169,7 +169,7 @@ export function Records() {
           </div>
         </SectionCard>
 
-        <SectionCard description="The same facts in a 22rem column: one column, because the container is under 24rem." title="Facts in a narrow aside">
+        <SectionCard description="The same facts in a 16rem column: one column, because the container is under 24rem." title="Facts in a narrow aside">
           <div className="rounded-lg border border-edge bg-card p-3">
             <FactGrid items={factsFor(quote)} />
           </div>
