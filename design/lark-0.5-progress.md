@@ -440,7 +440,7 @@ Handoff:
 
 | Component | Sections | Violations found | Fixed? | API change |
 |---|---|---|---|---|
-| `ApprovalPath` (approvals) | 19 | Summary listed every later stage, not who waits now; no since-when or why; parallel approvers always stacked inside their step; delegation only in the disclosure | Yes | — (`Approver.delegation` added) |
+| `ApprovalPath` (approvals) | 19 | Summary listed every later stage, not who waits now; no since-when or why; parallel approvers always stacked inside their step; delegation only in the disclosure | Yes | additive `Approver.delegation` |
 | `summarizeApprovals` | 19 | Sentence named roles only, omitted names, since-when and reason; `waitingOn` included later stages | Yes | `waitingOn` now means current-stage roles; adds `waiting`, `currentStage`; sentence reworded |
 | `ApprovalPathSkeleton` | 19, 11 | Could not hide the summary when its module already said it | Yes | additive `hideSummary` |
 | `DecisionPanel` | 19 | One reason required for every answer, so Approve required a comment; no delegation; no non-approver view with no controls | Yes | additive `DecisionOption.requiresReason`, `actingFor`, `canDecide`, `ask`; the reason requirement follows the answer |
