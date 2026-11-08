@@ -156,7 +156,8 @@ function Frame({ width }: { width: number }) {
             </div>
             <List dividers>
               <ListItem headline={LONG_NAME} meta="2 hr ago" supporting="Approved by Dana Ito after the margin check passed on revision 4" />
-              <ListItem headline="Finance review" meta="Waiting" supporting="Needs margin above 38%" trailing={<StatusBadge status="Pending" />} />
+              {/* The badge is the row's one status; the meta is when it was asked for, not a second word for it. */}
+              <ListItem headline="Finance review" meta="Requested 2 hr ago" supporting="Needs margin above 38%" trailing={<StatusBadge status="Pending" />} />
             </List>
           </div>
         </SectionCard>
