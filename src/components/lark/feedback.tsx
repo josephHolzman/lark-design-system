@@ -199,24 +199,32 @@ export function StatePanel({
   actions?: ReactNode;
   /** Technical detail for errors (request ID), shown in mono. */
   details?: ReactNode;
-  /** For table bodies and cards: less padding. */
+  /**
+   * For table bodies, cards and panels: less padding, left-aligned and text only (industry
+   * convention for small spaces; a 26rem sheet is a small container).
+   */
   compact?: boolean;
   className?: string;
 }) {
   const Icon = STATE_ICON[kind];
+  const showIllustration = illustration && !compact ? illustration : undefined;
   return (
     <div
-      className={cn("flex flex-col items-center justify-start gap-3 text-center", compact ? "px-4 py-8" : "px-6 py-16", className)}
+      className={cn(
+        "flex flex-col gap-3",
+        compact ? "items-start px-4 py-8 text-left" : "items-center justify-start px-6 py-16 text-center",
+        className
+      )}
       data-kind={kind}
       data-slot="state-panel"
       role={kind === "error" || kind === "offline" ? "alert" : undefined}
     >
-      {illustration ? (
-        isIllustrationSpec(illustration) ? (
-          <Illustration {...illustration} className="mb-1" />
+      {showIllustration ? (
+        isIllustrationSpec(showIllustration) ? (
+          <Illustration {...showIllustration} className="mb-1" />
         ) : (
           <div aria-hidden="true" className="mb-1">
-            {illustration}
+            {showIllustration}
           </div>
         )
       ) : (
@@ -236,7 +244,7 @@ export function StatePanel({
         <T className="text-title-sm">{title}</T>
         {description && <p className="text-sm text-on-surface-variant">{description}</p>}
       </div>
-      {actions && <div className="flex flex-wrap justify-center gap-2">{actions}</div>}
+      {actions && <div className={cn("flex flex-wrap gap-2", compact ? "justify-start" : "justify-center")}>{actions}</div>}
       {details && <p data-meta="details" className="font-mono text-meta text-on-surface-tertiary">{details}</p>}
     </div>
   );
