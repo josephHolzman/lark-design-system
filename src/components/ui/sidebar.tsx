@@ -37,7 +37,7 @@ type SidebarContextProps = {
   open: boolean
   setOpen: (open: boolean) => void
   openMobile: boolean
-  setOpenMobile: (open: boolean) => void
+  setOpenMobile: (open: boolean | ((open: boolean) => boolean)) => void
   isMobile: boolean
   toggleSidebar: () => void
 }
@@ -67,7 +67,32 @@ function SidebarProvider({
   onOpenChange?: (open: boolean) => void
 }) {
   const isMobile = useIsMobile()
-  const [openMobile, setOpenMobile] = React.useState(false)
+  const [openMobile, _setOpenMobile] = React.useState(false)
+  const openMobileRef = React.useRef(false)
+  React.useEffect(() => {
+    openMobileRef.current = openMobile
+  }, [openMobile])
+  // The phone sheet has no Dialog trigger: remember what opened it so closing returns focus
+  // there instead of dropping it onto <body> (WCAG 2.4.3).
+  const mobileOpenerRef = React.useRef<HTMLElement | null>(null)
+  const setOpenMobile = React.useCallback(
+    (value: boolean | ((open: boolean) => boolean)) => {
+      const wasOpen = openMobileRef.current
+      const next = typeof value === "function" ? value(wasOpen) : value
+      if (next && !wasOpen && typeof document !== "undefined") {
+        mobileOpenerRef.current = document.activeElement as HTMLElement | null
+      }
+      if (!next && wasOpen) {
+        const opener = mobileOpenerRef.current
+        requestAnimationFrame(() => {
+          if (opener?.isConnected) opener.focus()
+        })
+      }
+      openMobileRef.current = next
+      _setOpenMobile(next)
+    },
+    []
+  )
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -85,7 +110,7 @@ function SidebarProvider({
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
-    [setOpenProp, open]
+    [setOpenProp, open, _setOpen]
   )
 
   // Helper to toggle the sidebar.
@@ -304,9 +329,17 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   )
 }
 
-function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+function SidebarInset({
+  className,
+  asChild,
+  ...props
+}: React.ComponentProps<"main"> & {
+  /** Render a wrapper element instead of <main>, when the page content is the main landmark. */
+  asChild?: boolean
+}) {
+  const Comp = asChild ? SlotPrimitive.Slot : "main"
   return (
-    <main
+    <Comp
       data-slot="sidebar-inset"
       className={cn(
         "bg-surface relative flex w-full min-w-0 flex-1 flex-col",
