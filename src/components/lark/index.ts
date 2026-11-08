@@ -21,6 +21,7 @@ export * from "./figure";
 export * from "./filters";
 export * from "./identity";
 export * from "./illustration";
+export * from "./impact-preview";
 export * from "./layouts";
 export * from "./lists";
 export * from "./master-detail";
