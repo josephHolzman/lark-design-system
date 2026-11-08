@@ -3,6 +3,37 @@
 All notable changes to Lark (`@josephholzman/lark`, imported as `@deepgrids/lark`). Versions follow semver; until 1.0, minor versions may
 change component APIs (each is listed here).
 
+## Unreleased
+
+The card anatomy review of the 0.8 components.
+
+**Changed**
+
+- **`AgentTaskCard` / `AgentTaskRow` / `AgentTaskGrid`** follow the card anatomy: 32px identity, a
+  16px title with its "<who> · <when>" byline and a "More actions for <title>" menu, a full-width
+  two-line description, and a pinned footer with one action on the left and the `StatusBadge` on
+  the right. A running task shows a `progressbar` with its step in words ("Step 2 of 4 ·
+  Drafting the margin table") and a sky fill; a queued task shows "Starts when …". `menu`
+  (`MenuSection[]`) replaces the hover `actions`, and `context` is now an alias of `description`.
+  Rows clamp the title to two lines.
+- **`TabsList`** folds into More by default; it never scrolls sideways. The fold is measured on
+  the list's frame, so a `w-fit` tab bar inside a narrow card folds instead of clipping. The
+  More trigger is a sibling of the tablist, not a child (a tablist may hold only tabs).
+- **`CompanyLogo`** falls back to initials when the image failed before hydration (a 404 no
+  `onError` could catch).
+- **`StatePanel`** `compact` is text-only and left-aligned (a sheet or card is a small container);
+  `NotificationsPanel` empty states use it, and an unread signal says "Unread" in words (it was a
+  dot with the word only for screen readers).
+- **`ListItem`** trailing controls stay at the row's end when the row wraps under 12rem.
+- **`NumberInput`** right-aligns its quantity; **`MasterDetail`** panes are named, focusable
+  regions.
+- **`ChatWelcome`** no longer renders `eyebrow` (Lark has no eyebrow above a title); the prop is
+  kept so 0.8 callers compile.
+- **`VersionCompare`** change words are body size, not meta; **`ImpactPreview`** says "Needs
+  attention" in visible words for a warning.
+- **`PromoCard`** shows its media by the card's own width, not the viewport; `DecisionPanel`'s
+  fact aside has no edge inside its sky module.
+
 ## 0.8.0 (2026-11-07)
 
 The Deepgrids redesign's second half: record patterns, agent work and decisions, and a

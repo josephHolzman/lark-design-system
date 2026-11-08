@@ -429,7 +429,7 @@ record, agent-work and decision screens out of them.
 | `MasterDetail` | A list beside the record it opens: 22rem + detail from 48rem of the component's width; below, one pane with "Back to <listLabel>". |
 | `RecordDrawer`, `RecordPeek` | A record over the page. Drawer 32/44/60rem, full screen under 640; focus trapped and returned to the opener. |
 | `NotificationsPanel` | Deal signals grouped by day, with kind icons, "Unread" in words, a counted Segmented filter and an illustrated empty state. |
-| `AgentTaskCard` / `AgentTaskRow` / `AgentTaskGrid` | One agent task or a set: cards 2-up from 36rem and 3-up from 60rem of their own width, a list of rows below. State in words, one action, hover actions. |
+| `AgentTaskCard` / `AgentTaskRow` / `AgentTaskGrid` | One agent task or a set: 32px identity, 16 title with its "<who> · <when>" byline and a ⋯ menu, a full-width description, the step in words over a sky progressbar while running (or "Starts when …" while queued), and a pinned footer with one action left and the state badge right. Cards 2-up from 36rem and 3-up from 60rem of their own width; a list of rows (avatar · title + byline · badge · action · ⋯) below. |
 | `DecisionPanel` | The decision the reader makes: sky feature module, option cards with consequences, a required reason where needed, actions sticky at the bottom. Options and facts side by side from 40rem. |
 | `VersionCompare` | Before and after: two columns from 40rem, before then after per row below; each change is an icon and a word. |
 | `ImpactPreview` | What a save will change: compact from → to rows with a spoken tone; label and change side by side from 28rem. |
