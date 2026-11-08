@@ -730,8 +730,12 @@ export function ApprovalRoute({ steps, className }: { steps: ApprovalStep[]; cla
                     <div className="flex items-start gap-2.5">
                       <PersonAvatar name={a.name} size="md" />
                       <div className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-sm text-on-surface">{a.name}</span>
-                        <span className="truncate text-meta text-on-surface-variant">{a.role}</span>
+                        <span className="truncate text-sm text-on-surface" title={a.name}>
+                          {a.name}
+                        </span>
+                        <span className="truncate text-meta text-on-surface-variant" title={a.role}>
+                          {a.role}
+                        </span>
                       </div>
                       {a.channel && (
                         <span className="inline-flex items-center gap-1 text-meta text-on-surface-variant">

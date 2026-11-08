@@ -377,9 +377,21 @@ export function ChatPanel({
 /* ================================================================ turn actions */
 
 /** Under an answer: copy, regenerate, good, bad. Votes are toggle buttons; results are announced. */
-export function TurnActions({ onCopy, onRegenerate, onVote }: { onCopy?: () => void; onRegenerate?: () => void; onVote?: (v: "up" | "down" | null) => void }) {
+export function TurnActions({
+  onCopy,
+  onRegenerate,
+  onVote,
+  context,
+}: {
+  onCopy?: () => void;
+  onRegenerate?: () => void;
+  onVote?: (v: "up" | "down" | null) => void;
+  /** The answer these act on, so several turns' controls don't share one name (WCAG 2.4.6). */
+  context?: string;
+}) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
   const [msg, setMsg] = useState("");
+  const name = (action: string) => (context ? `${action} for ${context}` : action);
   const set = (v: "up" | "down") => {
     const next = vote === v ? null : v;
     setVote(next);
@@ -389,7 +401,7 @@ export function TurnActions({ onCopy, onRegenerate, onVote }: { onCopy?: () => v
   return (
     <div className="-ml-1.5 flex items-center gap-0.5" data-slot="turn-actions">
       <Button
-        aria-label="Copy answer"
+        aria-label={name("Copy answer")}
         onClick={() => {
           onCopy?.();
           setMsg("Copied");
@@ -400,14 +412,14 @@ export function TurnActions({ onCopy, onRegenerate, onVote }: { onCopy?: () => v
         <CopyIcon />
       </Button>
       {onRegenerate && (
-        <Button aria-label="Regenerate" onClick={onRegenerate} size="icon-sm" variant="ghost">
+        <Button aria-label={name("Regenerate")} onClick={onRegenerate} size="icon-sm" variant="ghost">
           <RefreshCcwIcon />
         </Button>
       )}
-      <Button aria-label="Good answer" aria-pressed={vote === "up"} onClick={() => set("up")} size="icon-sm" variant="ghost">
+      <Button aria-label={name("Good answer")} aria-pressed={vote === "up"} onClick={() => set("up")} size="icon-sm" variant="ghost">
         <ThumbsUpIcon className={cn(vote === "up" && "fill-current")} />
       </Button>
-      <Button aria-label="Bad answer" aria-pressed={vote === "down"} onClick={() => set("down")} size="icon-sm" variant="ghost">
+      <Button aria-label={name("Bad answer")} aria-pressed={vote === "down"} onClick={() => set("down")} size="icon-sm" variant="ghost">
         <ThumbsDownIcon className={cn(vote === "down" && "fill-current")} />
       </Button>
       <span aria-live="polite" className="ml-1 text-body-md text-on-surface-variant" role="status">
