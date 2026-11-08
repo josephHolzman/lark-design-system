@@ -121,10 +121,11 @@ describe("NumberInput commit and stepper names", () => {
     expect(onValueChange.mock.calls.map((c) => c[0])).toEqual([4, 42]);
   });
 
-  it("names the steppers after the field", () => {
+  it("names the steppers after the field and right-aligns its quantity", () => {
     render(<NumberInput aria-label="Discount" onValueChange={() => {}} value={20} />);
     expect(screen.getByRole("button", { name: "Increase Discount" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Decrease Discount" })).toBeTruthy();
+    expect(screen.getByRole("spinbutton", { name: "Discount" }).className).toContain("text-right");
   });
 });
 

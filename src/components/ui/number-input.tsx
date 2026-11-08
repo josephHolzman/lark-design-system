@@ -88,7 +88,7 @@ function NumberInput({
         aria-valuemin={min}
         aria-valuenow={value}
         aria-valuetext={value !== undefined && (typeof prefix === "string" || typeof suffix === "string") ? `${typeof prefix === "string" ? prefix : ""}${format(value)}${typeof suffix === "string" ? ` ${suffix}` : ""}` : undefined}
-        className="h-full w-full min-w-0 flex-1 bg-transparent px-2.5 text-sm tabular-nums outline-none pointer-coarse:text-base"
+        className="h-full w-full min-w-0 flex-1 bg-transparent px-2.5 text-right text-sm tabular-nums outline-none pointer-coarse:text-base"
         disabled={disabled}
         inputMode="decimal"
         onBlur={() => {
