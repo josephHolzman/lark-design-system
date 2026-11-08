@@ -395,9 +395,11 @@ export function ChecklistCard({
   const id = useId();
   return (
     <CollapsiblePrimitive.Root asChild onOpenChange={setOpen} open={open}>
-      <section aria-labelledby={id} className={cn("rounded-lg border border-edge bg-card", className)}>
-        <header className="flex items-start gap-3 p-5">
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <section aria-labelledby={id} className={cn("@container/checklist rounded-lg border border-edge bg-card", className)}>
+        {/* Below 22rem of the card's own width the completion count moves under the title, so the
+            title never has to break one word to a line beside it. */}
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 p-5 @[22rem]/checklist:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <div className="col-start-1 row-start-1 flex min-w-0 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-title-module" id={id}>
                 {title}
@@ -406,11 +408,11 @@ export function ChecklistCard({
             </div>
             {description && <p className="text-sm text-on-surface-variant">{description}</p>}
           </div>
-          <span className="pt-1 text-meta whitespace-nowrap text-on-surface-variant tabular-nums">
+          <span className="col-start-1 row-start-2 text-meta whitespace-nowrap text-on-surface-variant tabular-nums @[22rem]/checklist:col-start-2 @[22rem]/checklist:row-start-1 @[22rem]/checklist:pt-1">
             {done} of {items.length} completed
           </span>
           <CollapsiblePrimitive.Trigger asChild>
-            <Button aria-label={open ? "Collapse checklist" : "Expand checklist"} size="icon-sm" variant="ghost">
+            <Button aria-label={open ? "Collapse checklist" : "Expand checklist"} className="col-start-2 row-start-1 @[22rem]/checklist:col-start-3" size="icon-sm" variant="ghost">
               <ChevronDownIcon className={cn("transition-transform", !open && "-rotate-90")} />
             </Button>
           </CollapsiblePrimitive.Trigger>
@@ -524,9 +526,11 @@ export function ChoiceCard({
               <RadioGroupPrimitive.Indicator className="size-2 rounded-full bg-on-surface" />
             </RadioGroupPrimitive.Item>
             <span className="flex min-w-0 flex-col">
-              <span className="flex flex-wrap items-center gap-2 text-sm">
-                {c.label}
-                {c.recommended && <Badge variant="success">Recommended</Badge>}
+              {/* The label and its badge are one unit: the badge never drops away from the
+                  label on a narrow card, and the label wraps inside the remaining width. */}
+              <span className="inline-flex min-w-0 max-w-full items-start gap-2 text-sm">
+                <span className="min-w-0 flex-1">{c.label}</span>
+                {c.recommended && <Badge className="shrink-0" variant="success">Recommended</Badge>}
               </span>
               {c.description && <span className="text-body-md text-on-surface-variant">{c.description}</span>}
               {c.bestFor && c.bestFor.length > 0 && <BestFor items={c.bestFor} />}
