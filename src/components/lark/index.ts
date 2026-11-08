@@ -13,6 +13,7 @@ export * from "./cpq";
 export * from "./data";
 export * from "./data-grid";
 export * from "./editing";
+export * from "./fact-grid";
 export * from "./feedback";
 export * from "./figure";
 export * from "./filters";
