@@ -13,30 +13,62 @@ const TASK = {
     </Button>
   ),
   agent: { ai: true, name: "ACE" },
-  context: "Finance asked for the margin breakdown before the 3 PM review.",
-  progress: { label: "Brief progress", max: 10, value: 6 },
+  description: "Finance asked for the margin breakdown before the 3 PM review.",
+  menu: [{ items: [{ label: "Dismiss" }, { label: "Reassign to Priya Raman" }] }],
+  progress: { max: 4, step: "Drafting the margin table", value: 2 },
   state: "running" as const,
+  time: "started 4 min ago",
   title: "Prepare the approval brief for Northwind renewal revision 4",
 };
 
 describe("AgentTaskCard", () => {
-  it("shows who acts, the title, the state in words and one action", async () => {
+  it("shows identity, title, byline, description, state and one action in the card order", async () => {
     const { container } = render(<AgentTaskCard {...TASK} />);
-    expect(screen.getByText("ACE")).toBeTruthy();
-    expect(screen.getByText(TASK.title)).toBeTruthy();
-    expect(screen.getByText("Running")).toBeTruthy();
-    expect(screen.getByText(TASK.context)).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Review draft" })).toBeTruthy();
+    const card = container.querySelector("[data-slot=agent-task-card]") as HTMLElement;
+    expect(within(card).getByRole("heading", { name: TASK.title })).toBeTruthy();
+    expect(within(card).getByText("ACE · started 4 min ago")).toBeTruthy();
+    expect(within(card).getByText(TASK.description)).toBeTruthy();
+    expect(within(card).getByText("Running")).toBeTruthy();
+    expect(within(card).getByRole("button", { name: "Review draft" })).toBeTruthy();
+    expect(within(card).getByRole("button", { name: `More actions for ${TASK.title}` })).toBeTruthy();
+    // One visible action in the footer, and the menu holds the rest with text labels.
+    const footer = card.querySelector("[data-slot=agent-task-footer]") as HTMLElement;
+    expect(within(footer).getByRole("button", { name: "Review draft" })).toBeTruthy();
+    expect(within(footer).queryByRole("button", { name: "Dismiss" })).toBeNull();
     expect(await axeViolations(container)).toEqual([]);
   });
 
-  it("shows a labelled meter only while running", () => {
+  it("puts the description at the card's full width, not under the avatar", () => {
+    const { container } = render(<AgentTaskCard {...TASK} />);
+    const card = container.querySelector("[data-slot=agent-task-card]") as HTMLElement;
+    const description = card.querySelector("[data-slot=agent-task-description]") as HTMLElement;
+    expect(description.parentElement).toBe(card);
+    expect(description.className).toContain("text-body-md");
+  });
+
+  it("shows a progressbar with its step in words while running, and nothing once done", () => {
     const { rerender } = render(<AgentTaskCard {...TASK} />);
-    const meter = screen.getByRole("meter", { name: "Brief progress" });
-    expect(meter.getAttribute("aria-valuenow")).toBe("6");
-    expect(meter.getAttribute("aria-valuemax")).toBe("10");
-    rerender(<AgentTaskCard {...TASK} state="done" />);
-    expect(screen.queryByRole("meter")).toBeNull();
+    const bar = screen.getByRole("progressbar", { name: "Task progress" });
+    expect(bar.getAttribute("aria-valuenow")).toBe("2");
+    expect(bar.getAttribute("aria-valuemax")).toBe("4");
+    expect(bar.getAttribute("aria-valuetext")).toBe("Step 2 of 4 · Drafting the margin table");
+    expect(screen.getByText("Step 2 of 4")).toBeTruthy();
+    expect(screen.getByText("Drafting the margin table")).toBeTruthy();
+    rerender(<AgentTaskCard {...TASK} state="done" progress={undefined} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
+  it("says what a queued task waits for instead of showing a bar", () => {
+    render(<AgentTaskCard {...TASK} progress={undefined} state="queued" startsWhen="Starts when the 2027 pricing policy is published." />);
+    expect(screen.getByText("Starts when the 2027 pricing policy is published.")).toBeTruthy();
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
+  it("keeps the footer and the state badge when there is no action", () => {
+    const { container } = render(<AgentTaskCard {...TASK} action={undefined} menu={undefined} state="done" />);
+    const footer = container.querySelector("[data-slot=agent-task-footer]") as HTMLElement;
+    expect(footer).toBeTruthy();
+    expect(within(footer).getByText("Done")).toBeTruthy();
   });
 
   it("names every state for the reader", () => {
@@ -62,7 +94,7 @@ describe("AgentTaskGrid", () => {
     { ...TASK, id: "t3", state: "needs-review" as const, title: "Draft a reply to the buyer", progress: undefined },
   ];
 
-  it("renders cards for wide frames and rows for narrow ones", async () => {
+  it("renders equal-width cards for wide frames and rows for narrow ones", async () => {
     const { container } = render(<AgentTaskGrid label="Agent work" tasks={tasks} />);
     const cards = container.querySelector("[data-slot=agent-task-grid-cards]")!;
     const rows = container.querySelector("[data-slot=agent-task-grid-rows]")!;
@@ -70,6 +102,7 @@ describe("AgentTaskGrid", () => {
     expect(cards.className).toContain("@[36rem]/tasks:grid");
     expect(cards.className).toContain("@[60rem]/tasks:grid-cols-3");
     expect(cards.querySelectorAll("[data-slot=agent-task-card]").length).toBe(3);
+    expect(cards.querySelectorAll("[data-slot=agent-task-card]")[0].className).toContain("h-full");
     expect(rows.className).toContain("@[36rem]/tasks:hidden");
     expect(rows.querySelectorAll("[data-slot=agent-task-row]").length).toBe(3);
     expect(await axeViolations(container)).toEqual([]);
@@ -77,16 +110,18 @@ describe("AgentTaskGrid", () => {
 });
 
 describe("AgentTaskRow", () => {
-  it("keeps the avatar, title, state and action in one dense row", async () => {
+  it("keeps the avatar, title, byline, state, action and menu in one dense row", async () => {
     const { container } = render(
       <ul>
-        <AgentTaskRow {...TASK} state="failed" context="The pricing service timed out." />
+        <AgentTaskRow {...TASK} state="failed" time="failed 12 min ago" />
       </ul>
     );
     const row = container.querySelector("[data-slot=agent-task-row]")!;
     expect(row.tagName).toBe("LI");
+    expect(within(row as HTMLElement).getByText("ACE · failed 12 min ago")).toBeTruthy();
     expect(within(row as HTMLElement).getByText("Failed")).toBeTruthy();
     expect(within(row as HTMLElement).getByRole("button", { name: "Review draft" })).toBeTruthy();
+    expect(within(row as HTMLElement).getByRole("button", { name: `More actions for ${TASK.title}` })).toBeTruthy();
     expect(await axeViolations(container)).toEqual([]);
   });
 });

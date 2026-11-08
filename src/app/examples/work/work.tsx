@@ -1,6 +1,5 @@
 "use client";
 
-import { PauseIcon, PlayIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
 import { AgentTaskGrid, type AgentTaskCardProps } from "@/components/lark/agent-task";
@@ -24,16 +23,22 @@ const TASKS: (AgentTaskCardProps & { id: string })[] = [
         Review brief
       </Button>
     ),
-    actions: (
-      <Button aria-label="Pause the approval brief" size="icon-xs" variant="ghost">
-        <PauseIcon />
-      </Button>
-    ),
     agent: { ai: true, name: "ACE" },
-    context: "Finance asked for the margin breakdown before the 3 PM review.",
+    description: "Finance asked for the margin breakdown before the 3 PM review, with the policy checks cited.",
     id: "t1",
-    progress: { label: "Approval brief progress", max: 8, value: 5 },
+    menu: [
+      {
+        items: [
+          { label: "Pause while it runs" },
+          { label: "Reassign to Dana Ito" },
+          { disabledReason: "The brief is still being written.", label: "Copy a link" },
+        ],
+      },
+      { items: [{ destructive: true, label: "Dismiss task" }] },
+    ],
+    progress: { max: 4, step: "Drafting the margin table", value: 2 },
     state: "running",
+    time: "started 4 min ago",
     title: "Prepare the approval brief for Northwind renewal revision 4",
   },
   {
@@ -42,34 +47,36 @@ const TASKS: (AgentTaskCardProps & { id: string })[] = [
         Open draft
       </Button>
     ),
-    actions: (
-      <>
-        <Button aria-label="Regenerate the buyer reply" size="icon-xs" variant="ghost">
-          <PlayIcon />
-        </Button>
-        <Button aria-label="Discard the buyer reply" size="icon-xs" variant="ghost">
-          <XIcon />
-        </Button>
-      </>
-    ),
     agent: { name: "Priya Raman" },
-    context: "The buyer asked twice about the price book change.",
+    description: "The buyer asked twice about the price book change, so the reply cites the 2027 floors.",
     id: "t2",
+    menu: [{ items: [{ label: "Regenerate the draft" }, { label: "Reassign to Marcus Bell" }, { label: "Dismiss task" }] }],
     state: "needs-review",
+    time: "drafted 12 min ago",
     title: "Draft a reply to the buyer about extension pricing for years two and three",
   },
   {
     agent: { ai: true, name: "ACE" },
-    context: "Starts once the 2027 pricing policy is published.",
+    description: "Checks every renewal line against the regional floors before the quote can be priced.",
     id: "t3",
+    menu: [{ items: [{ label: "Run now" }, { label: "Reassign to Priya Raman" }, { label: "Dismiss task" }] }],
+    startsWhen: "Starts when the 2027 pricing policy is published.",
     state: "queued",
+    time: "queued 2 min ago",
     title: "Check the renewal against the 2027 regional discount floors",
   },
   {
+    action: (
+      <Button size="sm" variant="secondary">
+        Open result
+      </Button>
+    ),
     agent: { name: "Dana Ito" },
-    context: "The margin breakdown and the pricing exhibits are attached.",
+    description: "The margin breakdown and the pricing exhibits are attached to the approval packet.",
     id: "t4",
+    menu: [{ items: [{ label: "Open the deal" }, { label: "Dismiss task" }] }],
     state: "done",
+    time: "finished 1 hr ago",
     title: "Collect the pricing exhibits for the approval packet",
   },
   {
@@ -79,16 +86,20 @@ const TASKS: (AgentTaskCardProps & { id: string })[] = [
       </Button>
     ),
     agent: { ai: true, name: "ACE" },
-    context: "The pricing service timed out after the third attempt.",
+    description: "The pricing service timed out after the third attempt; nothing was written to the quote.",
     id: "t5",
+    menu: [{ items: [{ label: "Retry later" }, { label: "View the error log" }, { label: "Dismiss task" }] }],
     state: "failed",
+    time: "failed 8 min ago",
     title: "Recalculate the net price after the term change",
   },
   {
     agent: { name: "Marcus Bell" },
-    context: "The buyer accepted the 24-month term and the new ramp.",
+    description: "The buyer accepted the 24-month term and the new ramp, so the record now matches the buyer's note.",
     id: "t6",
+    menu: [{ items: [{ label: "Open the quote" }, { label: "Dismiss task" }] }],
     state: "done",
+    time: "finished yesterday",
     title: "Update the renewal term in the quote record",
   },
 ];

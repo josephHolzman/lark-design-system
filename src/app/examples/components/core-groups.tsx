@@ -270,8 +270,8 @@ export const CORE_GROUPS: Group[] = [
     title: "Agent work",
     note: "One agent task, its state in words, and the grid that becomes a list by its own width.",
     samples: [
-      { name: "AgentTaskCard", node: <AgentTaskCard agent={{ ai: true, name: "ACE" }} context="Finance asked for the margin breakdown before the review." progress={{ max: 10, value: 6 }} state="running" title={`Prepare ${LONG_TITLE} approval brief`} /> },
-      { name: "AgentTaskRow", node: <ul className="flex flex-col"><AgentTaskRow agent={{ name: "Priya Raman" }} context="The buyer asked twice about the price book change." state="needs-review" title="Draft a reply about extension pricing for years two and three" /></ul> },
+      { name: "AgentTaskCard", node: <AgentTaskCard agent={{ ai: true, name: "ACE" }} description="Finance asked for the margin breakdown before the review, with every policy check cited." menu={[{ items: [{ label: "Pause while it runs" }, { label: "Reassign to Dana Ito" }, { label: "Dismiss task" }] }]} progress={{ max: 4, step: "Drafting the margin table", value: 2 }} state="running" time="started 4 min ago" title={`Prepare ${LONG_TITLE} approval brief`} /> },
+      { name: "AgentTaskRow", node: <ul className="flex flex-col"><AgentTaskRow agent={{ name: "Priya Raman" }} menu={[{ items: [{ label: "Regenerate the draft" }, { label: "Dismiss task" }] }]} state="needs-review" time="drafted 12 min ago" title="Draft a reply about extension pricing for years two and three" /></ul> },
       { name: "AgentTaskGrid", node: <AgentTaskGrid label="Agent work" tasks={TASKS} /> },
     ],
   },
