@@ -65,8 +65,11 @@ function isSet(value: ReactNode) {
 
 export function FactGrid({ items, columns = "auto", className, ...props }: FactGridProps) {
   return (
+    // The container is the wrapper: a container query on the grid itself would query an
+    // ancestor, not its own width.
+    <div className={cn("@container/facts min-w-0", className)} data-slot="fact-grid-frame">
     <dl
-      className={cn("group/facts @container/facts grid min-w-0 gap-x-6 gap-y-4", COLUMNS[columns], className)}
+      className={cn("grid min-w-0 gap-x-6 gap-y-4", COLUMNS[columns])}
       data-columns={columns}
       data-slot="fact-grid"
       {...props}
@@ -126,5 +129,6 @@ export function FactGrid({ items, columns = "auto", className, ...props }: FactG
         );
       })}
     </dl>
+    </div>
   );
 }

@@ -20,9 +20,10 @@ const FACTS = [
 describe("FactGrid", () => {
   it("renders facts as a definition list and keeps amounts whole", async () => {
     const { container } = render(<FactGrid items={FACTS} />);
+    const frame = container.querySelector("[data-slot=fact-grid-frame]")!;
     const grid = container.querySelector("[data-slot=fact-grid]")!;
+    expect(frame.className).toContain("@container/facts");
     expect(grid.tagName).toBe("DL");
-    expect(grid.className).toContain("@container/facts");
     expect(grid.className).toContain("@[24rem]/facts:grid-cols-2");
     expect(screen.getByText("Northwind Freight")).toBeTruthy();
     expect(screen.getByText("Renewal, enterprise").getAttribute("data-meta")).toBe("hint");
