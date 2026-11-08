@@ -32,10 +32,17 @@ function MasterHost({ initial }: { initial?: string }) {
 }
 
 describe("MasterDetail", () => {
-  it("opens the detail with a back button and moves focus to its heading", () => {
-    render(<MasterHost initial="r4" />);
+  it("opens the detail with a back button and moves focus to its heading", async () => {
+    const user = userEvent.setup();
+    render(<MasterHost />);
+    await user.click(screen.getByRole("button", { name: /Northwind renewal · R4/ }));
     expect(screen.getByRole("button", { name: "Back to Quotes" })).toBeTruthy();
     expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Northwind renewal · R4" }));
+  });
+
+  it("keeps focus where it is when a deep link opens a record", () => {
+    render(<MasterHost initial="r4" />);
+    expect(document.activeElement).toBe(document.body);
   });
 
   it("returns focus to the selected row on back", async () => {

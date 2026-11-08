@@ -41,10 +41,11 @@ export function MasterDetail({ list, detail, selected, onBack, listLabel, detail
   const rootRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
-  const previous = useRef<string | undefined>(undefined);
   // The row that was open: by the time Back runs, the caller has usually cleared `selected`,
   // so the row no longer says aria-pressed. Remember the element while it still does.
   const openRow = useRef<HTMLElement | null>(null);
+  const previous = useRef<string | undefined>(selected);
+  const mounted = useRef(false);
 
   useEffect(() => {
     const selectedRow = () =>
@@ -52,9 +53,14 @@ export function MasterDetail({ list, detail, selected, onBack, listLabel, detail
       listRef.current?.querySelector<HTMLElement>('[aria-selected="true"], [aria-pressed="true"], [data-selected] a, [data-selected] button');
     const was = previous.current;
     previous.current = selected;
+    if (selected && (was !== selected || openRow.current === null)) openRow.current = selectedRow() ?? openRow.current;
+    // A page that deep-links to a record keeps focus where it is until the record changes.
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     if (!isNarrow(rootRef.current) || was === selected) return;
     if (selected) {
-      openRow.current = selectedRow() ?? null;
       // The detail's own heading is the reading position after a record opens.
       const heading = detailRef.current?.querySelector<HTMLElement>("h1, h2, h3, h4, h5, h6, [data-detail-heading]");
       const target = heading ?? detailRef.current;
@@ -74,7 +80,7 @@ export function MasterDetail({ list, detail, selected, onBack, listLabel, detail
 
   return (
     <div
-      className={cn("@container/master-detail flex min-h-0 min-w-0", className)}
+      className={cn("@container/master-detail flex h-full min-h-0 min-w-0", className)}
       data-selected={selected || undefined}
       data-slot="master-detail"
       ref={rootRef}
