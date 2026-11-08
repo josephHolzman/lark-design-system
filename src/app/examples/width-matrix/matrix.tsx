@@ -6,12 +6,17 @@ import { ActivityFeed, SituationSummary } from "@/components/lark/activity";
 import { ApprovalPath } from "@/components/lark/approvals";
 import { SectionCard } from "@/components/lark/cards";
 import { ChatWelcome, ProactiveTask } from "@/components/lark/chat";
+import { FactGrid } from "@/components/lark/fact-grid";
 import { Figure, FigureStrip } from "@/components/lark/figure";
 import { Segmented } from "@/components/lark/filters";
 import { DescriptionItem, DescriptionList, List, ListItem } from "@/components/lark/lists";
+import { MasterDetail } from "@/components/lark/master-detail";
+import { NotificationsPanel } from "@/components/lark/notifications";
 import { PageHeader, PageTabs } from "@/components/lark/page-header";
+import { RecordDrawer } from "@/components/lark/record-drawer";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { ClampText, NoBreak, TruncateText } from "@/components/lark/text";
+import { Button } from "@/components/ui/button";
 
 /*
   The width matrix (v0.7): the same content in frames at 280, 360, 480, 720 and 1080px.
@@ -36,8 +41,30 @@ const ENTRIES = [
 
 const TABS = ["Overview", "Quote lines", "Proposed changes", "Approvals", "Work & follow-through", "Documents", "Activity"];
 
+const QUOTES = [
+  { id: "r4", title: "Northwind renewal · R4", account: "Northwind Freight", value: "$412,800.00", status: "Awaiting decision" as const },
+  { id: "h2", title: "Halvorsen expansion · R2", account: "Halvorsen Group", value: "$188,400.00", status: "Ready" as const },
+];
+
+const FACTS = [
+  { term: "Account", value: LONG_NAME, hint: "Renewal, enterprise" },
+  { term: "Net price", value: "$12,480,000.00", copy: true },
+  { term: "Discount", value: 22.5 },
+  { term: "Purchase order", value: null },
+];
+
+const SIGNALS = [
+  { id: "s1", at: "2026-11-07T14:40:00", detail: "Dana Ito approved the 22% discount after the margin check.", kind: "approval" as const, title: "Finance approved R4", unread: true },
+  { id: "s2", at: "2026-11-07T09:12:00", detail: "Can you check the margin on line 4?", kind: "mention" as const, mentionsMe: true, title: "Priya mentioned you", unread: true },
+  { id: "s3", at: "2026-11-06T16:20:00", kind: "quote" as const, title: "Quote R3 sent" },
+];
+
 function Frame({ width }: { width: number }) {
   const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState<string | undefined>("r4");
+  const [drawer, setDrawer] = useState(false);
+  const [signals, setSignals] = useState(false);
+  const quote = QUOTES.find((q) => q.id === selected) ?? QUOTES[0];
   return (
     <section aria-label={`${width}px frame`} className="flex shrink-0 flex-col gap-2" data-frame={width} style={{ width }}>
       <h2 className="text-meta-strong text-on-surface-variant">{width}px</h2>
@@ -100,7 +127,63 @@ function Frame({ width }: { width: number }) {
             }
           />
         </SectionCard>
+        <SectionCard title="Facts about the renewal">
+          <FactGrid items={FACTS} />
+        </SectionCard>
+        <SectionCard title="The quote list and the open quote">
+          <div className="h-80 overflow-hidden rounded-lg border border-edge">
+            <MasterDetail
+              detail={
+                <div className="flex flex-col gap-3 p-4">
+                  <h2 className="text-title-md text-on-surface">{quote.title}</h2>
+                  <FactGrid columns={2} items={FACTS} />
+                </div>
+              }
+              detailLabel="Quote record"
+              list={
+                <List>
+                  {QUOTES.map((q) => (
+                    <ListItem key={q.id} headline={q.title} meta={q.value} onClick={() => setSelected(q.id)} selected={q.id === quote.id} supporting={q.account} />
+                  ))}
+                </List>
+              }
+              listLabel="Quotes"
+              onBack={() => setSelected(undefined)}
+              selected={selected}
+            />
+          </div>
+        </SectionCard>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setDrawer(true)} size="sm" variant="secondary">
+            Open record
+          </Button>
+          <Button onClick={() => setSignals(true)} size="sm" variant="secondary">
+            Deal signals
+          </Button>
+        </div>
       </div>
+      <RecordDrawer
+        footer={
+          <Button onClick={() => setDrawer(false)} size="lg" variant="secondary">
+            Close
+          </Button>
+        }
+        onOpenChange={setDrawer}
+        open={drawer}
+        size="lg"
+        subtitle={`${quote.account} · ${quote.value}`}
+        tabs={[
+          { current: true, href: "#overview", label: "Overview" },
+          { count: 12, href: "#lines", label: "Quote lines" },
+          { href: "#approvals", label: "Approvals" },
+        ]}
+        title={quote.title}
+      >
+        <div className="p-4">
+          <FactGrid items={FACTS} />
+        </div>
+      </RecordDrawer>
+      <NotificationsPanel items={SIGNALS} now={NOW} onOpenChange={setSignals} open={signals} />
     </section>
   );
 }
