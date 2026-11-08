@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
+import { Illustration, isIllustrationSpec, type IllustrationSpec } from "./illustration";
+
 /* ================================================================ Banner */
 
 const BANNER = {
@@ -47,6 +49,7 @@ export function Banner({
   action,
   onDismiss,
   icon,
+  illustration,
   className,
 }: {
   tone?: BannerTone;
@@ -56,6 +59,8 @@ export function Banner({
   action?: ReactNode;
   onDismiss?: () => void;
   icon?: ReactNode;
+  /** v0.8: a picture above the banner's line. Decorative unless `alt`. */
+  illustration?: IllustrationSpec;
   className?: string;
 }) {
   const t = BANNER[tone];
@@ -76,6 +81,7 @@ export function Banner({
         {icon ?? <Icon />}
       </span>
       <div className="min-w-0 flex-1 [&_a]:underline [&_a]:underline-offset-3">
+        {illustration && <Illustration {...illustration} className="mb-2" />}
         {children} {action}
       </div>
       {onDismiss && (
@@ -188,8 +194,8 @@ export function StatePanel({
   /** Make the title a heading when the state is the page's or section's content (an empty list, a not-found page). Default a paragraph. */
   titleAs?: "p" | "h1" | "h2" | "h3";
   description?: ReactNode;
-  /** Illustration slot (first-run states). Decorative. */
-  illustration?: ReactNode;
+  /** Illustration slot (first-run states): a picture spec or your own node. Decorative by default. */
+  illustration?: ReactNode | IllustrationSpec;
   actions?: ReactNode;
   /** Technical detail for errors (request ID), shown in mono. */
   details?: ReactNode;
@@ -206,9 +212,13 @@ export function StatePanel({
       role={kind === "error" || kind === "offline" ? "alert" : undefined}
     >
       {illustration ? (
-        <div aria-hidden="true" className="mb-1">
-          {illustration}
-        </div>
+        isIllustrationSpec(illustration) ? (
+          <Illustration {...illustration} className="mb-1" />
+        ) : (
+          <div aria-hidden="true" className="mb-1">
+            {illustration}
+          </div>
+        )
       ) : (
         Icon && (
           <span
@@ -343,6 +353,9 @@ export function UnsavedChangesBar({
   saving,
   onDiscard,
   onSave,
+  discardLabel = "Discard",
+  children,
+  saveDisabled,
   className,
 }: {
   open: boolean;
@@ -350,6 +363,12 @@ export function UnsavedChangesBar({
   saving?: boolean;
   onDiscard: () => void;
   onSave: () => void;
+  /** The discard action's words ("Discard edits"), when "Discard" is too terse. */
+  discardLabel?: string;
+  /** Extra actions beside Save ("Review approvals"); they sit before it in the tab order. */
+  children?: ReactNode;
+  /** Keep Save visible but disabled (a decision waits for prerequisites). */
+  saveDisabled?: boolean;
   className?: string;
 }) {
   const [confirming, setConfirming] = useState(false);
@@ -383,15 +402,16 @@ export function UnsavedChangesBar({
               size="sm"
               variant="destructive"
             >
-              Discard
+              {discardLabel}
             </Button>
           </>
         ) : (
           <>
             <Button onClick={() => setConfirming(true)} size="sm" variant="ghost">
-              Discard
+              {discardLabel}
             </Button>
-            <Button disabled={saving} onClick={onSave} size="sm">
+            {children}
+            <Button disabled={saving || saveDisabled} onClick={onSave} size="sm">
               {saving && <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />}
               {saving ? "Saving…" : "Save changes"}
             </Button>
