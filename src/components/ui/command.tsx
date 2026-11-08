@@ -35,6 +35,7 @@ function CommandDialog({
   children,
   className,
   showCloseButton = true,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title?: string
@@ -42,8 +43,12 @@ function CommandDialog({
   className?: string
   showCloseButton?: boolean
 }) {
+  // A palette opened from a keyboard shortcut or a menu has no DialogTrigger, so Radix would
+  // return focus to <body>. Remember what had focus just before the dialog took it, and give
+  // focus back when the dialog closes.
+  const openerRef = React.useRef<HTMLElement | null>(null)
   return (
-    <Dialog {...props}>
+    <Dialog {...props} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
           "overflow-hidden p-0",
@@ -52,6 +57,16 @@ function CommandDialog({
           showCloseButton && "[&_[data-slot=command-input-wrapper]]:pr-12",
           className
         )}
+        onCloseAutoFocus={(event) => {
+          const opener = openerRef.current
+          if (opener?.isConnected) {
+            event.preventDefault()
+            opener.focus()
+          }
+        }}
+        onOpenAutoFocus={() => {
+          openerRef.current = document.activeElement as HTMLElement | null
+        }}
         showCloseButton={showCloseButton}
       >
         <DialogHeader className="sr-only">
