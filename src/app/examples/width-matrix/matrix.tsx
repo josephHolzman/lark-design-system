@@ -3,12 +3,17 @@
 import { useState } from "react";
 
 import { ActivityFeed, SituationSummary } from "@/components/lark/activity";
+import { AgentTaskGrid, type AgentTaskCardProps } from "@/components/lark/agent-task";
 import { ApprovalPath } from "@/components/lark/approvals";
 import { SectionCard } from "@/components/lark/cards";
 import { ChatWelcome, ProactiveTask } from "@/components/lark/chat";
+import { PolicyChecks } from "@/components/lark/cpq";
+import { DecisionPanel } from "@/components/lark/decision-panel";
 import { FactGrid } from "@/components/lark/fact-grid";
+import type { SaveState } from "@/components/lark/feedback";
 import { Figure, FigureStrip } from "@/components/lark/figure";
 import { Segmented } from "@/components/lark/filters";
+import { ImpactPreview } from "@/components/lark/impact-preview";
 import { DescriptionItem, DescriptionList, List, ListItem } from "@/components/lark/lists";
 import { MasterDetail } from "@/components/lark/master-detail";
 import { NotificationsPanel } from "@/components/lark/notifications";
@@ -16,6 +21,7 @@ import { PageHeader, PageTabs } from "@/components/lark/page-header";
 import { RecordDrawer } from "@/components/lark/record-drawer";
 import { StatusBadge } from "@/components/lark/status-badge";
 import { ClampText, NoBreak, TruncateText } from "@/components/lark/text";
+import { VersionCompare } from "@/components/lark/version-compare";
 import { Button } from "@/components/ui/button";
 
 /*
@@ -59,11 +65,52 @@ const SIGNALS = [
   { id: "s3", at: "2026-11-06T16:20:00", kind: "quote" as const, title: "Quote R3 sent" },
 ];
 
+const TASKS: (AgentTaskCardProps & { id: string })[] = [
+  {
+    action: <Button size="sm" variant="secondary">Review</Button>,
+    agent: { ai: true, name: "ACE" },
+    context: "Finance asked for the margin breakdown before the review.",
+    id: "t1",
+    progress: { max: 10, value: 6 },
+    state: "running",
+    title: `Prepare ${LONG_NAME} approval brief`,
+  },
+  {
+    action: <Button size="sm" variant="secondary">Open</Button>,
+    agent: { name: "Priya Raman" },
+    context: "The buyer asked twice about the price book change.",
+    id: "t2",
+    state: "needs-review",
+    title: "Draft a reply about extension pricing for years two and three",
+  },
+  {
+    agent: { name: "Marcus Bell" },
+    context: "The pricing service timed out after the third attempt.",
+    id: "t3",
+    state: "failed",
+    title: "Recalculate the net price after the term change",
+  },
+];
+
+const DECISION_OPTIONS = [
+  { consequence: "The quote goes to the buyer at 22% for three years.", id: "approve", label: "Approve the exception" },
+  { consequence: "Stays within the regional floor; the buyer decides again.", id: "counter", label: "Counter at 20%", recommended: true },
+  { consequence: "Nothing is sent until Finance reviews the margin.", disabled: "Finance has not set a floor for this region.", id: "hold", label: "Hold for Finance" },
+];
+
+const VERSION_ROWS = [
+  { after: "$421,000.00", before: "$412,800.00", id: "price", label: "Net price" },
+  { after: "PO-88412", before: null, id: "po", label: "Purchase order" },
+  { after: "", before: "Onsite training", id: "training", label: "Professional services" },
+  { after: "Standard", before: "Standard", id: "support", label: "Support tier" },
+];
+
 function Frame({ width }: { width: number }) {
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState<string | undefined>("r4");
   const [drawer, setDrawer] = useState(false);
   const [signals, setSignals] = useState(false);
+  const [decision, setDecision] = useState<SaveState>("idle");
   const quote = QUOTES.find((q) => q.id === selected) ?? QUOTES[0];
   return (
     <section aria-label={`${width}px frame`} className="flex shrink-0 flex-col gap-2" data-frame={width} style={{ width }}>
@@ -129,6 +176,37 @@ function Frame({ width }: { width: number }) {
         </SectionCard>
         <SectionCard title="Facts about the renewal">
           <FactGrid items={FACTS} />
+        </SectionCard>
+        <SectionCard title="Agent work">
+          <AgentTaskGrid label={`Agent work at ${width}px`} tasks={TASKS} />
+        </SectionCard>
+        <DecisionPanel
+          aside={<FactGrid items={FACTS} />}
+          options={DECISION_OPTIONS}
+          primary={{ label: "Send decision", onSelect: () => setDecision("saved") }}
+          question="Approve the discount exception, or counter it?"
+          reason={{ label: "Why", required: true }}
+          secondary={{ label: "Save for later" }}
+          status={decision}
+          summary="The buyer asked to hold 22% for three years; the regional floor is 15%."
+        />
+        <SectionCard title="Compare revisions">
+          <VersionCompare
+            left={{ author: "Priya Raman", time: new Date("2026-11-06T15:20:00Z"), version: "Revision 3" }}
+            right={{ author: "Dana Ito", time: new Date("2026-11-07T11:15:00Z"), version: "Revision 4" }}
+            rows={VERSION_ROWS}
+          />
+        </SectionCard>
+        <SectionCard title="What saving does">
+          <ImpactPreview
+            items={[
+              { from: "22.5%", id: "discount", label: "Discount", to: "25.0%", tone: "increase" },
+              { from: "$412,800.00", id: "price", label: "Net price", to: "$421,000.00", tone: "increase" },
+              { from: "Deal desk", id: "route", label: "Approval route", to: "Deal desk and Legal", tone: "warning" },
+            ]}
+            policyChecks={<PolicyChecks checks={[{ id: "p1", rule: "Discount within the regional floor", status: "pass" }, { id: "p2", rule: "Legal review for a changed exhibit", status: "needs-approval" }]} />}
+            summary="Saving re-prices the renewal and adds Legal to the approval route."
+          />
         </SectionCard>
         <SectionCard title="The quote list and the open quote">
           <div className="h-80 overflow-hidden rounded-lg border border-edge">

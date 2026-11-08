@@ -33,6 +33,28 @@ test("width matrix: nothing overflows its frame, tabs and segmented never wrap",
       // MasterDetail: one pane under 48rem (the open detail), both above it.
       const listPane = el.querySelector<HTMLElement>("[data-slot=master-detail-list]")!;
       const detailPane = el.querySelector<HTMLElement>("[data-slot=master-detail-detail]")!;
+      // AgentTaskGrid: cards from 36rem of its own width; two to 60rem, three above.
+      const taskCards = el.querySelector<HTMLElement>("[data-slot=agent-task-grid-cards]")!;
+      const taskRows = el.querySelector<HTMLElement>("[data-slot=agent-task-grid-rows]")!;
+      const taskWidth = taskCards.parentElement!.clientWidth;
+      const taskCardDisplay = getComputedStyle(taskCards).display;
+      const taskRowDisplay = getComputedStyle(taskRows).display;
+      const taskColumns = getComputedStyle(taskCards).gridTemplateColumns.split(" ").filter(Boolean).length;
+      // DecisionPanel: options and facts beside each other from 40rem of the panel's width.
+      const decision = el.querySelector<HTMLElement>("[data-slot=decision-panel]")!;
+      const decisionGrid = el.querySelector<HTMLElement>("[data-slot=decision-panel-grid]")!;
+      const decisionWidth = decision.clientWidth;
+      const decisionColumns = getComputedStyle(decisionGrid).gridTemplateColumns.split(" ").filter(Boolean).length;
+      // VersionCompare: before left of after from 40rem; below that, after sits under before.
+      const compare = el.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+      const before = el.querySelector<HTMLElement>("[data-slot=version-before]")!;
+      const after = el.querySelector<HTMLElement>("[data-slot=version-after]")!;
+      const beforeBox = before.getBoundingClientRect();
+      const afterBox = after.getBoundingClientRect();
+      // ImpactPreview: label and change side by side from 28rem; below that, the change wraps.
+      const impact = el.querySelector<HTMLElement>("[data-slot=impact-preview]")!;
+      const impactLabel = el.querySelector<HTMLElement>("[data-slot=impact-label]")!;
+      const impactChange = el.querySelector<HTMLElement>("[data-slot=impact-change]")!;
       return {
         wide: wide.slice(0, 8),
         tabs: rows("nav ul[role=list]"),
@@ -41,12 +63,35 @@ test("width matrix: nothing overflows its frame, tabs and segmented never wrap",
         factExpected,
         listWidth: Math.round(listPane.getBoundingClientRect().width),
         detailWidth: Math.round(detailPane.getBoundingClientRect().width),
+        taskWidth,
+        taskCardDisplay,
+        taskRowDisplay,
+        taskColumns,
+        decisionWidth,
+        decisionColumns,
+        compareWidth: compare.clientWidth,
+        beforeAfterWide: afterBox.left > beforeBox.left + 1,
+        impactWidth: impact.clientWidth,
+        impactWide: impactChange.getBoundingClientRect().left > impactLabel.getBoundingClientRect().left + 1,
       };
     });
     expect(report.wide, `${w}px: elements wider than the frame`).toEqual([]);
     for (const h of report.tabs) expect(h, `${w}px: tab bar on one line`).toBeLessThanOrEqual(41);
     for (const h of report.segmented) expect(h, `${w}px: segmented on one line`).toBeLessThanOrEqual(34);
     expect(report.factColumns, `${w}px: FactGrid columns at its own width`).toBe(report.factExpected);
+    // AgentTaskGrid: rows under 36rem, then two cards, then three at 60rem.
+    const taskCardsShown = report.taskWidth >= 576;
+    expect(report.taskCardDisplay === "none", `${w}px: agent task cards hidden under 36rem`).toBe(!taskCardsShown);
+    expect(report.taskRowDisplay === "none", `${w}px: agent task rows hidden from 36rem`).toBe(taskCardsShown);
+    if (taskCardsShown) {
+      expect(report.taskColumns, `${w}px: agent task columns at its own width`).toBe(report.taskWidth >= 960 ? 3 : 2);
+    }
+    // DecisionPanel: two columns (options and facts) from 40rem.
+    expect(report.decisionColumns, `${w}px: DecisionPanel columns at its own width`).toBe(report.decisionWidth >= 640 ? 2 : 1);
+    // VersionCompare: before and after side by side from 40rem.
+    expect(report.beforeAfterWide, `${w}px: VersionCompare before and after`).toBe(report.compareWidth >= 640);
+    // ImpactPreview: label and change side by side from 28rem.
+    expect(report.impactWide, `${w}px: ImpactPreview row layout`).toBe(report.impactWidth >= 448);
     if (w >= 1080) {
       expect(report.listWidth, `${w}px: the list is shown beside the detail`).toBeGreaterThan(0);
       expect(report.detailWidth, `${w}px: the detail is shown beside the list`).toBeGreaterThan(0);
