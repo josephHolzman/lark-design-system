@@ -52,7 +52,7 @@ export function Tray({ title, description, action, footer, link, as: H = "h3", c
         <header className="flex flex-wrap items-start gap-x-3 gap-y-1 px-1 pt-0.5">
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             {title && (
-              <H className="text-label-lg text-on-surface" id={id}>
+              <H className="text-title-sm text-on-surface" id={id}>
                 {title}
               </H>
             )}

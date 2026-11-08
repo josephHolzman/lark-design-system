@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 
 import { Illustration, type IllustrationSpec } from "./illustration";
 import { LarkLink as Link } from "./provider";
+import { ClampText, TruncateText } from "./text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 /* ================================================================ SectionCard */
 
@@ -137,8 +139,9 @@ export function SectionCard({
       )}
       <div className="flex min-w-[min(12rem,100%)] flex-1 flex-col gap-1">
         <div className="flex min-w-0 items-baseline gap-2">
-          <H className="line-clamp-2 min-w-0 text-title-module text-on-surface [overflow-wrap:break-word]" id={id}>
-            {title}
+          <H className="min-w-0 text-title-module text-on-surface [overflow-wrap:break-word]" id={id}>
+            {/* Two lines at most; when cut, the full title is one hover or Tab away. */}
+            <ClampText lines={2}>{title}</ClampText>
           </H>
           {collapsible && !open && collapsedSummary && (
             <span className="shrink-0 text-meta text-on-surface-variant">{collapsedSummary}</span>
@@ -286,7 +289,7 @@ export function ActionCard({ icon, tone = "primary", title, description, meta, a
   return (
     <div
       className={cn(
-        "group/action relative flex min-w-0 flex-col gap-3 rounded-lg border border-edge bg-card p-3 text-on-surface",
+        "group/action relative flex h-full min-w-0 flex-col gap-3 rounded-lg border border-edge bg-card p-3 text-on-surface",
         href && "state-layer [--state-hover:0.03] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring",
         className
       )}
@@ -308,9 +311,10 @@ export function ActionCard({ icon, tone = "primary", title, description, meta, a
           </div>
           {description && <p className="text-body-md text-on-surface-variant">{description}</p>}
           {meta && <div className="mt-1 flex flex-wrap items-center gap-2 text-meta text-on-surface-variant">{meta}</div>}
-          {action && <div className="relative z-10 mt-2 flex flex-wrap items-center gap-2">{action}</div>}
         </div>
       </div>
+      {/* The card's one action, pinned to the footer so actions line up across a row. */}
+      {action && <div className="relative z-10 mt-auto flex flex-wrap items-center gap-2 border-t border-outline-faint pt-2">{action}</div>}
     </div>
   );
 }
@@ -395,7 +399,7 @@ export function ChecklistCard({
         <header className="flex items-start gap-3 p-5">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-title-md" id={id}>
+              <h2 className="text-title-module" id={id}>
                 {title}
               </h2>
               {reward}
@@ -497,7 +501,7 @@ export function ChoiceCard({
   const id = useId();
   return (
     <div className={cn("flex flex-col rounded-lg border border-edge bg-card", className)} data-slot="choice-card">
-      <p className="px-4 pt-3 text-body-md text-on-surface-variant" id={id}>
+      <p className="px-4 pt-3 text-title-sm text-on-surface" id={id}>
         {prompt}
       </p>
       <RadioGroupPrimitive.Root
@@ -513,6 +517,7 @@ export function ChoiceCard({
             key={c.value}
           >
             <RadioGroupPrimitive.Item
+              aria-label={typeof c.label === "string" ? c.label : c.value}
               className="focus-ring mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-outline bg-surface-container-lowest data-[state=checked]:border-on-surface"
               value={c.value}
             >
@@ -638,7 +643,7 @@ export function EntityCard({
         {leading}
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="truncate text-title-sm">{name}</span>
+            <TruncateText className="text-title-sm">{name}</TruncateText>
             {status}
           </div>
           {meta && <span className="text-meta text-on-surface-variant">{meta}</span>}
@@ -649,7 +654,9 @@ export function EntityCard({
           {facts.map((f, i) => (
             <div className="contents" key={i}>
               <dt className="text-body-md text-on-surface-variant">{f.label}</dt>
-              <dd className="min-w-0 truncate text-sm">{f.value}</dd>
+              <dd className="min-w-0 text-sm">
+                <TruncateText>{f.value}</TruncateText>
+              </dd>
             </div>
           ))}
         </dl>
@@ -709,6 +716,8 @@ export type ObjectCardProps = {
  */
 export function ObjectCard({ identity, title, byline, badge, description, facts, footerEnd, href, starred, onStarredChange, menu, as: H = "h3", className }: ObjectCardProps) {
   const titleId = useId();
+  const titleText = typeof title === "string" ? title : undefined;
+  const starLabel = `${starred ? "Unstar" : "Star"} ${titleText ?? "this card"}`;
   return (
     <article
       aria-labelledby={titleId}
@@ -739,15 +748,20 @@ export function ObjectCard({ identity, title, byline, badge, description, facts,
         {(onStarredChange || menu) && (
           <div className="relative z-10 -mt-1 -mr-1.5 flex shrink-0 items-center">
             {onStarredChange && (
-              <Button aria-label="Star" aria-pressed={!!starred} onClick={() => onStarredChange(!starred)} size="icon-sm" variant="ghost">
-                <StarIcon className={cn(starred && "fill-current text-on-surface")} />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button aria-label={starLabel} aria-pressed={!!starred} onClick={() => onStarredChange(!starred)} size="icon-sm" variant="ghost">
+                    <StarIcon className={cn(starred && "fill-current text-on-surface")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{starLabel}</TooltipContent>
+              </Tooltip>
             )}
             {menu}
           </div>
         )}
       </div>
-      {description && <p className="line-clamp-2 text-sm text-on-surface-variant">{description}</p>}
+      {description && <ClampText className="text-sm text-on-surface-variant" lines={2}>{description}</ClampText>}
       {(facts || footerEnd) && (
         <div className="mt-auto flex min-h-8 flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">{facts}</div>

@@ -185,7 +185,8 @@ describe("One system (v0.6)", () => {
     );
     expect(screen.getByRole("link", { name: "Renewal brief" }).getAttribute("href")).toBe("/agents/brief");
     expect(screen.getByRole("article", { name: "Renewal brief" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Star" }));
+    // The star names its card: several stars on a page must not share one name (WCAG 2.4.6).
+    fireEvent.click(screen.getByRole("button", { name: "Star Renewal brief" }));
     expect(onStar).toHaveBeenCalledWith(true);
     expect(screen.getByText("Uses Salesforce, Slack, Zoom, Outlook")).toBeTruthy();
     expect(screen.getByText("+1")).toBeTruthy();
