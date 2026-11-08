@@ -9,16 +9,22 @@ import { cn } from "@/lib/utils"
  */
 function NativeSelect({
   className,
+  wrapperClassName,
   size = "default",
   ...props
-}: Omit<React.ComponentProps<"select">, "size"> & { size?: "default" | "sm" }) {
+}: Omit<React.ComponentProps<"select">, "size"> & {
+  size?: "default" | "sm"
+  /** Styles the positioning wrapper; `className` goes to the <select> itself. */
+  wrapperClassName?: string
+}) {
   return (
-    <div className={cn("relative inline-flex w-fit min-w-0", className)} data-slot="native-select-wrapper">
+    <div className={cn("relative inline-flex w-fit min-w-0", wrapperClassName)} data-slot="native-select-wrapper">
       <select
         className={cn(
           "focus-ring w-full min-w-0 appearance-none rounded-md border border-outline bg-surface-container-lowest hover:border-on-surface-variant pr-8 pl-3 text-sm pointer-coarse:text-base text-on-surface outline-none focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-surface-container disabled:text-on-surface-variant disabled:border-outline-variant aria-invalid:border-destructive",
           size === "default" ? "h-8 pl-2.5" : "h-7 pl-2",
-          "[&>option]:bg-popover [&>option]:text-popover-foreground"
+          "[&>option]:bg-popover [&>option]:text-popover-foreground",
+          className
         )}
         data-size={size}
         data-slot="native-select"
