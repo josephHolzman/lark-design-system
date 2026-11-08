@@ -19,7 +19,7 @@ import { LarkLink } from "./provider";
 
 /** The record column: logo, the name as Beams' secondary underlined link, one meta line. */
 export function RecordCell({ leading, name, href, onOpen, meta }: { leading?: ReactNode; name: string; href?: string; onOpen?: () => void; meta?: ReactNode }) {
-  const nameCls = "truncate text-on-surface-variant underline decoration-outline-strong underline-offset-3 hover:text-on-surface hover:decoration-on-surface-variant focus-ring rounded-sm outline-none";
+  const nameCls = "hit-area inline-flex min-h-6 items-center truncate text-on-surface-variant underline decoration-outline-strong underline-offset-3 hover:text-on-surface hover:decoration-on-surface-variant focus-ring rounded-sm outline-none";
   return (
     <span className="flex min-w-0 items-center gap-2.5">
       {leading}
@@ -160,7 +160,7 @@ export function TagsCell({ tags, max = 2 }: { tags: Tag[]; max?: number }) {
       {rest.length > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className="focus-ring inline-flex h-5 items-center rounded-full bg-surface-container px-1.5 text-meta leading-none font-medium tabular-nums text-on-surface-variant outline-none" type="button">
+            <button className="focus-ring inline-flex h-6 items-center rounded-full bg-surface-container px-2 text-meta leading-none font-medium tabular-nums text-on-surface-variant outline-none" type="button">
               +{rest.length}
               <span className="sr-only"> more: {rest.map((r) => r.label).join(", ")}</span>
             </button>
