@@ -5,6 +5,7 @@ Gap list: `deepgrids/apps/enterprise-workspace/docs/lark/lark-gaps.md` §1.
 - [x] K1
 - [x] K2
 - [x] K8a
+- [x] K8b
 
 ## K1 (2026-11-05)
 
@@ -71,3 +72,29 @@ Handoff:
 - Skipped (already done in 0.5–0.7): linked Figure/FigureCard name (`linkLabel`), DataGrid scroll region, StatePanel `titleAs`, SectionCard `collapseLabel`, PromoCard `dismissLabel`/`titleAs`, ListItem selected link colour, all rows marked "Done in 0.6.0".
 - Checks: lint 0 errors, lint:lark ok, typecheck, vitest 102, verify (build:lib + smoke:lib), Playwright 50 (47 old + 3 slots). `/examples/slots` added to the axe e2e page list.
 - Open: `NativeSelect className` moved from the wrapper to the `<select>` (breaking for callers that styled the wrapper; use `wrapperClassName`). AppShell now puts `<main>` around children, so top bars are banners; consumers that relied on SidebarInset being `<main>` should check. SheetHeader still reserves `pr-14` when the close button is hidden. Illustration's root is full width so fixed sizes centre; confirm that suits inline use. Should IllustratedChoiceCard's auto-name be opt-out beyond `label`?
+
+## K8b (2026-11-07)
+
+Plan:
+1. `FactGrid` (fact-grid.tsx): a `dl` of term 14 / value 16; auto columns 1→2→3→4 at 24/40/56rem of its own width; hint, `href`, `copy` (name "Copy <term>", toast "Copied"), missing "Not set".
+2. `MasterDetail` (master-detail.tsx): 22rem list + detail, both scroll, from 48rem of the component's width; below that one pane, a "Back to <listLabel>" button, focus to the detail heading on open and the selected row on back.
+3. `RecordDrawer` (record-drawer.tsx): a right Sheet at 32/44/60rem, full screen under 640; icon or logo, badges, overflow tabs, footer; focus trapped, returned to the opener, Esc closes, titled by its title.
+4. `NotificationsPanel` (notifications.tsx): a Sheet of deal signals grouped by day; kind icon, title 16, clamped detail 14, time meta, unread dot + "Unread"; header count + "Mark all as read"; Segmented All/Unread/Mentions with counts; empty state.
+5. New `/examples/records` page with fake data for all four; link from the shell gallery; add it to the axe e2e page list.
+6. Add all four to `/examples/width-matrix` and extend its Playwright test (FactGrid columns, MasterDetail panes, drawer full screen, panel).
+7. vitest + axe per component; lint, lint:lark, typecheck, test, verify, Playwright; commit per component; tick K8b + handoff.
+
+Handoff:
+- `FactGrid` (`fact-grid.tsx`): a `dl` of term 14 / value 16; auto columns 1→2→3→4 at 24/40/56rem of its own width (explicit counts are maxima); `hint`, `href`, `copy` (button "Copy <term>", sonner toast "Copied"), missing value "Not set" plus sr-only "not set". The `@container` is a wrapper: on the grid it measured an ancestor.
+- `MasterDetail` (`master-detail.tsx`): 22rem list + detail from 48rem of its own width, both scroll in a sized parent (`h-full`); below 48rem one pane, the detail with "Back to <listLabel>"; focus goes to the detail's first heading on open and back to the selected row. A deep-linked record does not steal focus on load.
+- `RecordDrawer` (`record-drawer.tsx`): a right Sheet at 32/44/60rem capped to the viewport, full width under 640; icon or logo, badges, PageTabs overflow, scrolling body, footer. Radix traps focus and closes on Esc; the opener is captured in `onOpenAutoFocus` and refocused on close.
+- `NotificationsPanel` (`notifications.tsx`): "Deal signals" Sheet grouped by day; kind icon, 16 title, 14 clamped detail, time meta, unread dot + sr-only "Unread", optional action; header unread count + "Mark all as read"; Segmented All/Unread/Mentions with counts; illustrated empty states.
+- Examples: `/examples/records` (fake data, linked as "Record patterns" in the gallery); all four in `/examples/width-matrix`; `width-matrix.spec.ts` checks FactGrid columns at its own width, MasterDetail panes, drawer 704px at 1600 and full screen at 390, focus return, and the panel's groups. `records` added to the axe page list.
+- Skipped: docs/CHANGELOG/version (K8d); no new §3 gap rows.
+- Checks: lint 0 errors (32 old warnings), lint:lark, typecheck, vitest 119, verify (build:lib + smoke:lib), Playwright 55.
+Open:
+- `FactGrid` copy needs a mounted sonner `Toaster`; the gallery has one. Explicit columns are maxima — confirm that is what callers expect.
+- `MasterDetail` needs a height from its parent. It focuses the detail's first `h1–h6` (or `[data-detail-heading]`), otherwise the detail region.
+- `RecordDrawer` focus return needs the opener to still be in the document when it closes.
+- `NotificationsPanel` keeps filter and read state with the caller: `Mark all as read` is a callback and `mentionsMe` powers Mentions. Confirm both names.
+- The first Playwright click needs hydration; the new tests wait for `networkidle` + 750ms on the dev server.
