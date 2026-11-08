@@ -7,6 +7,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 import type { BandTone } from "./bands";
+import { TruncateText } from "./text";
 
 export type GraphTone = BandTone | "neutral";
 
@@ -61,8 +62,10 @@ export function GraphNode({ title, meta, icon, tone = "neutral", selected, dimme
         </span>
       )}
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-label-lg">{title}</span>
-        <span className="truncate text-meta text-on-surface-variant">{meta}</span>
+        {/* A node's name and category are often cut at 216px; the full words stay one hover or
+            one Tab away (§13.3). */}
+        <TruncateText className="text-label-lg">{title}</TruncateText>
+        <TruncateText className="text-meta text-on-surface-variant">{meta}</TruncateText>
       </span>
       {selected && <span className="sr-only">, selected</span>}
       {children}

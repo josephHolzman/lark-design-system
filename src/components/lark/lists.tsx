@@ -141,7 +141,7 @@ export function ListItem({
           {meta && <span className="ml-auto shrink-0 text-meta text-on-surface-variant tabular-nums">{meta}</span>}
         </span>
         {supporting && (
-          <span className={cn("text-body-md text-on-surface-variant", !wrap && "truncate group-data-[density=comfortable]/list:line-clamp-2 group-data-[density=comfortable]/list:whitespace-normal")}>
+          <span className={cn("text-body-md text-on-surface-variant", !wrap && "truncate group-data-[density=comfortable]/list:line-clamp-2 group-data-[density=comfortable]/list:whitespace-normal")} title={typeof supporting === "string" ? supporting : undefined}>
             {supporting}
           </span>
         )}
@@ -162,6 +162,9 @@ export function ListItem({
     "group-data-[inset]/list:rounded-md"
   );
   const interactive = "state-layer [--state-hover:0.04] focus-ring relative outline-none";
+  // The row is where a cut headline's full text stays available to a pointer user (§13.3); the
+  // link's accessible name already carries it for screen readers.
+  const rowTitle = typeof headline === "string" ? headline : undefined;
   return (
     <li
       className={cn(
@@ -175,15 +178,17 @@ export function ListItem({
       {...props}
     >
       {href ? (
-        <Link aria-current={selected ? "true" : undefined} className={cn(row, interactive)} data-slot="list-item-link" href={href}>
+        <Link aria-current={selected ? "true" : undefined} className={cn(row, interactive)} data-slot="list-item-link" href={href} title={rowTitle}>
           {content}
         </Link>
       ) : onClick ? (
-        <button aria-pressed={selected} className={cn(row, interactive)} onClick={onClick} type="button">
+        <button aria-pressed={selected} className={cn(row, interactive)} onClick={onClick} title={rowTitle} type="button">
           {content}
         </button>
       ) : (
-        <div className={row}>{content}</div>
+        <div className={row} title={rowTitle}>
+          {content}
+        </div>
       )}
       {trailing && (
         // At the row's end; when the row wraps under 12rem of content it stays on the right.
