@@ -186,7 +186,8 @@ export function ListItem({
         <div className={row}>{content}</div>
       )}
       {trailing && (
-        <span className="flex shrink-0 items-center gap-1 px-3" data-slot="list-trailing">
+        // At the row's end; when the row wraps under 12rem of content it stays on the right.
+        <span className="ml-auto flex shrink-0 items-center gap-1 px-3" data-slot="list-trailing">
           {trailing}
         </span>
       )}
