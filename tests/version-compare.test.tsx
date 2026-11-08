@@ -43,6 +43,8 @@ describe("VersionCompare", () => {
     expect(container.querySelector("[data-change=added]")?.textContent).toContain("Added");
     expect(container.querySelector("[data-change=removed]")?.textContent).toContain("Removed");
     expect(container.querySelector("[data-change] svg")).toBeTruthy();
+    // The change word is a status word, so it is body size, not meta.
+    expect(screen.getByText("Changed").className).toContain("text-body-md");
     expect(await axeViolations(container)).toEqual([]);
   });
 

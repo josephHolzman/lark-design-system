@@ -85,7 +85,7 @@ function ChangeMark({ kind }: { kind: VersionChangeKind }) {
   const change = CHANGE[kind];
   const Icon = change.icon;
   return (
-    <span className={cn("inline-flex items-center gap-1 text-meta-strong", change.tone)}>
+    <span className={cn("inline-flex items-center gap-1 text-body-md", change.tone)}>
       <Icon aria-hidden="true" className="size-3.5" />
       {change.word}
     </span>
